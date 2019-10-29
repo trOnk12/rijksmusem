@@ -51,7 +51,7 @@ constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayout
 lifeCycleExtensions = "androidx.lifecycle:lifecycle-extensions:$lifeCycleExtensionsVersion"
 preferenceKtx = "androidx.preference:preference-ktx:$coreKtxVersion"
 ```
- 
+
 ## Permissions
 
 With the addition of the AdswizzAdSDK to your project, there will be some permissions that will appear in your merged manifest file.
@@ -73,7 +73,7 @@ The SDK uses the following permissions, for different interactive ads:
 ......
 </manifest>
 ```
-* CALL_PHONE - used for 
+* CALL_PHONE - used for
 
 ## Adding the SDK to your Android Studio Project
 
@@ -125,11 +125,11 @@ Where <strong>version</strong> is the latest version of the SDK provided by AdsW
 
 ## Your first ad request
 
-First, you need to initialize the AdswizzAdSDK. The recommended way to do this is in the onCreate of your application. If you already extended 
+First, you need to initialize the AdswizzAdSDK. The recommended way to do this is in the onCreate of your application. If you already extended
 the application class just add the following line inside the onCreate method:
 
 ```kotlin
-AdswizzAdSDK.initialize(this)
+AdswizzAdSDK.initialize(this, installationId)
 ```
 
 If you didn't already extend the Application class you can do it now. It should look something like this:
@@ -139,7 +139,7 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        AdswizzAdSDK.initialize(this)
+        AdswizzAdSDK.initialize(this, installationId)
     }
 }
 ```
@@ -191,10 +191,10 @@ To get this communication channel open you need to set up a listener for the AdM
 
 If an error happens in the SDK while using this object `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called
 
-As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. 
+As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**.
 In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.
 
-Next, you need to call prepare method on the **_AdManager_** object. 
+Next, you need to call prepare method on the **_AdManager_** object.
 This will buffer the ads if you decide the play them with the internal player. Here is how it looks like.
 
 ```kotlin
@@ -247,7 +247,7 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
 
             else  -> {
                 //do nothing
-                //If you want to handle other events individually you can use the same syntax as above, 
+                //If you want to handle other events individually you can use the same syntax as above,
                 //just specify the event type
             }
         }
@@ -264,8 +264,8 @@ AdswizzAdSDK lets you configure companion banner(s) if you are provided by the A
 
 ## Adding an AdCompanionView
 
-The easiest way to add a companion view is from XML. You could also add the view programmatically. 
-Once created, the SDK will keep track of all of your companion views and fill them with ad related content as the 
+The easiest way to add a companion view is from XML. You could also add the view programmatically.
+Once created, the SDK will keep track of all of your companion views and fill them with ad related content as the
 ad is playing.
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -302,14 +302,14 @@ Once the request is made, if there is a companion associated with the ad it will
 
 ## Companion events
 
-You can associate a listener to your AdCompanionView that implements the AdCompanionView.Listener interface. 
-You will be notified when the ad has loaded the companion view, if the companion view was displayed, or if it ended 
-the display. If there was an error while loading the companion you will be notified through this listener. 
+You can associate a listener to your AdCompanionView that implements the AdCompanionView.Listener interface.
+You will be notified when the ad has loaded the companion view, if the companion view was displayed, or if it ended
+the display. If there was an error while loading the companion you will be notified through this listener.
 Also, you can decide whether or not to override click through on the companion view.
 
 ## Extra exposure time for an AdCompanionView
 
-By default the AdCompanionView will end displaying the content after the ad finishes playing. 
+By default the AdCompanionView will end displaying the content after the ad finishes playing.
 If you need to keep the companion on the screen for a longer time(or indefinitely) you can configure it like this.
 
 ```kotlin
@@ -320,7 +320,7 @@ AdswizzAdSDK.setAdCompanionOptions(adCompanionOptions)
 
 # Interactive ads
 
-Adswizz interactive ads require some permissions on your app. 
+Adswizz interactive ads require some permissions on your app.
 
 TODO -> add permission section
 
@@ -371,9 +371,9 @@ class MyInteractivityListener : InteractivityListener {
 
 # Playing ads using your player
 
-AdswizzAdSDK gives you the possibility to choose whether to play the ad media with your player or let the SDK handle that for you. 
+AdswizzAdSDK gives you the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
 By default, the SDK will play the ad. The AdManager object is player agnostic. This means that as long as you provide an
-**_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()``` the adManager will use your 
+**_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()``` the adManager will use your
 player to play the ads. Your player must implement the **_AdPlayer_** interface.
 
 ## AdPlayer Interface
@@ -415,7 +415,7 @@ interface AdPlayer {
     fun pause()
 
     /**
-    * Resets the player to the initial state 
+    * Resets the player to the initial state
     */
     fun reset()
 
@@ -471,41 +471,41 @@ Once presented with an AdManager one could call different actions on the AdManag
 ## AdManager interface
 ### prepare
 
-You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the 
-playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing 
-starts smoothly. After calling this method the first ad is beginning to load. The SDK will trigger 
-**_WillStartLoading_** event informing your app that buffering has begun for the ad. If the SDK is 
-playing the ad you will also get **_DidFinishLoading_** event for the first ad. If you are playing the 
-ad you will not get this message as your player is responsible to start the buffering process and to also notify 
+You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the
+playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing
+starts smoothly. After calling this method the first ad is beginning to load. The SDK will trigger
+**_WillStartLoading_** event informing your app that buffering has begun for the ad. If the SDK is
+playing the ad you will also get **_DidFinishLoading_** event for the first ad. If you are playing the
+ad you will not get this message as your player is responsible to start the buffering process and to also notify
 the adManager through the AdPlayer.Listener interface
 
 
 ### play
 
-If you decided to let the SDK play the ads you will need to call **_play_** method on **_DidFinishLoading_**(recommended). 
-You can call this method after you paused the AdManager to resume playing. AdManager will trigger 
+If you decided to let the SDK play the ads you will need to call **_play_** method on **_DidFinishLoading_**(recommended).
+You can call this method after you paused the AdManager to resume playing. AdManager will trigger
 a **_DidResumePlaying_** event back to your app for confirmation.
 
 
 ### pause
 
-If you decided to let the SDK play the ads you can call **_pause_** method whenever you need to stop playing the ads 
-in the AdManager. AdManager will trigger a **_DidPausePlaying_** event back to your app for confirmation. 
+If you decided to let the SDK play the ads you can call **_pause_** method whenever you need to stop playing the ads
+in the AdManager. AdManager will trigger a **_DidPausePlaying_** event back to your app for confirmation.
 If you are using your player, please notify the adManager through the AdPlayer.Listener interface.
 
 
 ### skipAd
 
-If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive 
-a **_DidFinishPlaying_** event for the current ad and if the AdManager has a new ad you will receive 
-**_WillStartLoading_** for that one. If no ads are available an **_AllAdsDidFinishPlaying_** will be sent, 
+If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
+a **_DidFinishPlaying_** event for the current ad and if the AdManager has a new ad you will receive
+**_WillStartLoading_** for that one. If no ads are available an **_AllAdsDidFinishPlaying_** will be sent,
 signaling that all ads got processed in the AdManager.
 
 
 ### reset
 
-If you decide to skip all ads in the AdManager from the current one you can call this method. For each ad skipped 
-your app will trigger **_DidFinishPlaying_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end. 
+If you decide to skip all ads in the AdManager from the current one you can call this method. For each ad skipped
+your app will trigger **_DidFinishPlaying_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
 Looping through the ad again will need a call to **_prepare_** function.</br>
 
 </br></br>
