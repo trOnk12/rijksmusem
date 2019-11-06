@@ -125,11 +125,28 @@ Where <strong>version</strong> is the latest version of the SDK provided by AdsW
 
 ## Your first ad request
 
-First, you need to initialize the AdswizzAdSDK. The recommended way to do this is in the onCreate of your application. If you already extended
+First, you need to add the installationId, provided by an Adswizz engineer, to your manifest. It should look like this:
+
+```xml
+<application
+    android:name="path.to.myApp.MyApp"
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+    .......
+    <meta-data android:name="com.adswizz.core.installationId" android:value="ADD_YOUR_INSTALLATION_ID_HERE" />
+    .......
+</application>
+```
+
+Second, you need to initialize the AdswizzAdSDK. The recommended way to do this is in the onCreate of your application. If you already extended
 the application class just add the following line inside the onCreate method:
 
 ```kotlin
-AdswizzAdSDK.initialize(this, installationId)
+AdswizzAdSDK.initialize(this)
 ```
 
 If you didn't already extend the Application class you can do it now. It should look something like this:
@@ -139,7 +156,7 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        AdswizzAdSDK.initialize(this, installationId)
+        AdswizzAdSDK.initialize(this)
     }
 }
 ```
