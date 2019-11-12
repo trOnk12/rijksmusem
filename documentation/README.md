@@ -142,7 +142,24 @@ First, you need to add the installationId, provided by an Adswizz engineer, to y
 </application>
 ```
 
-Second, you need to initialize the AdswizzAdSDK. The recommended way to do this is in the onCreate of your application. If you already extended
+Second, you need to add the playerId to your manifest. This can have any value that you want. It should look like this:
+
+```xml
+<application
+    android:name="path.to.myApp.MyApp"
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+    .......
+    <meta-data android:name="com.adswizz.core.installationId" android:value="ADD_YOUR_INSTALLATION_ID_HERE" />
+    <meta-data android:name="com.adswizz.core.playerId" android:value="ADD_YOUR_PLAYER_ID_HERE" />
+    .......
+</application>
+```
+Next, you need to initialize the AdswizzAdSDK. The recommended way to do this is in the onCreate of your application. If you already extended
 the application class just add the following line inside the onCreate method:
 
 ```kotlin
