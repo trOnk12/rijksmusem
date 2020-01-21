@@ -3,7 +3,7 @@
   <groupId>com.adswizz</groupId>
   <artifactId>adswizz-ad-sdk</artifactId>
   <versioning>
-    <release>0.0.61-release</release>
+    <release>0.0.1-release</release>
     <versions>
       <version>0.0.1-release</version>
       <version>0.0.2-release</version>
@@ -68,6 +68,6 @@
       <version>0.0.60-release</version>
       <version>0.0.61-release</version>
     </versions>
-    <lastUpdated>20200121100523</lastUpdated>
+    <lastUpdated>20200121101602</lastUpdated>
   </versioning>
 </metadata>
