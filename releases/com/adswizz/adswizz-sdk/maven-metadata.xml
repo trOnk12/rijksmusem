@@ -3,10 +3,11 @@
   <groupId>com.adswizz</groupId>
   <artifactId>adswizz-sdk</artifactId>
   <versioning>
-    <release>0.0.88-release</release>
+    <release>0.0.89-release</release>
     <versions>
       <version>0.0.88-release</version>
+      <version>0.0.89-release</version>
     </versions>
-    <lastUpdated>20200212171215</lastUpdated>
+    <lastUpdated>20200213095835</lastUpdated>
   </versioning>
 </metadata>
