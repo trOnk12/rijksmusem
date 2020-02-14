@@ -59,13 +59,13 @@ crashlyticsSdk = "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
 kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
 ```
-
+    
 ## Permissions
 
 With the addition of the AdswizzSDK to your project, there will be some permissions that will appear in your merged manifest file.
 You don't need to do anything.
 
-The SDK uses the following permissions, for different interactive ads:
+The SDK uses the following permissions:
 
 ```xml
 <manifest>
@@ -78,10 +78,13 @@ The SDK uses the following permissions, for different interactive ads:
 <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
 ......
 </manifest>
 ```
-* CALL_PHONE - used for
 
 ## Adding the SDK to your Android Studio Project
 
