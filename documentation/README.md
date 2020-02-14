@@ -560,15 +560,15 @@ Looping through the ad again will need a call to **_prepare_** function.</br>
 ‘Server Side Insertion’ represents the insertion of ads into the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
 
 The responsibilities are splitted between streaming server and SDK as follows:
-- Streaming Server:
-* detects ad breaks and inserts audio ads into the audio stream
-* sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
-- SDK:
-* decorates audio stream URL to increase targetability of ads
-* detects all events associated with an ad break (start, stop, change of ad)
-* retrieves, displays, synchronizes companion banner with audio content based on metadata information
-* may handle the display area for companion banners outside of an ad break
-* retrieves and process interactivity information based on metadata
+* Streaming Server:
+** detects ad breaks and inserts audio ads into the audio stream
+** sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
+* SDK:
+** decorates audio stream URL to increase targetability of ads
+** detects all events associated with an ad break (start, stop, change of ad)
+** retrieves, displays, synchronizes companion banner with audio content based on metadata information
+** may handle the display area for companion banners outside of an ad break
+** retrieves and process interactivity information based on metadata
 
 ## Your first stream manager
 
