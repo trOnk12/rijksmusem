@@ -1,4 +1,4 @@
-# **AdswizzAdSDK - Integration**
+# **AdswizzSDK - Integration**
    * [<strong>Get started</strong>](#get-started)
       * [Prerequisites](#prerequisites)
       * [Dependencies](#dependencies)
@@ -23,10 +23,20 @@
          * [pause](#pause)
          * [skipAd](#skipad)
          * [reset](#reset)
+   * [<strong>Server Side Insertion</strong>](#server-side-insertion)
+      * [What is 'Server Side Insertion'](#what-is-'server-side-insertion')
+      * [Your first stream manager](#your-first-stream-manager)
+      * [AdStreamManager.Listener interface](#AdStreamManager.Listener-interface)
+         * [fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)](#fun-willStartPlayingUrl(adStreamManager:-AdStreamManager,-url:-Uri))
+         * [fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)](#fun-didFinishPlayingUrl(adStreamManager:-AdStreamManager,-url:-Uri))
+         * [fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)](#fun-adBreakStarted(adStreamManager:-AdStreamManager,-adBaseManager:-AdBaseManager))
+         * [fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)](#fun-adBreakEnded(adStreamManager:-AdStreamManager,-adBaseManager:-AdBaseManager))
+         * [fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)](#fun-onMetadataChanged(adStreamManager:-AdStreamManager,-metadataItem:-AdPlayer.MetadataItem))
+         * [fun onError(adStreamManager: AdStreamManager, error: Error)](#fun-onError(adStreamManager:-AdStreamManager,-error:-Error))
 
 # Get started
 
-AdswizzAdSDK helps integrating Adswizz interactive ads in your application in a client side scenario. In a client side insertion your app will request ads from Adswizz ad server and you will decide when to play them.
+AdswizzSDK helps integrating Adswizz interactive ads in your application in a client side scenario. In a client side insertion your app will request ads from Adswizz ad server and you will decide when to play them.
 
 ## Prerequisites
 
@@ -54,7 +64,7 @@ preferenceKtx = "androidx.preference:preference-ktx:$coreKtxVersion"
 
 ## Permissions
 
-With the addition of the AdswizzAdSDK to your project, there will be some permissions that will appear in your merged manifest file.
+With the addition of the AdswizzSDK to your project, there will be some permissions that will appear in your merged manifest file.
 You don't need to do anything.
 
 The SDK uses the following permissions, for different interactive ads:
@@ -77,7 +87,7 @@ The SDK uses the following permissions, for different interactive ads:
 
 ## Adding the SDK to your Android Studio Project
 
-You can easily integrate AdswizzAdSDK into your project. There are 2 steps to this integration:
+You can easily integrate AdswizzSDK into your project. There are 2 steps to this integration:
 
 1. Inside your project level build.gradle add the following block inside the allprojects->repositories tag:
 
@@ -159,11 +169,11 @@ Second, you need to add the playerId to your manifest. This can have any value t
     .......
 </application>
 ```
-Next, you need to initialize the AdswizzAdSDK. The recommended way to do this is in the onCreate of your application. If you already extended
+Next, you need to initialize the AdswizzSDK. The recommended way to do this is in the onCreate of your application. If you already extended
 the application class just add the following line inside the onCreate method:
 
 ```kotlin
-AdswizzAdSDK.initialize(this)
+AdswizzSDK.initialize(this)
 ```
 
 If you didn't already extend the Application class you can do it now. It should look something like this:
@@ -173,7 +183,7 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        AdswizzAdSDK.initialize(this)
+        AdswizzSDK.initialize(this)
     }
 }
 ```
@@ -221,7 +231,7 @@ As a result of this call the SDK will provide you with an error if the call was 
 If the request to the Adswizz Ad server was a success the SDK will return an AdManager object which you will own and will be the way the SDK will communicate events back to your application. \
 To get this communication channel open you need to set up a listener for the AdManager that conforms to the AdManagerListener interface. The AdManager will call:
 
-`onEventReceived(adManager: AdManager, event: AdEvent)` whenever events of interest might happen in the SDK. Consult AdEvent.Type for a list of possible events from the AdswizzAdSDK.
+`onEventReceived(adManager: AdManager, event: AdEvent)` whenever events of interest might happen in the SDK. Consult AdEvent.Type for a list of possible events from the AdswizzSDK.
 
 If an error happens in the SDK while using this object `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called
 
@@ -293,7 +303,7 @@ To actually start the **_AdManager_** rolling the ads you must call the play met
 
 # Companion Banner
 
-AdswizzAdSDK lets you configure companion banner(s) if you are provided by the Adswizz PIM with a companion zone id.
+AdswizzSDK lets you configure companion banner(s) if you are provided by the Adswizz PIM with a companion zone id.
 
 
 ## Adding an AdCompanionView
@@ -349,7 +359,7 @@ If you need to keep the companion on the screen for a longer time(or indefinitel
 ```kotlin
 val adCompanionOptions = AdCompanionOptions()
 adCompanionOptions.extraExposureTime = 1.2// these are seconds.
-AdswizzAdSDK.setAdCompanionOptions(adCompanionOptions)
+AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 ```
 
 # Interactive ads
@@ -364,7 +374,7 @@ While the **_AdManger.Listener_** provides a list of **_AdEventType_** covering 
 To get more insight on what is happening while an interactive ad is playing you can set the **_InteractivityListener_**.
 To set the listener, add the following line of code:
 ```kotlin
-AdswizzAdSDK.setInteractivityListener(adManager, interactivityListener)
+AdswizzSDK.setInteractivityListener(adManager, interactivityListener)
 ```
 
 A basic implementation of the **_InteractivityListener_** could looks something like this:
@@ -405,7 +415,7 @@ class MyInteractivityListener : InteractivityListener {
 
 # Playing ads using your player
 
-AdswizzAdSDK gives you the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
+AdswizzSDK gives you the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
 By default, the SDK will play the ad. The AdManager object is player agnostic. This means that as long as you provide an
 **_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()``` the adManager will use your
 player to play the ads. Your player must implement the **_AdPlayer_** interface.
@@ -546,3 +556,158 @@ Looping through the ad again will need a call to **_prepare_** function.</br>
 
 
 <img src="img/AdManagerState.png" width="1000" />
+
+
+# Server Side Insertion
+
+
+## What is 'Server Side Insertion'
+
+‘Server Side Insertion’ represents the insertion of ads into the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
+
+The responsibilities are splitted between streaming server and SDK as follows:
+- Streaming Server:
+• detects ad breaks and inserts audio ads into the audio stream
+• sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
+- SDK:
+• decorates audio stream URL to increase targetability of ads
+• detects all events associated with an ad break (start, stop, change of ad)
+• retrieves, displays, synchronizes companion banner with audio content based on metadata information
+• may handle the display area for companion banners outside of an ad break
+• retrieves and process interactivity information based on metadata
+
+## Your first stream manager
+
+
+To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you.
+
+
+```kotlin
+
+import com.adswizz.core.streaming.AdswizzAdStreamManager
+
+class YourClass {
+
+    private var streamManager: AdswizzAdStreamManager? = null
+
+    fun createStreamManager() {
+        streamManager = AdswizzAdStreamManager(null)
+    }
+}
+
+```
+
+Once the stream manager is constructed it is recommended to set a listener:
+
+```kotlin
+class YourClass {
+
+    private var streamManager: AdswizzAdStreamManager? = null
+    
+    private val listener = object : AdStreamManager.Listener {
+        override fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Will start playing url: $url")
+        }
+
+        override fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Did finish playing url: $url")
+        }
+
+        override fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager) {
+            println("Ad break started: adBaseManager $adBaseManager")
+        }
+
+        override fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager) {
+            println("Ad break ended: adBaseManager $adBaseManager")
+        }
+
+        override fun onError(adStreamManager: AdStreamManager, error: Error) {
+            println("Error - ${error.message} for adStreamManager: $adStreamManager")
+        }
+
+        override fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem) {
+            println("Metadata received - adStreamManager: $adStreamManager - metadata count: ${metadataItem.value.count()}")
+        }
+    }
+    
+    fun createStreamManager() {
+        streamManager = AdswizzAdStreamManager(null)
+        streamManager?.addListener(listener)
+    }
+}
+
+```
+
+The stream object can play the url using his internal player or using an external player provided by you. Below is a sample on how to set the external player:
+
+
+```kotlin
+    fun createStreamManager() {
+        val settings = AdManagerStreamingSettings.Builder().adPlayerInstance(externalPlayer).build()
+        streamManager = AdswizzAdStreamManager(settings)
+        ...
+    }
+```
+
+To start playing the stream do the following:
+
+```kotlin
+    streamManager?.play(AIS_URL_PROVIDED_BY_INTEGRATION_MANAGER)
+```
+
+As a response, **_AdswizzSDK_** will call back `fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)` with the provided url that has some extra query params added.
+
+To stop the stream play call the stop function:
+
+```kotlin
+        streamManager?.stop()
+```
+
+The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`
+
+The stream can be paused and resumed:
+ 
+```kotlin
+        ...
+        streamManager?.pause()
+        ...
+        streamManager?.resume()
+        ...
+```
+
+There are no callbacks that will be called for these 2 operations.
+
+
+## AdStreamManager.Listener interface
+
+The available callbacks that are called by the stream manager are described below:
+
+```kotlin
+    interface Listener {
+        fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+        fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+        fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
+        fun onError(adStreamManager: AdStreamManager, error: Error)
+    }
+```
+
+### fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the play function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. 
+
+### fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the stop function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+
+### fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+When an ad break is detected in the stream, the sdk will execute this callback. It will provide an **_AdBaseManager_** object that can be used for the whole duration of the ad break. You can use it to listen to different Ad related events and also to request a skip of current ad.
+When you get this **_AdBaseManager_** object, the player will automatically play the ad, since it is part of the stream. Most of the times there will be only one ad in the **_AdBaseManager_** object but you can expect other ads to be inserted from the SDK if the ad is extended. This can happen, for instance, when the listener interacts with an ad (i.e. ShakeMe) and the action is to play an extension of the ad.
+
+### fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+When the ad break from the stream has ended you will get notified to clean up anything related to the provided **_AdBaseManager_**.
+
+### fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
+Whenever the metadata is changed on the stream played by the SDK, you will be notified with this callback. 
+
+### fun onError(adStreamManager: AdStreamManager, error: Error)
+When an error occurs during your interaction with the stream manager this callback will be called by the SDK.
