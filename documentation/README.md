@@ -24,15 +24,9 @@
          * [skipAd](#skipad)
          * [reset](#reset)
    * [<strong>Server Side Insertion</strong>](#server-side-insertion)
-      * [What is 'Server Side Insertion'](#what-is--server-side-insertion-)
+      * [What is Server Side Insertion](#what-is-server-side-insertion)
       * [Your first stream manager](#your-first-stream-manager)
-      * [AdStreamManager.Listener interface](#adstreammanager-listener-interface)
-         * [fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)](#fun-willStartPlayingUrl(adStreamManager:-AdStreamManager,-url:-Uri))
-         * [fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)](#fun-didFinishPlayingUrl(adStreamManager:-AdStreamManager,-url:-Uri))
-         * [fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)](#fun-adBreakStarted(adStreamManager:-AdStreamManager,-adBaseManager:-AdBaseManager))
-         * [fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)](#fun-adBreakEnded(adStreamManager:-AdStreamManager,-adBaseManager:-AdBaseManager))
-         * [fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)](#fun-onMetadataChanged(adStreamManager:-AdStreamManager,-metadataItem:-AdPlayer.MetadataItem))
-         * [fun onError(adStreamManager: AdStreamManager, error: Error)](#fun-onError(adStreamManager:-AdStreamManager,-error:-Error))
+      * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
 
 # Get started
 
@@ -561,7 +555,7 @@ Looping through the ad again will need a call to **_prepare_** function.</br>
 # Server Side Insertion
 
 
-## What is 'Server Side Insertion'
+## What is Server Side Insertion
 
 ‘Server Side Insertion’ represents the insertion of ads into the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
 
@@ -678,7 +672,7 @@ The stream can be paused and resumed:
 There are no callbacks that will be called for these 2 operations.
 
 
-## AdStreamManager.Listener interface
+## AdStreamManager Listener interface
 
 The available callbacks that are called by the stream manager are described below:
 
