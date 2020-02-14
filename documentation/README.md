@@ -129,10 +129,10 @@ allprojects {
 2. Inside your module level build.gradle add the following line inside your dependencies block:
 
 ```groovy
-implementation 'com.adswizz:adswizz-ad-sdk:version'
+implementation 'com.adswizz:adswizz-sdk:version'
 ```
 
-Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz
+Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.0.5)
 
 ## Your first ad request
 
@@ -202,6 +202,12 @@ Don't forget to add this new class in your manifest. It should look like this:
     android:theme="@style/AppTheme">
     .......
 </application>
+```
+
+For cleanup you should use:
+
+```kotlin
+AdswizzSDK.cleanup()
 ```
 
 You are now ready for your first ad request. You will need to create an AdswizzAdRequest object and configure it.
