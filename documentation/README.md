@@ -54,6 +54,10 @@ androidMaterial = "com.google.android.material:material:$androidMaterialVersion"
 constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
 lifeCycleExtensions = "androidx.lifecycle:lifecycle-extensions:$lifeCycleExtensionsVersion"
 preferenceKtx = "androidx.preference:preference-ktx:$coreKtxVersion"
+firebaseAnalytics = "com.google.firebase:firebase-analytics:$firebaseVersion"
+crashlyticsSdk = "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
+kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
+kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
 ```
 
 ## Permissions
