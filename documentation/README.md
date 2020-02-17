@@ -673,7 +673,7 @@ To start playing the stream do the following:
 
 As a response, **_AdswizzSDK_** will call back `fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)` with the provided url that has some extra query params added.
 
-To stop the stream play call the stop function:
+To stop the playing of stream call the stop function:
 
 ```kotlin
     streamManager?.stop()
