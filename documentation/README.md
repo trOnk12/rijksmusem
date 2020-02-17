@@ -566,6 +566,8 @@ If you decide to skip all ads in the AdManager from the current one you can call
 your app will trigger **_DidSkip_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
 Looping through the ad again will need a call to **_prepare_** function.</br>
 
+Below is a descriptive graph with all this information:
+
 </br></br>
 
 
@@ -577,7 +579,7 @@ Looping through the ad again will need a call to **_prepare_** function.</br>
 
 ## What is Server Side Insertion
 
-‘Server Side Insertion’ represents the insertion of ads into the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
+‘Server Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
 
 The responsibilities are splitted between streaming server and SDK as follows:
 * Streaming Server:
@@ -674,7 +676,7 @@ As a response, **_AdswizzSDK_** will call back `fun willStartPlayingUrl(adStream
 To stop the stream play call the stop function:
 
 ```kotlin
-        streamManager?.stop()
+    streamManager?.stop()
 ```
 
 The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`
@@ -682,11 +684,11 @@ The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager:
 The stream can be paused and resumed:
 
 ```kotlin
-        ...
-        streamManager?.pause()
-        ...
-        streamManager?.resume()
-        ...
+    ...
+    streamManager?.pause()
+    ...
+    streamManager?.resume()
+    ...
 ```
 
 There are no callbacks that will be called for these 2 operations.
