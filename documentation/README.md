@@ -216,10 +216,9 @@ You are now ready for your first ad request. You will need to create an AdswizzA
 val adRequest: AdswizzAdRequest = AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
             .withServer("SERVER_PROVIDED_BY_PIM")
             .withZoneId("ZONEID_PROVIDED_BY_PIM")
-            .withPlayerId("PLAYERID_PROVIDED_BY_PIM")
             .build()
 ```
-Ad server, zoneId and playerId will be provided to you by an Adswizz PIM.
+Ad server and zoneId will be provided to you by an Adswizz PIM.
 
 After this point you need create an AdRequestConnection object and call requestAds with the ad request object.
 
