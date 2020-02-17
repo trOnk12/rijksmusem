@@ -678,7 +678,7 @@ To stop the playing of stream call the stop function:
     streamManager?.stop()
 ```
 
-The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`
+The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`.
 
 The stream can be paused and resumed:
 
@@ -690,7 +690,7 @@ The stream can be paused and resumed:
     ...
 ```
 
-There are no callbacks that will be called for these 2 operations.
+The sdk will respond with the callbacks `fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` and `fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` respectively. The url is the same as for `willStartPlayingUrl`.
 
 
 ## AdStreamManager Listener interface
@@ -701,6 +701,8 @@ The available callbacks that are called by the stream manager are described belo
     interface Listener {
         fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
         fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
         fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
         fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
         fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
@@ -713,6 +715,12 @@ After executing the play function on the stream manager object, the sdk will cal
 
 ### fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
 After executing the stop function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+
+### fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the pause function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+
+### fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the resume function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
 
 ### fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
 When an ad break is detected in the stream, the sdk will execute this callback. It will provide an **_AdBaseManager_** object that can be used for the whole duration of the ad break. You can use it to listen to different Ad related events and also to request a skip of current ad.
