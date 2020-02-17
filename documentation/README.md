@@ -59,7 +59,7 @@ crashlyticsSdk = "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
 kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
 ```
-    
+
 ## Permissions
 
 With the addition of the AdswizzSDK to your project, there will be some permissions that will appear in your merged manifest file.
@@ -373,7 +373,16 @@ AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 
 Adswizz interactive ads require some permissions on your app.
 
-TODO -> add permission section
+```kotlin
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+```
 
 ## Handling interactive ad events
 
@@ -389,7 +398,7 @@ A basic implementation of the **_InteractivityListener_** could looks something 
 ```kotlin
 class MyInteractivityListener : InteractivityListener {
     override fun onReceiveInteractivityEvent(
-        adManager: AdManager,
+        adBaseManager: AdBaseManager,
         adData: AdData,
         event: InteractivityEvent
     ) {
@@ -412,7 +421,7 @@ class MyInteractivityListener : InteractivityListener {
      * @return false otherwise
      */
     override fun shouldOverrideCouponPresenting(
-        adManager: AdManager,
+        adBaseManager: AdBaseManager,
         couponUri: Uri
     ): Boolean {
         TODO()
@@ -525,30 +534,28 @@ Once presented with an AdManager one could call different actions on the AdManag
 You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the
 playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing
 starts smoothly. After calling this method the first ad is beginning to load. The SDK will trigger
-**_WillStartLoading_** event informing your app that buffering has begun for the ad. If the SDK is
-playing the ad you will also get **_DidFinishLoading_** event for the first ad. If you are playing the
-ad you will not get this message as your player is responsible to start the buffering process and to also notify
-the adManager through the AdPlayer.Listener interface
+**_WillStartLoading_** event informing your app that buffering has begun for the ad. When the buffering is done **_DidFinishLoading_** event for the first ad will be triggered.
 
 
 ### play
 
-If you decided to let the SDK play the ads you will need to call **_play_** method on **_DidFinishLoading_**(recommended).
-You can call this method after you paused the AdManager to resume playing. AdManager will trigger
-a **_DidResumePlaying_** event back to your app for confirmation.
+Call **_play_** when you want to play the ads. This should be done after the callback **_DidFinishLoading_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
 
 
 ### pause
 
-If you decided to let the SDK play the ads you can call **_pause_** method whenever you need to stop playing the ads
-in the AdManager. AdManager will trigger a **_DidPausePlaying_** event back to your app for confirmation.
-If you are using your player, please notify the adManager through the AdPlayer.Listener interface.
+The **_pause_** method will stop playing the ads in the AdManager. AdManager will trigger a **_DidPausePlaying_** event back to your app for confirmation.
+
+
+### resume
+
+Call **_resume_** when you want to play the ads after a pause. The SDK will trigger a **_DidResumePlaying_** event back to your app for confirmation.
 
 
 ### skipAd
 
 If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
-a **_DidFinishPlaying_** event for the current ad and if the AdManager has a new ad you will receive
+a **_DidSkip_** event for the current ad and if the AdManager has a new ad you will receive
 **_WillStartLoading_** for that one. If no ads are available an **_AllAdsDidFinishPlaying_** will be sent,
 signaling that all ads got processed in the AdManager.
 
@@ -556,7 +563,7 @@ signaling that all ads got processed in the AdManager.
 ### reset
 
 If you decide to skip all ads in the AdManager from the current one you can call this method. For each ad skipped
-your app will trigger **_DidFinishPlaying_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
+your app will trigger **_DidSkip_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
 Looping through the ad again will need a call to **_prepare_** function.</br>
 
 </br></br>
@@ -610,7 +617,7 @@ Once the stream manager is constructed it is recommended to set a listener:
 class YourClass {
 
     private var streamManager: AdswizzAdStreamManager? = null
-    
+
     private val listener = object : AdStreamManager.Listener {
         override fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
             println("Will start playing url: $url")
@@ -636,7 +643,7 @@ class YourClass {
             println("Metadata received - adStreamManager: $adStreamManager - metadata count: ${metadataItem.value.count()}")
         }
     }
-    
+
     fun createStreamManager() {
         streamManager = AdswizzAdStreamManager(null)
         streamManager?.addListener(listener)
@@ -673,7 +680,7 @@ To stop the stream play call the stop function:
 The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`
 
 The stream can be paused and resumed:
- 
+
 ```kotlin
         ...
         streamManager?.pause()
@@ -701,7 +708,7 @@ The available callbacks that are called by the stream manager are described belo
 ```
 
 ### fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the play function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. 
+After executing the play function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters.
 
 ### fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
 After executing the stop function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
@@ -714,7 +721,7 @@ When you get this **_AdBaseManager_** object, the player will automatically play
 When the ad break from the stream has ended you will get notified to clean up anything related to the provided **_AdBaseManager_**.
 
 ### fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
-Whenever the metadata is changed on the stream played by the SDK, you will be notified with this callback. 
+Whenever the metadata is changed on the stream played by the SDK, you will be notified with this callback.
 
 ### fun onError(adStreamManager: AdStreamManager, error: Error)
 When an error occurs during your interaction with the stream manager this callback will be called by the SDK.
