@@ -628,6 +628,14 @@ class YourClass {
             println("Did finish playing url: $url")
         }
 
+        override fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Did paused playing url: $url")
+        }
+
+        override fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Did resume playing url: $url")
+        }
+
         override fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager) {
             println("Ad break started: adBaseManager $adBaseManager")
         }
