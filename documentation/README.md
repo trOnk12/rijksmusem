@@ -805,73 +805,71 @@ Keep in mind that you need to call the right events on the listener so that the 
 
 ## GDPR consent
 
-In Adswizz SDK you can set the GDPR policy that you want.
+AdsWizz services are GDPR compliant. As a result **_AdswizzSDK_** will decorate urls that connect to Adswizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configured it like this:
 
 ```kotlin
     AdswizzSDK.gdprConsent = GDPRConsent.GRANTED
 ```
 
-Possible values are: `.NOT_APPLICABLE`, `.NOT_ASKED`, `.GRANTED`, `.DENIED`.
-
+If not configured, the default value for GDPR consent in **_AdswizzSDK_** will be  **_NOT_APPLICABLE_**. This means that the user is not a subject of the GDPR. Other possible values are:
+  * **_NOT_ASKED_**: the user was not asked yet about GDPR consent
+  * **_GRANTED_**: the user has granted access
+  * **_DENIED_**: the user has denied access
 
 ## CCPA config
 
-Also you can set the CCPA policy.
+With the introduction of CCPA in US, **_AdswizzSDK_** gives you the possibility to forward the user consent accordingly.
 
 ```kotlin
     AdswizzSDK.ccpaConfig = CCPAConfig(CCPAConsent.YES, CCPAConsent.YES, CCPAConsent.YES)
 ```
 
-The first value represents the explicit notice for collecting consent. The next value is the opt-out of the sale of his personal information. The last one is the limitation of scope to the Limited Service Provider Agreement. For all tree possible values are: `.NOT_APPLICABLE`, `.YES`, `.NO`.
+The first value represents the explicit notice for collecting consent. The next value is the opt-out of the sale of his personal information. The last one is the limitation of scope to the Limited Service Provider Agreement. For all tree, possible values are: **_NOT_APPLICABLE_**, **_YES_**, **_NO_**. The default value for all of them is **_NOT_APPLICABLE_**.
 
 ## AFR config
 
+In order to have the companion displayed during 'Server Side Insertion' an AFR Config object should be provided to the SDK. With the information obtained from Adswizz this object can be configured like in the code snippet below:
+
+```kotlin
+    AdswizzSDK.afrConfig = AfrConfig(
+            AdswizzAdRequest.HttpProtocol.HTTP,
+            "demo.deliveryengine.adswizz.com/",
+            "www/delivery/afr.php"
+        )
+```
+
 ## Integrator Context
 
-## Companion banner
+In order to correctly do macro expansion the integrator should implement the `IntegratorContext` interface and provide it to the SDK.
 
-### Extra exposure time for an AdCompanionView
+```kotlin
+    AdswizzSDK.integratorContext = IntegratorContextImplementation()
+```
+
+The interface definition is provided below:
+
+```kotlin
+/**
+ * Interface to be implemented by the integrator to provide host app information to the sdk
+ */
+interface IntegratorContext {
+
+    // the player used to play the content. It may be the same as the ad player or a different one. It may not exist for server-side insertion
+    var contentPlayer: AdPlayer?
+
+    // Indicates whether the sdk’s intended use case was video, audio, or hybrid
+    var adType: Ad.AdType
+}
+```
+
+## Extra exposure time for an AdCompanionView
 
 By default, the **_AdCompanionView_** will end displaying the content after the ad finishes playing. If you need to keep the companion on the screen for a longer period of time (or indefinitely), you can configure it like this.
 
-
-```swift
-let adCompanionOptions = AdCompanionOptions()
-adCompanionOptions.extraExposureTime = 1.2 // these are seconds.
-// if you need the companion forever on the screen
-// adCompanionOptions.extraExposureTime = .greatestFiniteMagnitude
-AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
+```kotlin
+    val adCompanionOptions = AdCompanionOptions(exposureTime)
+    AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 ```
-
-## Privacy
-
-### GDPR
-
-AdsWizz services are GDPR compliant. As a result **_AdswizzSDK_** will decorate urls that connect to Adswizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configured it like this:
-
-```swift
-AdswizzSDK.shared.gdprConsent = <Desired_GDPR_Consent>
-```
-
-If not configured, the default value for GDPR consent in **_AdswizzSDK_** will be  **_notApplicable_**. Other possible values are:
-  * **_notAsked_**: the user was not asked yet about GDPR consent
-  * **_granted_**: the user has granted access
-  * **_denied_**: the user has denied access
-
-### CCPA
-
-With the introduction of CCPA in US, **_AdswizzSDK_** gives you the possibility to forward the user consent accordingly.
-
-```swift
-AdswizzSDK.shared.ccpaConfig = AdswizzCCPAConfig.Builder()
-                                                  .with(explicitNotice: <Desired_CCPA_Consent>)
-                                                  .with(optOut: <Desired_CCPA_Consent>)
-                                                  .with(lspa: <Desired_CCPA_Consent>)
-                                                  .build()
-
-```
-
-The default value for **_explicitNotice_**, **_optOut_** and **_lspa_** is **_notApplicable_**. Other possibile values are **_yes_** and **_no_**.
 
 # (Optional) Prepare your application for advanced targetability capabilities
 
@@ -883,7 +881,7 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 | Data collected for <br>**_Device Targeting_** | Data collected for <br>**_Contextual Targeting_** | Data collected for <br>**_User Targeting_**|
 |:-----------------|:---------------------|:--------------|
-| * device name, language, country and currency<br>* screen brightness level<br>* audio volume level<br>* battery level and status (charging/not charging)<br>* bundle id<br>* operating system version and name | * bluetooth devices (currently connected and history)<br>* WifFi Status (true/false) and WiFi network name / SSID (if connected)<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false) | * identifierForAdvertising(idfa) status (enabled/disabled) and ID (if enabled) |
+| * device name, language, country and currency<br>* screen brightness level<br>* audio volume level<br>* battery level, status and state (charging or not) <br>* bundle id, bundle version name and version code<br>* available and total internal storage; available and total external storage<br>* operating system version and name | * bluetooth state, name, status (connected or not) and devices (currently connected or only paired but not connected). For bluetooth devices we collect: name, address, profile and bluetooth class<br>* WiFi Status (true/false), state and WiFi network name / SSID<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false)<br>* uiMode<br>* microphone authorization status<br>* name and type of the active audio device and available devices<br>* app permissions<br>* sensors information: type, name, vendor, version, power used by sensor, resolution, minimum delay allowed between two events, maximum rage of the sensor, the maximum number of events that could be batched, the number of events reserved in the batch mode FIFO, maximum delay and the reporting mode<br>* installed app names | * identifierForAdvertising(idfa) status (enabled/disabled) and ID (if enabled) |
 
 
 ## Technical prerequisites
