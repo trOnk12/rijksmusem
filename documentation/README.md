@@ -1,4 +1,9 @@
 # **AdswizzSDK - Integration**
+   * [<strong>Before you start</strong>](#before-you-start)
+      * [What is ‘Client Side Insertion’](#what-is-client-side-insertion)
+      * [What is ‘Server Side Insertion’](#what-is-server-side-insertion)
+      * [Prerequisites for ‘Client Side Insertion’](#prerequisites-for-client-side-insertion)
+      * [Prerequisites for ‘Server Side Insertion’](#prerequisites-for-server-side-insertion)
    * [<strong>Get started</strong>](#get-started)
       * [Prerequisites](#prerequisites)
       * [Dependencies](#dependencies)
@@ -16,7 +21,6 @@
             * [skipAd](#skipad)
             * [reset](#reset)
    * [<strong>Server Side Insertion</strong>](#server-side-insertion)
-      * [What is Server Side Insertion](#what-is-server-side-insertion)
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
    * [<strong>Companion Banner</strong>](#companion-banner)
@@ -28,6 +32,61 @@
       * [Handling interactive ad events](#handling-interactive-ad-events)
    * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
+
+
+# Before you start
+
+This guide is addressed to the android developers who want to integrate AdswizzSDK in their apps.
+Here is a quick overview. More details will be provided for each scenario in their respective section.
+
+## What is Client Side Insertion
+
+'Client Side Insertion' represents the insertion of ads into the audio stream done by the integrator. Your app is responsable for the built-in logic to decide when to start and end an ad break by fetching ads from the ad server and playing them with your apps's audio/video capabilities. The SDK will handle all communication during ad fetching with the ad server while being in charge with the display of companion banner and performing various event reporting (impressions & quartiles).
+
+## What is Server Side Insertion
+
+‘Server Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
+
+The responsibilities are splitted between streaming server and SDK as follows:
+* Streaming Server:
+   * detects ad breaks and inserts audio ads into the audio stream
+   * sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
+* SDK:
+   * decorates audio stream URL to increase targetability of ads
+   * detects all events associated with an ad break (start, stop, change of ad)
+   * retrieves, displays, synchronizes companion banner with audio content based on metadata information
+   * may handle the display area for companion banners outside of an ad break
+   * retrieves and process interactivity information based on metadata
+
+## Prerequisites for ‘Client Side Insertion’
+
+In order to successfully do the ‘Client Side Insertion’ you will need to set/provide the following information for your **_AdswizzAdRequest_** object within **_AdRequestConnection_**:
+*  adServer = the name of AdServer used to fetch ads from
+*  zoneId = identifier of zone used to retrieve audio/video ads from
+*  companionZones = (optional) identifier of zone to retrieve creatives to be displayed by the companion banner
+*  (optional) list of custom site variables used for ads selection (e.g referrer)
+
+The following can be set as general AdswizzSDK parameters:
+*  (optional) GDPR consent value
+*  (optional) CCPA (U.S. privacy string) consent value
+*  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for vast macro expansion)
+
+For client side scenario you may use any streaming server and you are not require to use an AIS.
+
+## Prerequisites for ‘Server Side Insertion’
+
+In order to successfully integrate the ‘Server Side Insertion’ you will need to set the following information:
+* in afrConfig:
+   *  server = the name of Adserver used to insert ads from
+   *  endpoint = contains the identifier of zone to retrieve creatives to be displayed by the companion banner
+* in **_AdswizzAdStreamManager_**:
+   *  adStreamURL = URL of audio stream. This is given in the play method.
+
+The following can be set as general AdswizzSDK parameters:
+*  (optional) GDPR consent value
+*  (optional) CCPA (U.S. privacy string) consent value
+*  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for vast macro expansion)
+
 
 # Get started
 
@@ -358,23 +417,9 @@ Below is a descriptive graph with all this information:
 
 <img src="img/AdManagerState.png" width="1000" />
 
+
 # Server Side Insertion
 
-
-## What is Server Side Insertion
-
-‘Server Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
-
-The responsibilities are splitted between streaming server and SDK as follows:
-* Streaming Server:
-   * detects ad breaks and inserts audio ads into the audio stream
-   * sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
-* SDK:
-   * decorates audio stream URL to increase targetability of ads
-   * detects all events associated with an ad break (start, stop, change of ad)
-   * retrieves, displays, synchronizes companion banner with audio content based on metadata information
-   * may handle the display area for companion banners outside of an ad break
-   * retrieves and process interactivity information based on metadata
 
 ## Your first stream manager
 
