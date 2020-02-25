@@ -8,8 +8,9 @@
       * [Prerequisites](#prerequisites)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
-   * [<strong>Client Side Insertion</strong>](#client-side-insertion)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
+      * [SDK initialization and cleanup](#SDK-initialization-and-cleanup)
+   * [<strong>Client Side Insertion</strong>](#client-side-insertion)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
       * [<strong>AdManager life cycle</strong>](#admanager-life-cycle)
@@ -23,13 +24,13 @@
    * [<strong>Server Side Insertion</strong>](#server-side-insertion)
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
+   * [<strong>Interactive ads</strong>](#interactive-ads)
+      * [Handling interactive ad events](#handling-interactive-ad-events)
    * [<strong>Companion Banner</strong>](#companion-banner)
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
       * [Setting up](#setting-up)
       * [Companion events](#companion-events)
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
-   * [<strong>Interactive ads</strong>](#interactive-ads)
-      * [Handling interactive ad events](#handling-interactive-ad-events)
    * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
 
@@ -90,7 +91,12 @@ The following can be set as general AdswizzSDK parameters:
 
 # Get started
 
-AdswizzSDK helps integrating Adswizz interactive ads in your application in a client side scenario. In a client side insertion your app will request ads from Adswizz ad server and you will decide when to play them.
+AdswizzSDK facilitates the ad lifecycle management, right from your application.
+Sensing listeners environment, it crafts the overall ad exercise for superior addressability and augmented interactivity.
+
+On top, in a client side insertion scenario, it retrieves the ad with its associated assets, and handles the reporting operations.<br>
+In a server side insertion scenario, it takes the pressure off your app by making the interactivity and assets easily available.
+
 
 ## Prerequisites
 
@@ -194,9 +200,7 @@ implementation 'com.adswizz:adswizz-sdk:version'
 
 Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.0.5)
 
-# Client Side Insertion
-
-## Your first ad request
+## SDK initialization and cleanup
 
 First, you need to add the installationId, provided by an Adswizz engineer, to your manifest. It should look like this:
 
@@ -271,6 +275,13 @@ For cleanup you should use:
 ```kotlin
 AdswizzSDK.cleanup()
 ```
+
+Call it when you will no longer need the SDK.
+
+
+# Client Side Insertion
+
+## Your first ad request
 
 You are now ready for your first ad request. You will need to create an AdswizzAdRequest object and configure it.
 
@@ -574,6 +585,66 @@ Whenever the metadata is changed on the stream played by the SDK, you will be no
 When an error occurs during your interaction with the stream manager this callback will be called by the SDK.
 
 
+# Interactive ads
+
+Adswizz interactive ads require some permissions on your app.
+
+```kotlin
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+```
+
+## Handling interactive ad events
+
+While the **_AdManger.Listener_** provides a list of **_AdEventType_** covering the life cycle of an ad it does not provide information on an interactive ad.
+To get more insight on what is happening while an interactive ad is playing you can set the **_InteractivityListener_**.
+To set the listener, add the following line of code:
+```kotlin
+AdswizzSDK.setInteractivityListener(adManager, interactivityListener)
+```
+
+A basic implementation of the **_InteractivityListener_** could looks something like this:
+
+```kotlin
+class MyInteractivityListener : InteractivityListener {
+    override fun onReceiveInteractivityEvent(
+        adBaseManager: AdBaseManager,
+        adData: AdData,
+        event: InteractivityEvent
+    ) {
+        when(event) {
+            InteractivityEvent.AD_WILL_BE_SKIPPED -> {
+                // Ad will be skipped as a result of an action during interactive ad
+            }
+            InteractivityEvent.SKIP_AD ->  {
+                // Ad was skipped as a result of an action during interactive ad
+            }
+            InteractivityEvent.EXTEND_AD -> {
+                // Ad was extended with a new media as a result of an action
+            }
+        }
+    }
+
+    /**
+     * Here you can provide your own implementation for coupon presenting
+     * @return true if you want to use your own implementation
+     * @return false otherwise
+     */
+    override fun shouldOverrideCouponPresenting(
+        adBaseManager: AdBaseManager,
+        couponUri: Uri
+    ): Boolean {
+        TODO()
+    }
+}
+```
+
 # Companion Banner
 
 AdswizzSDK lets you configure companion banner(s) if you are provided by the Adswizz PIM with a companion zone id.
@@ -633,66 +704,6 @@ If you need to keep the companion on the screen for a longer time(or indefinitel
 val adCompanionOptions = AdCompanionOptions()
 adCompanionOptions.extraExposureTime = 1.2// these are seconds.
 AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
-```
-
-# Interactive ads
-
-Adswizz interactive ads require some permissions on your app.
-
-```kotlin
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-```
-
-## Handling interactive ad events
-
-While the **_AdManger.Listener_** provides a list of **_AdEventType_** covering the life cycle of an ad it does not provide information on an interactive ad.
-To get more insight on what is happening while an interactive ad is playing you can set the **_InteractivityListener_**.
-To set the listener, add the following line of code:
-```kotlin
-AdswizzSDK.setInteractivityListener(adManager, interactivityListener)
-```
-
-A basic implementation of the **_InteractivityListener_** could looks something like this:
-
-```kotlin
-class MyInteractivityListener : InteractivityListener {
-    override fun onReceiveInteractivityEvent(
-        adBaseManager: AdBaseManager,
-        adData: AdData,
-        event: InteractivityEvent
-    ) {
-        when(event) {
-            InteractivityEvent.AD_WILL_BE_SKIPPED -> {
-                // Ad will be skipped as a result of an action during interactive ad
-            }
-            InteractivityEvent.SKIP_AD ->  {
-                // Ad was skipped as a result of an action during interactive ad
-            }
-            InteractivityEvent.EXTEND_AD -> {
-                // Ad was extended with a new media as a result of an action
-            }
-        }
-    }
-
-    /**
-     * Here you can provide your own implementation for coupon presenting
-     * @return true if you want to use your own implementation
-     * @return false otherwise
-     */
-    override fun shouldOverrideCouponPresenting(
-        adBaseManager: AdBaseManager,
-        couponUri: Uri
-    ): Boolean {
-        TODO()
-    }
-}
 ```
 
 # Playing ads using your player
@@ -789,3 +800,107 @@ interface AdPlayer {
 }
 ```
 Keep in mind that you need to call the right events on the listener so that the adManager knows to take the right actions.
+
+# AdswizzSDK general settings
+
+## GDPR consent
+
+In Adswizz SDK you can set the GDPR policy that you want.
+
+```kotlin
+    AdswizzSDK.gdprConsent = GDPRConsent.GRANTED
+```
+
+Possible values are: `.NOT_APPLICABLE`, `.NOT_ASKED`, `.GRANTED`, `.DENIED`.
+
+
+## CCPA config
+
+Also you can set the CCPA policy.
+
+```kotlin
+    AdswizzSDK.ccpaConfig = CCPAConfig(CCPAConsent.YES, CCPAConsent.YES, CCPAConsent.YES)
+```
+
+The first value represents the explicit notice for collecting consent. The next value is the opt-out of the sale of his personal information. The last one is the limitation of scope to the Limited Service Provider Agreement. For all tree possible values are: `.NOT_APPLICABLE`, `.YES`, `.NO`.
+
+## AFR config
+
+## Integrator Context
+
+## Companion banner
+
+### Extra exposure time for an AdCompanionView
+
+By default, the **_AdCompanionView_** will end displaying the content after the ad finishes playing. If you need to keep the companion on the screen for a longer period of time (or indefinitely), you can configure it like this.
+
+
+```swift
+let adCompanionOptions = AdCompanionOptions()
+adCompanionOptions.extraExposureTime = 1.2 // these are seconds.
+// if you need the companion forever on the screen
+// adCompanionOptions.extraExposureTime = .greatestFiniteMagnitude
+AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
+```
+
+## Privacy
+
+### GDPR
+
+AdsWizz services are GDPR compliant. As a result **_AdswizzSDK_** will decorate urls that connect to Adswizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configured it like this:
+
+```swift
+AdswizzSDK.shared.gdprConsent = <Desired_GDPR_Consent>
+```
+
+If not configured, the default value for GDPR consent in **_AdswizzSDK_** will be  **_notApplicable_**. Other possible values are:
+  * **_notAsked_**: the user was not asked yet about GDPR consent
+  * **_granted_**: the user has granted access
+  * **_denied_**: the user has denied access
+
+### CCPA
+
+With the introduction of CCPA in US, **_AdswizzSDK_** gives you the possibility to forward the user consent accordingly.
+
+```swift
+AdswizzSDK.shared.ccpaConfig = AdswizzCCPAConfig.Builder()
+                                                  .with(explicitNotice: <Desired_CCPA_Consent>)
+                                                  .with(optOut: <Desired_CCPA_Consent>)
+                                                  .with(lspa: <Desired_CCPA_Consent>)
+                                                  .build()
+
+```
+
+The default value for **_explicitNotice_**, **_optOut_** and **_lspa_** is **_notApplicable_**. Other possibile values are **_yes_** and **_no_**.
+
+# (Optional) Prepare your application for advanced targetability capabilities
+
+## Privacy implications
+
+Please be advised that if you choose to enable the Raw Data Signal Collection, you will have to inform your customers that your application handles and processes personal anonymized data. <br>
+**We highly encourage you to loop your product and legal teams in the process of defining the best way to reflect this in your application’s Privacy Policy.**
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+| Data collected for <br>**_Device Targeting_** | Data collected for <br>**_Contextual Targeting_** | Data collected for <br>**_User Targeting_**|
+|:-----------------|:---------------------|:--------------|
+| * device name, language, country and currency<br>* screen brightness level<br>* audio volume level<br>* battery level and status (charging/not charging)<br>* bundle id<br>* operating system version and name | * bluetooth devices (currently connected and history)<br>* WifFi Status (true/false) and WiFi network name / SSID (if connected)<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false) | * identifierForAdvertising(idfa) status (enabled/disabled) and ID (if enabled) |
+
+
+## Technical prerequisites
+
+AdswizzSDK framework can provide several device information using a data collector module. As of iOS 13, WiFi data can only be retrieved if the app entitlements contains the `Access Wi-Fi Information` capability.
+In order to set it, go to your app's target, select Signing & Capabilities and add `Access Wi-Fi Information` capability by tapping the "+" button above.
+
+# Sample projects
+
+Best way to see the AdswizzSDK in action is by studying the example projects included in the /Samples folder. The examples are structured as separate projects in the _**Examples.workspace**_. Note that the samples workspace uses Cocoapods to install AdswizzSDK and necessary dependencies. To succesufully build and run the samples you first need to run a `pod install` to make sure all the neccessary dependencies are downloaded and resolved properly.
+Next, open _**Examples.workspace**_ and run each sample individually by selecting the aproppriate target and click 'Run' in XCode.
+
+## BasicAdRequestExample
+
+This sample demonstrates a basic client side insertion scenario by showing how to create and customize an _**AdswizzAdRequest**_. It shows how to use it to create an _**AdRequestConnection**_ and finally request ads. Next, it demonstrates basic usage of an instance of _**AdManager**_ once it is obtained from the SDK. It also creates and displays an _**AdCompanionView**_ while playing ad(s).
+The sample attempts to simulate an app which plays its normal content and ocassionaly requests ads, pauses content, plays ads and finally resumes to normal content again.
+
+## BasicAdStreamExample
+
+This sample demonstrates a basic server side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_. It shows how to play/stop/pause/resume a live stream. It also creates and displays an _**AdCompanionView**_ during ad break(s).
