@@ -1,0 +1,4 @@
+<resources>
+    <string name="streaming_sample_app">Streaming Sample</string>
+    <string name="app_logs">App Logs:</string>
+</resources>
