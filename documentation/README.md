@@ -884,21 +884,14 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 | * device name, language, country and currency<br>* screen brightness level<br>* audio volume level<br>* battery level, status and state (charging or not) <br>* bundle id, bundle version name and version code<br>* available and total internal storage; available and total external storage<br>* operating system version and name | * bluetooth state, name, status (connected or not) and devices (currently connected or only paired but not connected). For bluetooth devices we collect: name, address, profile and bluetooth class<br>* WiFi Status (true/false), state and WiFi network name / SSID<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false)<br>* uiMode<br>* microphone authorization status<br>* name and type of the active audio device and available devices<br>* app permissions<br>* sensors information: type, name, vendor, version, power used by sensor, resolution, minimum delay allowed between two events, maximum rage of the sensor, the maximum number of events that could be batched, the number of events reserved in the batch mode FIFO, maximum delay and the reporting mode<br>* installed app names | * identifierForAdvertising(idfa) status (enabled/disabled) and ID (if enabled) |
 
 
-## Technical prerequisites
-
-AdswizzSDK framework can provide several device information using a data collector module. As of iOS 13, WiFi data can only be retrieved if the app entitlements contains the `Access Wi-Fi Information` capability.
-In order to set it, go to your app's target, select Signing & Capabilities and add `Access Wi-Fi Information` capability by tapping the "+" button above.
-
 # Sample projects
 
-Best way to see the AdswizzSDK in action is by studying the example projects included in the /Samples folder. The examples are structured as separate projects in the _**Examples.workspace**_. Note that the samples workspace uses Cocoapods to install AdswizzSDK and necessary dependencies. To succesufully build and run the samples you first need to run a `pod install` to make sure all the neccessary dependencies are downloaded and resolved properly.
-Next, open _**Examples.workspace**_ and run each sample individually by selecting the aproppriate target and click 'Run' in XCode.
+Best way to see the AdswizzSDK in action is by studying the example projects included in the /samples folder.
 
-## BasicAdRequestExample
+## BasicSample
 
-This sample demonstrates a basic client side insertion scenario by showing how to create and customize an _**AdswizzAdRequest**_. It shows how to use it to create an _**AdRequestConnection**_ and finally request ads. Next, it demonstrates basic usage of an instance of _**AdManager**_ once it is obtained from the SDK. It also creates and displays an _**AdCompanionView**_ while playing ad(s).
-The sample attempts to simulate an app which plays its normal content and ocassionaly requests ads, pauses content, plays ads and finally resumes to normal content again.
+This sample demonstrates a basic client side insertion scenario by showing how to create and customize an _**AdswizzAdRequest**_. It shows how to use it to create an _**AdRequestConnection**_ and finally request ads. Next, it demonstrates basic usage of an instance of _**AdManager**_ once it is obtained from the SDK.
 
-## BasicAdStreamExample
+## StreamingSample
 
-This sample demonstrates a basic server side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_. It shows how to play/stop/pause/resume a live stream. It also creates and displays an _**AdCompanionView**_ during ad break(s).
+This sample demonstrates a basic server side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
