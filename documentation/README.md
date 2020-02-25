@@ -3,9 +3,22 @@
       * [Prerequisites](#prerequisites)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
+   * [<strong>Client Side Insertion</strong>](#client-side-insertion)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
+      * [<strong>AdManager life cycle</strong>](#admanager-life-cycle)
+         * [AdManager operations](#admanager-operations)
+         * [AdManager Interface](#admanager-interface)
+            * [prepare](#prepare)
+            * [play](#play)
+            * [pause](#pause)
+            * [skipAd](#skipad)
+            * [reset](#reset)
+   * [<strong>Server Side Insertion</strong>](#server-side-insertion)
+      * [What is Server Side Insertion](#what-is-server-side-insertion)
+      * [Your first stream manager](#your-first-stream-manager)
+      * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
    * [<strong>Companion Banner</strong>](#companion-banner)
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
       * [Setting up](#setting-up)
@@ -15,18 +28,6 @@
       * [Handling interactive ad events](#handling-interactive-ad-events)
    * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
-   * [<strong>AdManager life cycle</strong>](#admanager-life-cycle)
-      * [AdManager operations](#admanager-operations)
-      * [AdManager Interface](#admanager-interface)
-         * [prepare](#prepare)
-         * [play](#play)
-         * [pause](#pause)
-         * [skipAd](#skipad)
-         * [reset](#reset)
-   * [<strong>Server Side Insertion</strong>](#server-side-insertion)
-      * [What is Server Side Insertion](#what-is-server-side-insertion)
-      * [Your first stream manager](#your-first-stream-manager)
-      * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
 
 # Get started
 
@@ -133,6 +134,8 @@ implementation 'com.adswizz:adswizz-sdk:version'
 ```
 
 Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.0.5)
+
+# Client Side Insertion
 
 ## Your first ad request
 
@@ -305,6 +308,225 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
 }
 ```
 To actually start the **_AdManager_** rolling the ads you must call the play method on the **_AdManager_** as we did in the example above.
+
+## AdManager operations
+
+Once presented with an AdManager one could call different actions on the AdManager. Let’s break them down.
+
+## AdManager interface
+### prepare
+
+You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the
+playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing
+starts smoothly. After calling this method the first ad is beginning to load. The SDK will trigger
+**_WillStartLoading_** event informing your app that buffering has begun for the ad. When the buffering is done **_DidFinishLoading_** event for the first ad will be triggered.
+
+
+### play
+
+Call **_play_** when you want to play the ads. This should be done after the callback **_DidFinishLoading_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
+
+
+### pause
+
+The **_pause_** method will stop playing the ads in the AdManager. AdManager will trigger a **_DidPausePlaying_** event back to your app for confirmation.
+
+
+### resume
+
+Call **_resume_** when you want to play the ads after a pause. The SDK will trigger a **_DidResumePlaying_** event back to your app for confirmation.
+
+
+### skipAd
+
+If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
+a **_DidSkip_** event for the current ad and if the AdManager has a new ad you will receive
+**_WillStartLoading_** for that one. If no ads are available an **_AllAdsDidFinishPlaying_** will be sent,
+signaling that all ads got processed in the AdManager.
+
+
+### reset
+
+If you decide to skip all ads in the AdManager from the current one you can call this method. For each ad skipped
+your app will trigger **_DidSkip_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
+Looping through the ad again will need a call to **_prepare_** function.</br>
+
+Below is a descriptive graph with all this information:
+
+</br></br>
+
+
+<img src="img/AdManagerState.png" width="1000" />
+
+# Server Side Insertion
+
+
+## What is Server Side Insertion
+
+‘Server Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
+
+The responsibilities are splitted between streaming server and SDK as follows:
+* Streaming Server:
+   * detects ad breaks and inserts audio ads into the audio stream
+   * sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
+* SDK:
+   * decorates audio stream URL to increase targetability of ads
+   * detects all events associated with an ad break (start, stop, change of ad)
+   * retrieves, displays, synchronizes companion banner with audio content based on metadata information
+   * may handle the display area for companion banners outside of an ad break
+   * retrieves and process interactivity information based on metadata
+
+## Your first stream manager
+
+
+To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you.
+
+
+```kotlin
+
+import com.adswizz.core.streaming.AdswizzAdStreamManager
+
+class YourClass {
+
+    private var streamManager: AdswizzAdStreamManager? = null
+
+    fun createStreamManager() {
+        streamManager = AdswizzAdStreamManager(null)
+    }
+}
+
+```
+
+Once the stream manager is constructed it is recommended to set a listener:
+
+```kotlin
+class YourClass {
+
+    private var streamManager: AdswizzAdStreamManager? = null
+
+    private val listener = object : AdStreamManager.Listener {
+        override fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Will start playing url: $url")
+        }
+
+        override fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Did finish playing url: $url")
+        }
+
+        override fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Did paused playing url: $url")
+        }
+
+        override fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            println("Did resume playing url: $url")
+        }
+
+        override fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager) {
+            println("Ad break started: adBaseManager $adBaseManager")
+        }
+
+        override fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager) {
+            println("Ad break ended: adBaseManager $adBaseManager")
+        }
+
+        override fun onError(adStreamManager: AdStreamManager, error: Error) {
+            println("Error - ${error.message} for adStreamManager: $adStreamManager")
+        }
+
+        override fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem) {
+            println("Metadata received - adStreamManager: $adStreamManager - metadata count: ${metadataItem.value.count()}")
+        }
+    }
+
+    fun createStreamManager() {
+        streamManager = AdswizzAdStreamManager(null)
+        streamManager?.addListener(listener)
+    }
+}
+
+```
+
+The stream object can play the url using his internal player or using an external player provided by you. Below is a sample on how to set the external player:
+
+
+```kotlin
+    fun createStreamManager() {
+        val settings = AdManagerStreamingSettings.Builder().adPlayerInstance(externalPlayer).build()
+        streamManager = AdswizzAdStreamManager(settings)
+        ...
+    }
+```
+
+To start playing the stream do the following:
+
+```kotlin
+    streamManager?.play(AIS_URL_PROVIDED_BY_INTEGRATION_MANAGER)
+```
+
+As a response, **_AdswizzSDK_** will call back `fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)` with the provided url that has some extra query params added.
+
+To stop the playing of stream call the stop function:
+
+```kotlin
+    streamManager?.stop()
+```
+
+The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`.
+
+The stream can be paused and resumed:
+
+```kotlin
+    ...
+    streamManager?.pause()
+    ...
+    streamManager?.resume()
+    ...
+```
+
+The sdk will respond with the callbacks `fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` and `fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` respectively. The url is the same as for `willStartPlayingUrl`.
+
+
+## AdStreamManager Listener interface
+
+The available callbacks that are called by the stream manager are described below:
+
+```kotlin
+    interface Listener {
+        fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+        fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+        fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+        fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
+        fun onError(adStreamManager: AdStreamManager, error: Error)
+    }
+```
+
+### fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the play function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters.
+
+### fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the stop function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+
+### fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the pause function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+
+### fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
+After executing the resume function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+
+### fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+When an ad break is detected in the stream, the sdk will execute this callback. It will provide an **_AdBaseManager_** object that can be used for the whole duration of the ad break. You can use it to listen to different Ad related events and also to request a skip of current ad.
+When you get this **_AdBaseManager_** object, the player will automatically play the ad, since it is part of the stream. Most of the times there will be only one ad in the **_AdBaseManager_** object but you can expect other ads to be inserted from the SDK if the ad is extended. This can happen, for instance, when the listener interacts with an ad (i.e. ShakeMe) and the action is to play an extension of the ad.
+
+### fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
+When the ad break from the stream has ended you will get notified to clean up anything related to the provided **_AdBaseManager_**.
+
+### fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
+Whenever the metadata is changed on the stream played by the SDK, you will be notified with this callback.
+
+### fun onError(adStreamManager: AdStreamManager, error: Error)
+When an error occurs during your interaction with the stream manager this callback will be called by the SDK.
 
 
 # Companion Banner
@@ -522,223 +744,3 @@ interface AdPlayer {
 }
 ```
 Keep in mind that you need to call the right events on the listener so that the adManager knows to take the right actions.
-
-## AdManager operations
-
-Once presented with an AdManager one could call different actions on the AdManager. Let’s break them down.
-
-## AdManager interface
-### prepare
-
-You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the
-playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing
-starts smoothly. After calling this method the first ad is beginning to load. The SDK will trigger
-**_WillStartLoading_** event informing your app that buffering has begun for the ad. When the buffering is done **_DidFinishLoading_** event for the first ad will be triggered.
-
-
-### play
-
-Call **_play_** when you want to play the ads. This should be done after the callback **_DidFinishLoading_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
-
-
-### pause
-
-The **_pause_** method will stop playing the ads in the AdManager. AdManager will trigger a **_DidPausePlaying_** event back to your app for confirmation.
-
-
-### resume
-
-Call **_resume_** when you want to play the ads after a pause. The SDK will trigger a **_DidResumePlaying_** event back to your app for confirmation.
-
-
-### skipAd
-
-If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
-a **_DidSkip_** event for the current ad and if the AdManager has a new ad you will receive
-**_WillStartLoading_** for that one. If no ads are available an **_AllAdsDidFinishPlaying_** will be sent,
-signaling that all ads got processed in the AdManager.
-
-
-### reset
-
-If you decide to skip all ads in the AdManager from the current one you can call this method. For each ad skipped
-your app will trigger **_DidSkip_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
-Looping through the ad again will need a call to **_prepare_** function.</br>
-
-Below is a descriptive graph with all this information:
-
-</br></br>
-
-
-<img src="img/AdManagerState.png" width="1000" />
-
-
-# Server Side Insertion
-
-
-## What is Server Side Insertion
-
-‘Server Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
-
-The responsibilities are splitted between streaming server and SDK as follows:
-* Streaming Server:
-   * detects ad breaks and inserts audio ads into the audio stream
-   * sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
-* SDK:
-   * decorates audio stream URL to increase targetability of ads
-   * detects all events associated with an ad break (start, stop, change of ad)
-   * retrieves, displays, synchronizes companion banner with audio content based on metadata information
-   * may handle the display area for companion banners outside of an ad break
-   * retrieves and process interactivity information based on metadata
-
-## Your first stream manager
-
-
-To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you.
-
-
-```kotlin
-
-import com.adswizz.core.streaming.AdswizzAdStreamManager
-
-class YourClass {
-
-    private var streamManager: AdswizzAdStreamManager? = null
-
-    fun createStreamManager() {
-        streamManager = AdswizzAdStreamManager(null)
-    }
-}
-
-```
-
-Once the stream manager is constructed it is recommended to set a listener:
-
-```kotlin
-class YourClass {
-
-    private var streamManager: AdswizzAdStreamManager? = null
-
-    private val listener = object : AdStreamManager.Listener {
-        override fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
-            println("Will start playing url: $url")
-        }
-
-        override fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
-            println("Did finish playing url: $url")
-        }
-
-        override fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
-            println("Did paused playing url: $url")
-        }
-
-        override fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
-            println("Did resume playing url: $url")
-        }
-
-        override fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager) {
-            println("Ad break started: adBaseManager $adBaseManager")
-        }
-
-        override fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager) {
-            println("Ad break ended: adBaseManager $adBaseManager")
-        }
-
-        override fun onError(adStreamManager: AdStreamManager, error: Error) {
-            println("Error - ${error.message} for adStreamManager: $adStreamManager")
-        }
-
-        override fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem) {
-            println("Metadata received - adStreamManager: $adStreamManager - metadata count: ${metadataItem.value.count()}")
-        }
-    }
-
-    fun createStreamManager() {
-        streamManager = AdswizzAdStreamManager(null)
-        streamManager?.addListener(listener)
-    }
-}
-
-```
-
-The stream object can play the url using his internal player or using an external player provided by you. Below is a sample on how to set the external player:
-
-
-```kotlin
-    fun createStreamManager() {
-        val settings = AdManagerStreamingSettings.Builder().adPlayerInstance(externalPlayer).build()
-        streamManager = AdswizzAdStreamManager(settings)
-        ...
-    }
-```
-
-To start playing the stream do the following:
-
-```kotlin
-    streamManager?.play(AIS_URL_PROVIDED_BY_INTEGRATION_MANAGER)
-```
-
-As a response, **_AdswizzSDK_** will call back `fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)` with the provided url that has some extra query params added.
-
-To stop the playing of stream call the stop function:
-
-```kotlin
-    streamManager?.stop()
-```
-
-The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`.
-
-The stream can be paused and resumed:
-
-```kotlin
-    ...
-    streamManager?.pause()
-    ...
-    streamManager?.resume()
-    ...
-```
-
-The sdk will respond with the callbacks `fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` and `fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` respectively. The url is the same as for `willStartPlayingUrl`.
-
-
-## AdStreamManager Listener interface
-
-The available callbacks that are called by the stream manager are described below:
-
-```kotlin
-    interface Listener {
-        fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-        fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-        fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-        fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-        fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
-        fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
-        fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
-        fun onError(adStreamManager: AdStreamManager, error: Error)
-    }
-```
-
-### fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the play function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters.
-
-### fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the stop function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
-
-### fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the pause function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
-
-### fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the resume function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
-
-### fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
-When an ad break is detected in the stream, the sdk will execute this callback. It will provide an **_AdBaseManager_** object that can be used for the whole duration of the ad break. You can use it to listen to different Ad related events and also to request a skip of current ad.
-When you get this **_AdBaseManager_** object, the player will automatically play the ad, since it is part of the stream. Most of the times there will be only one ad in the **_AdBaseManager_** object but you can expect other ads to be inserted from the SDK if the ad is extended. This can happen, for instance, when the listener interacts with an ad (i.e. ShakeMe) and the action is to play an extension of the ad.
-
-### fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
-When the ad break from the stream has ended you will get notified to clean up anything related to the provided **_AdBaseManager_**.
-
-### fun onMetadataChanged(adStreamManager: AdStreamManager, metadataItem: AdPlayer.MetadataItem)
-Whenever the metadata is changed on the stream played by the SDK, you will be notified with this callback.
-
-### fun onError(adStreamManager: AdStreamManager, error: Error)
-When an error occurs during your interaction with the stream manager this callback will be called by the SDK.
