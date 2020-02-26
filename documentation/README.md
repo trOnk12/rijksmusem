@@ -29,7 +29,7 @@
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
       * [Setting up](#setting-up)
       * [Companion events](#companion-events)
-      * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
+      * [Extra exposure time](#extra-exposure-time)
    * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
 
@@ -705,7 +705,7 @@ You will be notified when the ad has loaded the companion view, if the companion
 the display. If there was an error while loading the companion you will be notified through this listener.
 Also, you can decide whether or not to override click through on the companion view.
 
-## Extra exposure time for an AdCompanionView
+## Extra exposure time
 
 By default the AdCompanionView will end displaying the content after the ad finishes playing.
 If you need to keep the companion on the screen for a longer time(or indefinitely) you can configure it like this.
