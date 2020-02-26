@@ -1,16 +1,16 @@
 # **AdswizzSDK - Integration**
    * [<strong>Before you start</strong>](#before-you-start)
-      * [What is ‘Client Side Insertion’](#what-is-client-side-insertion)
-      * [What is ‘Server Side Insertion’](#what-is-server-side-insertion)
-      * [Prerequisites for ‘Client Side Insertion’](#prerequisites-for-client-side-insertion)
-      * [Prerequisites for ‘Server Side Insertion’](#prerequisites-for-server-side-insertion)
+      * [What is ‘Client-Side Insertion’](#what-is-client-side-insertion)
+      * [What is ‘Server-Side Insertion’](#what-is-server-side-insertion)
+      * [Prerequisites for ‘Client-Side Insertion’](#prerequisites-for-client-side-insertion)
+      * [Prerequisites for ‘Server-Side Insertion’](#prerequisites-for-server-side-insertion)
    * [<strong>Get started</strong>](#get-started)
       * [Prerequisites](#prerequisites)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
       * [SDK initialization and cleanup](#SDK-initialization-and-cleanup)
-   * [<strong>Client Side Insertion</strong>](#client-side-insertion)
+   * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
       * [<strong>AdManager life cycle</strong>](#admanager-life-cycle)
@@ -21,7 +21,7 @@
             * [pause](#pause)
             * [skipAd](#skipad)
             * [reset](#reset)
-   * [<strong>Server Side Insertion</strong>](#server-side-insertion)
+   * [<strong>Server-Side Insertion</strong>](#server-side-insertion)
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
    * [<strong>Interactive ads</strong>](#interactive-ads)
@@ -37,18 +37,18 @@
 
 # Before you start
 
-This guide is addressed to the android developers who want to integrate AdswizzSDK in their apps.
+This guide is addressed to the Android developers who want to integrate AdswizzSDK in their apps.
 Here is a quick overview. More details will be provided for each scenario in their respective section.
 
-## What is Client Side Insertion
+## What is Client-Side Insertion
 
-'Client Side Insertion' represents the insertion of ads into the audio stream done by the integrator. Your app is responsable for the built-in logic to decide when to start and end an ad break by fetching ads from the ad server and playing them with your apps's audio/video capabilities. The SDK will handle all communication during ad fetching with the ad server while being in charge with the display of companion banner and performing various event reporting (impressions & quartiles).
+'Client-Side Insertion' represents the insertion of ads into the audio stream done by the integrator. Your app is responsible for the built-in logic to decide when to start and end an ad break by fetching ads from the ad server and playing them with your apps's audio/video capabilities. The SDK will handle all communication during ad fetching with the ad server while being in charge with the display of companion banner and performing various event reporting (impressions & quartiles).
 
-## What is Server Side Insertion
+## What is Server-Side Insertion
 
-‘Server Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server side insertion'.
+‘Server-Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server-side insertion'.
 
-The responsibilities are splitted between streaming server and SDK as follows:
+The responsibilities are split between streaming server and SDK as follows:
 * Streaming Server:
    * detects ad breaks and inserts audio ads into the audio stream
    * sends metadata information to make possible for the SDK to synchronize companion banner with the audio content and to detect interactive ads
@@ -59,9 +59,9 @@ The responsibilities are splitted between streaming server and SDK as follows:
    * may handle the display area for companion banners outside of an ad break
    * retrieves and process interactivity information based on metadata
 
-## Prerequisites for ‘Client Side Insertion’
+## Prerequisites for ‘Client-Side Insertion’
 
-In order to successfully do the ‘Client Side Insertion’ you will need to set/provide the following information for your **_AdswizzAdRequest_** object within **_AdRequestConnection_**:
+In order to successfully do the ‘Client-Side Insertion’ you will need to set/provide the following information for your **_AdswizzAdRequest_** object within **_AdRequestConnection_**:
 *  adServer = the name of AdServer used to fetch ads from
 *  zoneId = identifier of zone used to retrieve audio/video ads from
 *  companionZones = (optional) identifier of zone to retrieve creatives to be displayed by the companion banner
@@ -72,11 +72,11 @@ The following can be set as general AdswizzSDK parameters:
 *  (optional) CCPA (U.S. privacy string) consent value
 *  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for vast macro expansion)
 
-For client side scenario you may use any streaming server and you are not require to use an AIS.
+For client-side scenario you may use any streaming server and you are not require to use an AIS.
 
-## Prerequisites for ‘Server Side Insertion’
+## Prerequisites for ‘Server-Side Insertion’
 
-In order to successfully integrate the ‘Server Side Insertion’ you will need to set the following information:
+In order to successfully integrate the ‘Server-Side Insertion’ you will need to set the following information:
 * in afrConfig:
    *  server = the name of Adserver used to insert ads from
    *  endpoint = contains the identifier of zone to retrieve creatives to be displayed by the companion banner
@@ -94,8 +94,8 @@ The following can be set as general AdswizzSDK parameters:
 AdswizzSDK facilitates the ad lifecycle management, right from your application.
 Sensing listeners environment, it crafts the overall ad exercise for superior addressability and augmented interactivity.
 
-On top, in a client side insertion scenario, it retrieves the ad with its associated assets, and handles the reporting operations.<br>
-In a server side insertion scenario, it takes the pressure off your app by making the interactivity and assets easily available.
+On top, in a client-side insertion scenario, it retrieves the ad with its associated assets, and handles the reporting operations.<br>
+In a server-side insertion scenario, it takes the pressure off your app by making the interactivity and assets easily available.
 
 
 ## Prerequisites
@@ -279,7 +279,7 @@ AdswizzSDK.cleanup()
 Call it when you will no longer need the SDK.
 
 
-# Client Side Insertion
+# Client-Side Insertion
 
 ## Your first ad request
 
@@ -303,7 +303,7 @@ adRequestConnection.requestAds { adManager, error ->
             handleResponse(error, adManager)
         }
 ```
-As a result of this call the SDK will provide you with an error if the call was a failure or an AdManager object if the result was a success.
+As a result, of this call the SDK will provide you with an error if the call was a failure or an AdManager object if the result was a success.
 
 ## Working with AdManager object
 
@@ -429,7 +429,7 @@ Below is a descriptive graph with all this information:
 <img src="img/AdManagerState.png" width="1000" />
 
 
-# Server Side Insertion
+# Server-Side Insertion
 
 
 ## Your first stream manager
@@ -527,7 +527,7 @@ To stop the playing of stream call the stop function:
     streamManager?.stop()
 ```
 
-The sdk will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`.
+The SDK will respond with the callback `fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)`. The url is the same as for `willStartPlayingUrl`.
 
 The stream can be paused and resumed:
 
@@ -539,7 +539,7 @@ The stream can be paused and resumed:
     ...
 ```
 
-The sdk will respond with the callbacks `fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` and `fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` respectively. The url is the same as for `willStartPlayingUrl`.
+The SDK will respond with the callbacks `fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` and `fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` respectively. The url is the same as for `willStartPlayingUrl`.
 
 
 ## AdStreamManager Listener interface
@@ -560,19 +560,19 @@ The available callbacks that are called by the stream manager are described belo
 ```
 
 ### fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the play function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters.
+After executing the play function on the stream manager object, the SDK will call this function with the original url decorated with extra parameters.
 
 ### fun didFinishPlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the stop function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+After executing the stop function on the stream manager object, the SDK will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
 
 ### fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the pause function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+After executing the pause function on the stream manager object, the SDK will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
 
 ### fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)
-After executing the resume function on the stream manager object, the sdk will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
+After executing the resume function on the stream manager object, the SDK will call this function with the original url decorated with extra parameters. The decorated url will be the same as the one in the `willStartPlayingUrl` callback.
 
 ### fun adBreakStarted(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
-When an ad break is detected in the stream, the sdk will execute this callback. It will provide an **_AdBaseManager_** object that can be used for the whole duration of the ad break. You can use it to listen to different Ad related events and also to request a skip of current ad.
+When an ad break is detected in the stream, the SDK will execute this callback. It will provide an **_AdBaseManager_** object that can be used for the whole duration of the ad break. You can use it to listen to different Ad related events and also to request a skip of current ad.
 When you get this **_AdBaseManager_** object, the player will automatically play the ad, since it is part of the stream. Most of the times there will be only one ad in the **_AdBaseManager_** object but you can expect other ads to be inserted from the SDK if the ad is extended. This can happen, for instance, when the listener interacts with an ad (i.e. ShakeMe) and the action is to play an extension of the ad.
 
 ### fun adBreakEnded(adStreamManager: AdStreamManager, adBaseManager: AdBaseManager)
@@ -805,7 +805,7 @@ Keep in mind that you need to call the right events on the listener so that the 
 
 ## GDPR consent
 
-AdsWizz services are GDPR compliant. As a result **_AdswizzSDK_** will decorate urls that connect to Adswizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configured it like this:
+AdsWizz services are GDPR compliant. As a result, **_AdswizzSDK_** will decorate urls that connect to Adswizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configure it like this:
 
 ```kotlin
     AdswizzSDK.gdprConsent = GDPRConsent.GRANTED
@@ -828,7 +828,7 @@ The first value represents the explicit notice for collecting consent. The next 
 
 ## AFR config
 
-In order to have the companion displayed during 'Server Side Insertion' an AFR Config object should be provided to the SDK. With the information obtained from Adswizz this object can be configured like in the code snippet below:
+In order to have the companion displayed during 'Server-Side Insertion' an AFR Config object should be provided to the SDK. With the information obtained from Adswizz this object can be configured like in the code snippet below:
 
 ```kotlin
     AdswizzSDK.afrConfig = AfrConfig(
@@ -850,14 +850,14 @@ The interface definition is provided below:
 
 ```kotlin
 /**
- * Interface to be implemented by the integrator to provide host app information to the sdk
+ * Interface to be implemented by the integrator to provide host app information to the SDK
  */
 interface IntegratorContext {
 
     // the player used to play the content. It may be the same as the ad player or a different one. It may not exist for server-side insertion
     var contentPlayer: AdPlayer?
 
-    // Indicates whether the sdk’s intended use case was video, audio, or hybrid
+    // Indicates whether the SDK’s intended use case was video, audio, or hybrid
     var adType: Ad.AdType
 }
 ```
@@ -890,8 +890,8 @@ Best way to see the AdswizzSDK in action is by studying the example projects inc
 
 ## BasicSample
 
-This sample demonstrates a basic client side insertion scenario by showing how to create and customize an _**AdswizzAdRequest**_. It shows how to use it to create an _**AdRequestConnection**_ and finally request ads. Next, it demonstrates basic usage of an instance of _**AdManager**_ once it is obtained from the SDK.
+This sample demonstrates a basic client-side insertion scenario by showing how to create and customize an _**AdswizzAdRequest**_. It shows how to use it to create an _**AdRequestConnection**_ and finally request ads. Next, it demonstrates basic usage of an instance of _**AdManager**_ once it is obtained from the SDK.
 
 ## StreamingSample
 
-This sample demonstrates a basic server side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
+This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
