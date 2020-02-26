@@ -46,7 +46,7 @@ Here is a quick overview. More details will be provided for each scenario in the
 
 ## What is Server-Side Insertion
 
-‘Server-Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an Adswizz product that does 'server-side insertion'.
+‘Server-Side Insertion’ represents the insertion of ads in the audio stream done by the server in real time. It requires AIS as a streaming server. AIS is the acronym for Audio Injector for Servers and is an AdsWizz product that does 'server-side insertion'.
 
 The responsibilities are split between streaming server and SDK as follows:
 * Streaming Server:
@@ -70,13 +70,13 @@ In order to successfully do the ‘Client-Side Insertion’ you will need to set
 The following can be set as general AdswizzSDK parameters:
 *  (optional) GDPR consent value
 *  (optional) CCPA (U.S. privacy string) consent value
-*  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for vast macro expansion)
+*  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for VAST macro expansion)
 
-For client-side scenario you may use any streaming server and you are not require to use an AIS.
+For the client-side scenario, you may use any streaming server and you are not require to use an AIS.
 
 ## Prerequisites for ‘Server-Side Insertion’
 
-In order to successfully integrate the ‘Server-Side Insertion’ you will need to set the following information:
+In order to successfully integrate the ‘Server-Side Insertion’, you will need to set the following information:
 * in afrConfig:
    *  server = the name of Adserver used to insert ads from
    *  endpoint = contains the identifier of zone to retrieve creatives to be displayed by the companion banner
@@ -86,7 +86,7 @@ In order to successfully integrate the ‘Server-Side Insertion’ you will need
 The following can be set as general AdswizzSDK parameters:
 *  (optional) GDPR consent value
 *  (optional) CCPA (U.S. privacy string) consent value
-*  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for vast macro expansion)
+*  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for VAST macro expansion)
 
 
 # Get started
@@ -202,7 +202,7 @@ Where <strong>version</strong> is the latest version of the SDK provided by AdsW
 
 ## SDK initialization and cleanup
 
-First, you need to add the installationId, provided by an Adswizz engineer, to your manifest. It should look like this:
+First, you need to add the installationId, provided by an AdsWizz engineer, to your manifest. It should look like this:
 
 ```xml
 <application
@@ -291,7 +291,7 @@ val adRequest: AdswizzAdRequest = AdswizzAdRequest.Builder() //Build the Ad Requ
             .withZoneId("ZONEID_PROVIDED_BY_PIM")
             .build()
 ```
-Ad server and zoneId will be provided to you by an Adswizz PIM.
+Ad server and zoneId will be provided to you by an AdsWizz PIM.
 
 After this point you need create an AdRequestConnection object and call requestAds with the ad request object.
 
@@ -307,12 +307,12 @@ As a result, of this call the SDK will provide you with an error if the call was
 
 ## Working with AdManager object
 
-If the request to the Adswizz Ad server was a success the SDK will return an AdManager object which you will own and will be the way the SDK will communicate events back to your application. \
-To get this communication channel open you need to set up a listener for the AdManager that conforms to the AdManagerListener interface. The AdManager will call:
+If the request to the AdsWizz Ad server was a success, the SDK will return an AdManager object which you will own and will be the way the SDK will communicate events back to your application. \
+To get this communication channel open, you need to set up a listener for the AdManager that conforms to the AdManagerListener interface. The AdManager will call:
 
 `onEventReceived(adManager: AdManager, event: AdEvent)` whenever events of interest might happen in the SDK. Consult AdEvent.Type for a list of possible events from the AdswizzSDK.
 
-If an error happens in the SDK while using this object `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called
+If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called
 
 As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**.
 In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.
@@ -381,15 +381,15 @@ To actually start the **_AdManager_** rolling the ads you must call the play met
 
 ## AdManager operations
 
-Once presented with an AdManager one could call different actions on the AdManager. Let’s break them down.
+Once presented with an AdManager, one could call different actions on the AdManager. Let’s break them down.
 
 ## AdManager interface
 ### prepare
 
 You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the
 playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing
-starts smoothly. After calling this method the first ad is beginning to load. The SDK will trigger
-**_WillStartLoading_** event informing your app that buffering has begun for the ad. When the buffering is done **_DidFinishLoading_** event for the first ad will be triggered.
+starts smoothly. Upon calling this method the first ad starts loading. The SDK will trigger
+**_WillStartLoading_** event informing your app that buffering has begun for the ad. Once buffering is done, **_DidFinishLoading_** event for the first ad will be triggered.
 
 
 ### play
@@ -411,7 +411,7 @@ Call **_resume_** when you want to play the ads after a pause. The SDK will trig
 
 If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
 a **_DidSkip_** event for the current ad and if the AdManager has a new ad you will receive
-**_WillStartLoading_** for that one. If no ads are available an **_AllAdsDidFinishPlaying_** will be sent,
+**_WillStartLoading_** for that one. If no ads are available, an **_AllAdsDidFinishPlaying_** will be sent,
 signaling that all ads got processed in the AdManager.
 
 
@@ -435,7 +435,7 @@ Below is a descriptive graph with all this information:
 ## Your first stream manager
 
 
-To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you.
+To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you with.
 
 
 ```kotlin
@@ -587,7 +587,7 @@ When an error occurs during your interaction with the stream manager this callba
 
 # Interactive ads
 
-Adswizz interactive ads require some permissions on your app.
+AdsWizz interactive ads require some permissions on your app.
 
 ```kotlin
     <uses-permission android:name="android.permission.CALL_PHONE" />
@@ -828,7 +828,7 @@ The first value represents the explicit notice for collecting consent. The next 
 
 ## AFR config
 
-In order to have the companion displayed during 'Server-Side Insertion' an AFR Config object should be provided to the SDK. With the information obtained from Adswizz this object can be configured like in the code snippet below:
+In order to have the companion displayed during 'Server-Side Insertion' an AFR Config object should be provided to the SDK. With the information obtained from AdsWizz this object can be configured like in the code snippet below:
 
 ```kotlin
     AdswizzSDK.afrConfig = AfrConfig(
@@ -886,7 +886,7 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 
 # Sample projects
 
-Best way to see the AdswizzSDK in action is by studying the example projects included in the /samples folder.
+The best way to see the AdswizzSDK in action is by studying the example projects included in the /samples folder.
 
 ## BasicSample
 
