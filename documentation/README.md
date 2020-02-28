@@ -1,4 +1,4 @@
-# **AdswizzSDK - Integration**
+# **AdswizzSDK - Integration guide**
    * [<strong>Before you start</strong>](#before-you-start)
       * [What is ‘Client-Side Insertion’](#what-is-client-side-insertion)
       * [What is ‘Server-Side Insertion’](#what-is-server-side-insertion)
@@ -32,16 +32,15 @@
       * [Extra exposure time](#extra-exposure-time)
    * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
-
    * [<strong>AdswizzSDK general settings</strong>](#adswizzsdk-general-settings)
       * [GDPR consent](#gdpr-consent)
       * [CCPA config](#ccpa-config)
       * [AFR config](#afr-config)
       * [Integrator Context](#integrator-context)
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
-   * [(Optional) Prepare your application for advanced targetability capabilities](#optional-prepare-your-application-for-advanced-targetability-capabilities)
+   * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
-   * [Sample projects](#sample-projects)
+   * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
 
