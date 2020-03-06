@@ -1,16 +1,16 @@
 # **AdswizzSDK - Integration guide**
-   * [<strong>Before you start</strong>](#before-you-start)
+ * [<strong>Before you start</strong>](#before-you-start)
       * [What is ‘Client-Side Insertion’](#what-is-client-side-insertion)
       * [What is ‘Server-Side Insertion’](#what-is-server-side-insertion)
       * [Prerequisites for ‘Client-Side Insertion’](#prerequisites-for-client-side-insertion)
       * [Prerequisites for ‘Server-Side Insertion’](#prerequisites-for-server-side-insertion)
-   * [<strong>Get started</strong>](#get-started)
+ * [<strong>Get started</strong>](#get-started)
       * [Prerequisites](#prerequisites)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
       * [SDK initialization and cleanup](#SDK-initialization-and-cleanup)
-   * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
+ * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
       * [AdManager operations](#admanager-operations)
@@ -20,27 +20,27 @@
          * [pause](#pause)
          * [skipAd](#skipad)
          * [reset](#reset)
-   * [<strong>Server-Side Insertion</strong>](#server-side-insertion)
+ * [<strong>Server-Side Insertion</strong>](#server-side-insertion)
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
-   * [<strong>Interactive ads</strong>](#interactive-ads)
+ * [<strong>Interactive ads</strong>](#interactive-ads)
       * [Handling interactive ad events](#handling-interactive-ad-events)
-   * [<strong>Companion Banner</strong>](#companion-banner)
+ * [<strong>Companion Banner</strong>](#companion-banner)
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
       * [Setting up](#setting-up)
       * [Companion events](#companion-events)
       * [Extra exposure time](#extra-exposure-time)
-   * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
+ * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
-   * [<strong>AdswizzSDK general settings</strong>](#adswizzsdk-general-settings)
+ * [<strong>AdswizzSDK general settings</strong>](#adswizzsdk-general-settings)
       * [GDPR consent](#gdpr-consent)
       * [CCPA config](#ccpa-config)
       * [AFR config](#afr-config)
       * [Integrator Context](#integrator-context)
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
-   * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
+ * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
-   * [<strong>Sample projects</strong>](#sample-projects)
+ * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
 
@@ -895,7 +895,12 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 
 # Sample projects
 
-The best way to see the AdswizzSDK in action is by studying the example projects included in the /samples folder.
+The best way to see the AdswizzSDK in action is by studying the example projects included in the `/samples` folder. Download the `/samples` folder using the below `git` command:
+```properties
+$ git clone https://github.com/adswizz/ad-sdk-android.git
+Username: your_username
+Password: Personal_Access_Token_provided
+```
 
 ## BasicSample
 
