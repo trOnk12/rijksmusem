@@ -719,77 +719,72 @@ AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 
 # Playing ads using your player
 
-AdswizzSDK gives you the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
-By default, the SDK will play the ad. The AdManager object is player agnostic. This means that as long as you provide an
-**_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()``` the adManager will use your
-player to play the ads. Your player must implement the **_AdPlayer_** interface.
+AdswizzSDK gives the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
+By default, the SDK will use its internal player to play the ad. To use the external player you have to provide an **_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()```. See below:
+
+```kotlin
+    adManager.adManagerSettings = AdManagerSettings.Builder().adPlayerInstance(externalPlayer).build()
+```
+
+The provided player (externalPlayer in the example above) must implement the **_AdPlayer_** interface.
 
 ## AdPlayer Interface
 
 ```kotlin
 interface AdPlayer {
 
-    data class MetadataItem(val key: String, val value: String)
+    // Player version.
+    val version: String
 
-    enum class Status {
-        // Player state is unknown. Something has happen.
-        UNKNOWN,
-        // Player is initialized but not playing and does not have an item to play. This should be the default state.
-        INITIALIZED,
-        // Player is about to begin buffering
-        BUFFERING,
-        // Player has finished buffering
-        BUFFERING_FINISHED,
-        // Player is playing the item.
-        PLAYING,
-        // Player has been paused playing
-        PAUSED,
-        // Player has finished the whole item. This would be the last state for an item.
-        FINISHED,
-        // Player failed to load the item
-        FAILED,
-    }
+    // Player name
+    val name: String
+
+    // Player capabilities as described in VAST document
+    val playerCapabilities: List<PlayerCapabilities>
+
+    // Player state as described in VAST document
+    val playerState: List<PlayerState>
+
+    // Current player volume
+    var volume: Float
+
 
     fun load(creativeURL: Uri)
 
-    /**
-    * Starts the playback of the ad and gives the onPlay/onResume event to the listener
-    */
     fun play()
 
-    /**
-    * Pauses the playback of the ad and gives the onPause event to the listener
-    */
     fun pause()
 
-    /**
-    * Resets the player to the initial state
-    */
     fun reset()
 
-    /**
-     * Reflects the current playback time in seconds for the content.x
-     */
+
+    // the current playback time in seconds
     fun getCurrentTime(): Double
 
-    /**
-     * Reflects the current track duration from the player
-     */
+    // the current track duration
     fun getDuration(): Double?
 
-    /**
-     * Reflects the current status for a player.
-     */
+    // the current status for a player. The enum with all possible values is defined below
     fun status(): Status
 
     /**
-    * Used to add a listener to the player's internal state
-    */
-    fun addListener(listener: Listener)
+     * This method only counts for server side playback (streams)
+     *
+     * @returns true if the player buffers the content while paused and starts from that same point when it resumes
+     * @returns false if the player does not buffer while paused, and when it resumes the playback starts from the live frame of the stream
+     */
+    fun isBufferingWhilePaused(): Boolean
 
+
+    fun addListener(listener: Listener)
     fun removeListener(listener: Listener)
 
+
     interface Listener {
+
+        fun onLoading()
+
+        fun onLoadingFinished()
 
         fun onBuffering()
 
@@ -805,12 +800,98 @@ interface AdPlayer {
 
         fun onError(error: String)
 
-        fun onMetadata(metadataList: List<MetadataItem>)
+        fun onMetadata(metadataList: List<MetadataItem>) {
+            // default implementation does nothing. This is only needed for server side insertion
+        }
+
+        fun onVolumeChanged(volume: Float) {
+            // default implementation does nothing
+        }
+    }
+
+    data class MetadataItem(val key: String, val value: String)
+
+    enum class Status {
+        // The player is initialized but not playing and does not have an item to play. This should be the default state
+        INITIALIZED,
+        // The player is about to begin loading
+        LOADING,
+        // The player has finished loading
+        LOADING_FINISHED,
+        // The player is about to begin buffering
+        BUFFERING,
+        // The player has finished buffering
+        BUFFERING_FINISHED,
+        // The player is playing the item
+        PLAYING,
+        // The player has been paused
+        PAUSED,
+        // The player has finished the whole item. This would be the last state for an item
+        FINISHED,
+        // The player failed to load the item
+        FAILED,
+        // The player state is unknown.
+        UNKNOWN;
     }
 
 }
 ```
+
 Keep in mind that you need to call the right events on the listener so that the adManager knows to take the right actions.
+
+### Name and version
+
+The player name and version can be any strings that you want. They will identify the player used.
+
+### Player capabilities
+
+Below is a quote from VAST_4.2_final_june26.pdf representing a description of all player capabilities:
+
+```text
+● skip to indicate the user's ability to skip the ad
+● mute to indicate the user's ability to mute/unmute audio
+● autoplay to indicate the player's ability to autoplay media with audio, also implies mautoplay
+● mautoplay to indicate the player's ability to autoplay media when muted
+● fullscreen to indicate the user's ability to enter fullscreen
+● icon to indicate the player's ability to render NAI icons from VAST
+```
+
+In the sdk this list is represented with the following enum:
+
+```kotlin
+enum class PlayerCapabilities(val rawValue: String) {
+    SKIP("skip"),
+    MUTE("mute"),
+    AUTOPLAY("autoplay"),
+    MAUTOPLAY("mautoplay"),
+    FULLSCREEN("fullscreen"),
+    ICON("icon");
+}
+```
+
+The ```playerCapabilities``` represents a list of the supported player capabilities.
+
+
+### Player State
+
+Below is a quote from VAST_4.2_final_june26.pdf representing a description of all player states:
+
+```text
+● muted to indicate the player is currently muted
+● fullscreen to indicate the player is currently fullscreen
+```
+
+In the sdk this list is represented with the following enum:
+
+```kotlin
+enum class PlayerState(val rawValue: String) {
+    MUTED("muted"),
+    FULLSCREEN("fullscreen");
+}
+```
+
+The ```playerState``` represents a list of the current states in which the player is.
+
 
 # Integrate into Wear OS apps
 
