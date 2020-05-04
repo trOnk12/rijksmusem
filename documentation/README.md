@@ -32,6 +32,8 @@
       * [Extra exposure time](#extra-exposure-time)
  * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
+ * [<strong>Integrate into Wear OS apps</strong>](#integrate-into-wear-os-apps)
+      * [ShakeMe on Wear OS](#shakeme-on-wear-os)
  * [<strong>AdswizzSDK general settings</strong>](#adswizzsdk-general-settings)
       * [GDPR consent](#gdpr-consent)
       * [CCPA config](#ccpa-config)
@@ -207,7 +209,7 @@ allprojects {
 implementation 'com.adswizz:adswizz-sdk:version'
 ```
 
-Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.0.5)
+Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.0.0)
 
 ## SDK initialization and cleanup
 
@@ -809,6 +811,28 @@ interface AdPlayer {
 }
 ```
 Keep in mind that you need to call the right events on the listener so that the adManager knows to take the right actions.
+
+# Integrate into Wear OS apps
+
+If you have a companion Wear OS app for your Android app, you can also integrate our Wear Sdk. This will allow you to use the SmartWatch as a detector along side your phone.
+
+To integrate adswizz wear sdk into your WearOS app simply write the following line into your wear app ```build.gradle``` file.
+
+```groovy
+implementation 'com.adswizz:adswizz-wear-sdk:version'
+```
+where ```version``` is the latest version of adswizz-wear-sdk provided to you by an AdsWizz PIM.
+
+Keep in mind that for the communication to work between phone and wear app, the apps have to have the same ```aplicationId``` (i.e. ```com.example.sample.app```)
+
+## ShakeMe on Wear OS
+
+After the ```adswizz-wear-sdk``` integration is done, you don't need to do anything else for this to work. As long as there is a connection between your phone and your wear device, if you receive an interactive ad
+with ```shake``` as detection method, the detector will automatically start on both devices. When one device detects, the other is notified and stops its own detector.
+
+In the following image you can see a complete flow of how the feature works.
+
+<img src="img/SmartWatch-ShakeFlow.png" width="1000" />
 
 # AdswizzSDK general settings
 
