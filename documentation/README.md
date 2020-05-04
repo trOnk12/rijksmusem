@@ -867,7 +867,10 @@ interface IntegratorContext {
     var contentPlayer: AdPlayer?
 
     // Indicates whether the SDK’s intended use case was video, audio, or hybrid
-    var adType: Ad.AdType
+    var adType: Ad.AdType?
+
+    // Indicates whether the intended use case was pre-roll, mid-roll, post-roll, standalone or other
+    var breakPosition: BreakPosition?
 }
 ```
 
