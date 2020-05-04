@@ -893,6 +893,79 @@ enum class PlayerState(val rawValue: String) {
 The ```playerState``` represents a list of the current states in which the player is.
 
 
+### Player volume
+
+The ```volume``` variable can be used to get the player current volume or to set the player current volume. The values are between 0.0f and 1.0f; 0.0f means muted and 1.0f means max volume.
+
+### load function
+
+The ```fun load(creativeURL: Uri)``` function is called by the AdManager when it wants the player to load a media file. The AdPlayer implementation should respond with ```fun onLoading()``` when the loading of the media file is about to begin and with ```fun onLoadingFinished()``` when the loading has been completed.
+
+### play function
+
+When the AdManager wants the playing to begin, for the first time, it will call ```fun play()```. For this case, the AdPlayer will respond with ```fun onPlay()```. When the AdManager wants the playing to resume after a pause it will also call ```fun play()``` but this time the AdPlayer should respond with ```fun onResume()```.
+
+### pause function
+
+There may be a time when the user will want to pause the AdManager. When this will happen the AdManager will call ```fun pause()```. In this case the AdPlayer will repond with ```fun onPause()```.
+
+### reset function
+
+The ```fun reset()``` is called when the AdManager wants to stop everything and bring the AdPlayer to it's initial state.
+
+
+### getCurrentTime and getDuration
+
+The ```fun getDuration(): Double?``` should return the duration of the track in seconds when it can be obtained from the media resource otherwise null.
+The ```fun getCurrentTime(): Double``` should return the current position of the playhead in the current track. If no media resource exists then 0.0 should be returned. The value returned by this function should be between 0.0 and the duration returned by ```getDuration()```. When the playing finishes at the end of the track the value returned should be equal to ```getDuration()```.
+
+### status function
+
+The current status for a player is obtained by the AdManager using the ```fun status(): Status``` function.
+
+The enum with all possible values is defined below
+
+```kotlin
+enum class Status {
+    // The player is initialized but not playing and does not have an item to play. This should be the default state
+    INITIALIZED,
+
+    // The player is about to begin loading
+    LOADING,
+
+    // The player has finished loading
+    LOADING_FINISHED,
+
+    // The player failed to load the item
+    FAILED,
+
+    // The player is about to begin buffering
+    BUFFERING,
+
+    // The player has finished buffering
+    BUFFERING_FINISHED,
+
+    // The player is playing the item
+    PLAYING,
+
+    // The player has been paused
+    PAUSED,
+
+    // The player has finished the whole item. This would be the last state for an item
+    FINISHED,
+
+    // The player state is unknown.
+    UNKNOWN;
+}
+```
+
+The initial player status is ```INITIALIZED```. It will have this value also after ```fun reset()``` is called.
+When the ```fun load(creativeURL: Uri)``` is called the status will change to ```LOADING``` just before it begins and when it completes to ```LOADING_FINISHED```. In case the loading fails the ```FAILED``` status is set
+During playback, if the player needs to buffer the media then it will change the status to ```BUFFERING``` and when the buffering ends it will change it to ```BUFFERING_FINISHED```. When it starts buffering it should also call ```fun onBuffering()``` and when it finishes ```fun onBufferingFinished()```. In this way the AdManager will be notified that a buffering is started or has completed.
+When the player actively plays the ad the status should be ```PLAYING``` and if it is paused the status should be ```PAUSED```.
+When the player finishes to play a track then the status will be ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
+
+
 # Integrate into Wear OS apps
 
 If you have a companion Wear OS app for your Android app, you can also integrate our Wear Sdk. This will allow you to use the SmartWatch as a detector along side your phone.
