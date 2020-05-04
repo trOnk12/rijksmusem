@@ -814,8 +814,7 @@ Keep in mind that you need to call the right events on the listener so that the 
 
 # Integrate into Wear OS apps
 
-If you have a companion Wear OS app for your Android app, you can also integrate our Wear Sdk. This will allow you to use the SmartWatch
-as a detector along side your phone.
+If you have a companion Wear OS app for your Android app, you can also integrate our Wear Sdk. This will allow you to use the SmartWatch as a detector along side your phone.
 
 To integrate adswizz wear sdk into your WearOS app simply write the following line into your wear app ```build.gradle``` file.
 
@@ -828,10 +827,10 @@ Keep in mind that for the communication to work between phone and wear app, the 
 
 ## ShakeMe on Wear OS
 
-After the ```adswizz-wear-sdk``` integration is done, you don't need to do anything else for this to work. As long as there is a connection between your phone and your Wear device, if you receive an interactive ad
-with ```shake``` as detection method, the detector will automatically start on both devices. When one devices detects, the other is notified and stops its own detector.
+After the ```adswizz-wear-sdk``` integration is done, you don't need to do anything else for this to work. As long as there is a connection between your phone and your wear device, if you receive an interactive ad
+with ```shake``` as detection method, the detector will automatically start on both devices. When one device detects, the other is notified and stops its own detector.
 
-In the follwing image you can see a complete flow of how the feature works.
+In the following image you can see a complete flow of how the feature works.
 
 <img src="img/SmartWatch-ShakeFlow.png" width="1000" />
 
