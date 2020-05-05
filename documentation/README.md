@@ -86,7 +86,7 @@ The following can be set as general AdswizzSDK parameters:
 *  (optional) CCPA (U.S. privacy string) consent value
 *  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for VAST macro expansion)
 
-For the client-side scenario, you may use any streaming server and you are not require to use an AIS.
+For the client-side scenario, you may use any streaming server provided by AdsWizz or Pandora.
 
 ## Prerequisites for ‘Server-Side Insertion’
 
@@ -118,34 +118,46 @@ In a server-side insertion scenario, it takes the pressure off your app by makin
 * Gradle build system
 
 ## Dependencies
- A list of external dependencies used in our SDK:
+
+ A list of external dependencies used in our phone and tablet SDK:
+
 ```groovy
 kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
 kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 appcompat = "androidx.appcompat:appcompat:${appcompatVersion}"
 coreKtx = "androidx.core:core-ktx:${coreKtxVersion}"
-firebaseAds = "com.google.firebase:firebase-ads:${firebaseAdsVersion}"
 exoPlayer = "com.google.android.exoplayer:exoplayer:$exoPlayerVerison"
 gmsPlayServicesAds = "com.google.android.gms:play-services-ads:$gmsPlayServicesAdsVersion"
+constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+lifeCycleExtensions = "androidx.lifecycle:lifecycle-extensions:$lifeCycleExtensionsVersion"
+kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
+kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
 moshi = "com.squareup.moshi:moshi:$moshiVersion"
 moshiAdapters = "com.squareup.moshi:moshi-adapters:$moshiVersion"
 moshiCodeGen = "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
+protobufJava = "com.google.protobuf:protobuf-java:$protobufJavaVersion"
+playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
+lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
 androidMaterial = "com.google.android.material:material:$androidMaterialVersion"
-constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-lifeCycleExtensions = "androidx.lifecycle:lifecycle-extensions:$lifeCycleExtensionsVersion"
-preferenceKtx = "androidx.preference:preference-ktx:$coreKtxVersion"
-firebaseAnalytics = "com.google.firebase:firebase-analytics:$firebaseVersion"
-crashlyticsSdk = "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
+```
+
+For our wear SDK we use:
+
+```groovy
+kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
+supportWearable = "com.google.android.support:wearable:$wearableSupportVersion"
+playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
+lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
 ```
 
 ## Permissions
 
-With the addition of the AdswizzSDK to your project, there will be some permissions that will appear in your merged manifest file.
+With the addition of the SDK to your project, there will be some permissions that will appear in your merged manifest file.
 You don't need to do anything.
 
-The SDK uses the following permissions:
+The AdswizzAdSDK uses the following permissions:
 
 ```xml
 <manifest>
@@ -161,6 +173,19 @@ The SDK uses the following permissions:
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.BLUETOOTH" />
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+......
+</manifest>
+```
+
+AdswizzWearSDK uses the following permissions:
+
+```xml
+<manifest>
+.....
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ......
 </manifest>
