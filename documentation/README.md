@@ -9,7 +9,7 @@
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
-      * [SDK initialization and cleanup](#SDK-initialization-and-cleanup)
+      * [SDK initialization and cleanup](#sdk-initialization-and-cleanup)
  * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
@@ -35,6 +35,7 @@
       * [AdPlayer Interface](#adplayer-interface)
  * [<strong>Integrate into Wear OS apps</strong>](#integrate-into-wear-os-apps)
       * [ShakeMe on Wear OS](#shakeme-on-wear-os)
+      * [Voice Detector on Wear OS](#voice-detector-on-wear-os)
  * [<strong>AdswizzSDK general settings</strong>](#adswizzsdk-general-settings)
       * [GDPR consent](#gdpr-consent)
       * [CCPA config](#ccpa-config)
@@ -43,6 +44,7 @@
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
  * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
+ * [<strong>Vast Macros</strong>](#vast-macros)
  * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
@@ -1018,6 +1020,10 @@ with ```shake``` as detection method, the detector will automatically start on b
 In the following image you can see a complete flow of how the feature works.
 
 <img src="img/SmartWatch-ShakeFlow.png" width="1000" />
+
+## Voice Detector on Wear OS
+The same as **shakeMe** the voice detector works on WearOS too. After integrating the **wear SDK**, the only thing you need to do
+to have voice detection active on the watch is to make sure you give your WearOS app the ```RECORD_AUDIO``` permission.
 
 # AdswizzSDK general settings
 
