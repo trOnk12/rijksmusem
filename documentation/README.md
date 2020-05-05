@@ -1162,7 +1162,7 @@ The Adswizz SDK fully supports the following list of macros:
 - ADPLAYHEAD
 - ASSETURI
 - ADSERVINGID
-- LIMITADTRACKING
+- LIMITADTRACKING <br>
 and partially supports:
 - ERRORCODE - only a part of the error codes are currently covered
 
