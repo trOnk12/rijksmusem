@@ -598,7 +598,7 @@ When an error occurs during your interaction with the stream manager this callba
 
 AdsWizz interactive ads require some permissions on your app.
 
-```kotlin
+```xml
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -613,6 +613,10 @@ AdsWizz interactive ads require some permissions on your app.
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
 ```
+There are three types of detectors as follows: ShakeDetector, VoiceDetector and InAppNotification
+
+## Shake enabled interactive ads.
+These ads, as the name suggests, detect the **shake** of the of phone and execute the selected action.
 
 ## Voice enabled interactive ads
 The speech detector uses the microphone to record the voice of the user and then sends this information to Google to
@@ -620,6 +624,13 @@ be analyzed and transformed into words. These words are then matched against the
  If a match happends then the interactivity action is triggered.
 AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions nedeed for this
 feature to work is ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
+
+
+## InApp Notification interactive ads
+In-App Notification refers to a pop-up alert style UI component which is configured through the interactivity JSON received from a VAST response in an <AdParameters> tag.
+
+A basic configuration will make the In-App Notification banner to look like in the picture below:
+<img src="img/inAppNotif.png" width="1000" />
 
 
 ## Handling interactive ad events
