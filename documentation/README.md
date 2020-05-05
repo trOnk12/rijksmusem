@@ -9,7 +9,8 @@
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
-      * [SDK initialization and cleanup](#sdk-initialization-and-cleanup)
+      * [Phone and Tablet SDK initialization and cleanup](#phone-and-tablet-sdk-initialization-and-cleanup)
+      * [Wear SDK initialization and cleanup](#wear-sdk-initialization-and-cleanup)
  * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
@@ -231,15 +232,23 @@ allprojects {
 }
 ```
 
-2. Inside your module level build.gradle add the following line inside your dependencies block:
+2. For the phone and tablet SDK, inside your module level build.gradle add the following line inside the dependencies block:
 
 ```groovy
 implementation 'com.adswizz:adswizz-sdk:version'
 ```
 
-Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.0.0)
+Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.1.0)
 
-## SDK initialization and cleanup
+For the wear SDK, inside your module level build.gradle add the following line inside the dependencies block:
+
+```groovy
+implementation 'com.adswizz:adswizz-wear-sdk:version'
+```
+
+Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.1.0)
+
+## Phone and Tablet SDK initialization and cleanup
 
 First, you need to add the installationId, provided by an AdsWizz engineer or PIM, to your manifest. It should look like this:
 
@@ -317,6 +326,55 @@ AdswizzSDK.cleanup()
 
 Call it when you will no longer need the SDK.
 
+## Wear SDK initialization and cleanup
+
+In your manifest you should add the following lines:
+
+```xml
+<application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+    ......
+    <service android:name="com.adswizz.wear.interactivead.DataListenerService">
+        <intent-filter>
+            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+            <data
+                android:host="*"
+                android:pathPrefix="/start-detector"
+                android:scheme="wear" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+            <data
+                android:host="*"
+                android:pathPrefix="/stop-detector"
+                android:scheme="wear" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+            <data
+                android:host="*"
+                android:pathPrefix="/pause-detector"
+                android:scheme="wear" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+            <data
+                android:host="*"
+                android:pathPrefix="/resume-detector"
+                android:scheme="wear" />
+        </intent-filter>
+    </service>
+
+    <service android:name="com.adswizz.wear.interactivead.detectors.internal.DetectorForegroundService" />
+    ......
+</application>
+```
+
+That's it!
 
 # Client-Side Insertion
 
