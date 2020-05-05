@@ -318,18 +318,18 @@ As a result, of this call the SDK will provide you with an error if the call was
 
 ## Working with AdManager object
 
-If the request to the AdsWizz Ad server was a success, the SDK will return an AdManager object which you will own and will be the way the SDK will communicate events back to your application. \
+If the request to the AdsWizz Ad server was a success, the SDK will return an AdManager object which you will own and will be the way the SDK will communicate events back to your application.
 To get this communication channel open, you need to set up a listener for the AdManager that conforms to the AdManagerListener interface. The AdManager will call:
 
 `onEventReceived(adManager: AdManager, event: AdEvent)` whenever events of interest might happen in the SDK. Consult AdEvent.Type for a list of possible events from the AdswizzSDK.
 
-If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called
+If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called.
 
 As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**.
 In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.
 
 Next, you need to call prepare method on the **_AdManager_** object.
-This will buffer the ads if you decide the play them with the internal player. Here is how it looks like.
+This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
 
 ```kotlin
 class MainActivity : AppCompatActivity(), AdManagerListener {
@@ -369,13 +369,13 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
 
     override fun onEventReceived(adManager: AdManager, event: AdEvent) {
         when(event.type) {
-            AdEvent.Type.State.DidFinishLoading ->  {
+            AdEvent.Type.State.ReadyForPlay ->  {
                 adManager.play() //Start playing the next ad in the AdManager
             }
             AdEvent.Type.State.DidFinishPlaying -> {
                 // Current ad has finished playing
             }
-            AdEvent.Type.State.AllAdsDidFinishPlaying -> {
+            AdEvent.Type.State.AllAdsCompleted -> {
                 // All ads from the AdManager have finished
             }
 
@@ -397,15 +397,12 @@ Once presented with an AdManager, one could call different actions on the AdMana
 ## AdManager interface
 ### prepare
 
-You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the
-playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing
-starts smoothly. Upon calling this method the first ad starts loading. The SDK will trigger
-**_WillStartLoading_** event informing your app that buffering has begun for the ad. Once buffering is done, **_DidFinishLoading_** event for the first ad will be triggered.
+You call this method to begin to cycle through the ads in the AdManager. This method ensures that the player is starting to buffer enough data so that ad playing starts smoothly. Upon calling this method the first ad starts loading. The SDK will trigger **_PreparingForPlay_** event informing your app that buffering has begun for the ad. Once buffering is done, **_ReadyForPlay_** event for the first ad will be triggered.
 
 
 ### play
 
-Call **_play_** when you want to play the ads. This should be done after the callback **_DidFinishLoading_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
+Call **_play_** when you want to play the ads. This should be done after the callback **_ReadyForPlay_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
 
 
 ### pause
@@ -421,15 +418,15 @@ Call **_resume_** when you want to play the ads after a pause. The SDK will trig
 ### skipAd
 
 If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
-a **_DidSkip_** event for the current ad and if the AdManager has a new ad you will receive
-**_WillStartLoading_** for that one. If no ads are available, an **_AllAdsDidFinishPlaying_** will be sent,
-signaling that all ads got processed in the AdManager.
+a **_DidSkip_** or **_NotUsed_** event for the current ad and if the AdManager has a new ad you will receive
+**_PreparingForPlay_** for that one. If no ads are available, an **_AllAdsCompleted_** will be sent,
+signalling that all ads got processed in the AdManager.
 
 
 ### reset
 
-If you decide to skip all ads in the AdManager from the current one you can call this method. For each ad skipped
-your app will trigger **_DidSkip_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
+If you decide to skip all ads in the AdManager from the current one you can call this method. For the current ad skipped
+your app will trigger **_DidSkip_** or **_NotUsed_** and for the rest **_NotUsed_**. A **_AllAdsCompleted_** event will be sent at the end.
 Looping through the ad again will need a call to **_prepare_** function.</br>
 
 Below is a descriptive graph with all this information:
