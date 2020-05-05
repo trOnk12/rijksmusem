@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added two new statuses for AdPlayer.Status: **LOADING**, **LOADING_FINISHED**
 - ```withZones(zones: Set<AdswizzAdZone>)``` to *AdswizzAdRequest.Builder*
 - Added new interface **ModuleLifecycle**
+- Added new interface **ModuleLifecycleConfig**
 
 ### Removed
 - ```withZoneId(zoneId: String)``` from *AdswizzAdRequest.Builder*
