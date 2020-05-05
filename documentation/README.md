@@ -213,7 +213,7 @@ Where <strong>version</strong> is the latest version of the SDK provided by AdsW
 
 ## SDK initialization and cleanup
 
-First, you need to add the installationId, provided by an AdsWizz engineer, to your manifest. It should look like this:
+First, you need to add the installationId, provided by an AdsWizz engineer or PIM, to your manifest. It should look like this:
 
 ```xml
 <application
@@ -230,7 +230,7 @@ First, you need to add the installationId, provided by an AdsWizz engineer, to y
 </application>
 ```
 
-Second, you need to add the playerId to your manifest. This can have any value that you want. It should look like this:
+Second, you need to add the playerId to your manifest. This is also obtained from an AdsWizz engineer or PIM. It should look like this:
 
 ```xml
 <application
