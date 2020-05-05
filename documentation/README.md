@@ -24,6 +24,7 @@
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
  * [<strong>Interactive ads</strong>](#interactive-ads)
+      * [Voice enabled interactive ads](#voice-enabled-interactive-ads)
       * [Handling interactive ad events](#handling-interactive-ad-events)
  * [<strong>Companion Banner</strong>](#companion-banner)
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
@@ -598,15 +599,28 @@ When an error occurs during your interaction with the stream manager this callba
 AdsWizz interactive ads require some permissions on your app.
 
 ```kotlin
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 ```
+
+## Voice enabled interactive ads
+The speech detector uses the microphone to record the voice of the user and then sends this information to Google to
+be analyzed and transformed into words. These words are then matched against the list of keywords that need to be detected.  
+ If a match happends then the interactivity action is triggered.
+AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions nedeed for this
+feature to work is ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
+
 
 ## Handling interactive ad events
 
