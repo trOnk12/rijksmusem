@@ -232,23 +232,15 @@ allprojects {
 }
 ```
 
-2. For the phone and tablet SDK, inside your module level build.gradle add the following line inside the dependencies block:
+2. Then, inside your module level build.gradle add the following line inside the dependencies block:
 
 ```groovy
 implementation 'com.adswizz:adswizz-sdk:version'
 ```
 
-Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.1.0)
+Where <strong>version</strong> is the latest version of the phone and tablet SDK provided by AdsWizz (i.e. 7.1.0)
 
-For the wear SDK, inside your module level build.gradle add the following line inside the dependencies block:
-
-```groovy
-implementation 'com.adswizz:adswizz-wear-sdk:version'
-```
-
-Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.1.0)
-
-## Phone and Tablet SDK initialization and cleanup
+## SDK initialization and cleanup
 
 First, you need to add the installationId, provided by an AdsWizz engineer or PIM, to your manifest. It should look like this:
 
@@ -326,56 +318,6 @@ AdswizzSDK.cleanup()
 
 Call it when you will no longer need the SDK.
 
-## Wear SDK initialization and cleanup
-
-In your manifest you should add the following lines:
-
-```xml
-<application
-    android:allowBackup="true"
-    android:icon="@mipmap/ic_launcher"
-    android:label="@string/app_name"
-    android:supportsRtl="true"
-    android:theme="@style/AppTheme">
-    ......
-    <service android:name="com.adswizz.wear.interactivead.DataListenerService">
-        <intent-filter>
-            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-            <data
-                android:host="*"
-                android:pathPrefix="/start-detector"
-                android:scheme="wear" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-            <data
-                android:host="*"
-                android:pathPrefix="/stop-detector"
-                android:scheme="wear" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-            <data
-                android:host="*"
-                android:pathPrefix="/pause-detector"
-                android:scheme="wear" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-            <data
-                android:host="*"
-                android:pathPrefix="/resume-detector"
-                android:scheme="wear" />
-        </intent-filter>
-    </service>
-
-    <service android:name="com.adswizz.wear.interactivead.detectors.internal.DetectorForegroundService" />
-    ......
-</application>
-```
-
-That's it!
-
 # Client-Side Insertion
 
 ## Your first ad request
@@ -385,10 +327,10 @@ You are now ready for your first ad request. You will need to create an AdswizzA
 ```kotlin
 val adRequest: AdswizzAdRequest = AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
             .withServer("SERVER_PROVIDED_BY_PIM")
-            .withZoneId("ZONEID_PROVIDED_BY_PIM")
+            .withZones(setOf(AdswizzAdZone("ZONEID_1_PROVIDED_BY_PIM"), ... AdswizzAdZone("ZONEID_n_PROVIDED_BY_PIM")))
             .build()
 ```
-Ad server and zoneId will be provided to you by an AdsWizz PIM.
+The ad server and the zoneId(s) will be provided to you by an AdsWizz PIM.
 
 After this point you need create an AdRequestConnection object and call requestAds with the ad request object.
 
@@ -427,7 +369,7 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
         val adRequest: AdswizzAdRequest =
             AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
                 .withServer("SERVER_PROVIDED_BY_PIM")
-                .withZoneId("ZONEID_PROVIDED_BY_PIM")
+                .withZones(setOf(AdswizzAdZone("ZONEID_PROVIDED_BY_PIM")))
                 .withPlayerId("PLAYERID_PROVIDED_BY_PIM")
                 .build()
 
@@ -681,6 +623,8 @@ When an error occurs during your interaction with the stream manager this callba
 
 # Interactive ads
 
+An interactive ad is an ad that has at least one detector and at least one action associated with it.
+
 AdsWizz interactive ads require some permissions on your app.
 
 ```xml
@@ -701,22 +645,23 @@ AdsWizz interactive ads require some permissions on your app.
 There are three types of detectors as follows: ShakeDetector, VoiceDetector and InAppNotification
 
 ## Shake enabled interactive ads.
-These ads, as the name suggests, detect the **shake** of the of phone and execute the selected action.
+These ads, as the name suggests, detect the **shake** of the of phone or wear and execute the selected action.
 
 ## Voice enabled interactive ads
 The speech detector uses the microphone to record the voice of the user and then sends this information to Google to
 be analyzed and transformed into words. These words are then matched against the list of keywords that need to be detected.  
- If a match happends then the interactivity action is triggered.
-AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions nedeed for this
-feature to work is ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
-
+If a match happends then the interactivity action is triggered.
+AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions needed for this
+feature to work are ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
 
 ## InApp Notification interactive ads
 In-App Notification refers to a pop-up alert style UI component which is configured through the interactivity JSON received from a VAST response in an <AdParameters> tag.
 
 A basic configuration will make the In-App Notification banner to look like in the picture below:
+
 <img src="img/inAppNotif.png" width="1000" />
 
+Pressing a button will trigger the action associated with it.
 
 ## Handling interactive ad events
 
@@ -798,7 +743,7 @@ First when you create an **_AdswizzAdRequest_** you must configure the **_compan
 ```kotlin
 val adRequest = AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
                 .withServer("SERVER_PROVIDED_BY_PIM")
-                .withZoneId("ZONEID_PROVIDED_BY_PIM")
+                .withZones(setOf(AdswizzAdZone("ZONEID_PROVIDED_BY_PIM")))
                 .withPlayerId("PLAYERID_PROVIDED_BY_PIM")
                 .withCompanionZones("COMPANION_PROVIDED_BY_PIM")
                 .build()
