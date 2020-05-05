@@ -871,10 +871,9 @@ enum class PlayerCapabilities(val rawValue: String) {
 
 The ```playerCapabilities``` represents a list of the supported player capabilities.
 
-
 ### Player State
 
-Below is a quote from VAST_4.2_final_june26.pdf representing a description of all player states:
+Currently there are 2 player states defined in the VAST document (VAST_4.2_final_june26.pdf), they are:
 
 ```text
 ● muted to indicate the player is currently muted
@@ -891,7 +890,6 @@ enum class PlayerState(val rawValue: String) {
 ```
 
 The ```playerState``` represents a list of the current states in which the player is.
-
 
 ### Player volume
 
@@ -913,17 +911,16 @@ There may be a time when the user will want to pause the AdManager. When this wi
 
 The ```fun reset()``` is called when the AdManager wants to stop everything and bring the AdPlayer to it's initial state.
 
-
 ### getCurrentTime and getDuration
 
 The ```fun getDuration(): Double?``` should return the duration of the track in seconds when it can be obtained from the media resource otherwise null.
-The ```fun getCurrentTime(): Double``` should return the current position of the playhead in the current track. If no media resource exists then 0.0 should be returned. The value returned by this function should be between 0.0 and the duration returned by ```getDuration()```. When the playing finishes at the end of the track the value returned should be equal to ```getDuration()```.
+The ```fun getCurrentTime(): Double``` should return the current position of the playhead in the current track in seconds. If no media resource exists then 0.0 should be returned. The value returned by this function should be between 0.0 and the duration returned by ```getDuration()```. When the playing finishes at the end of the track the value returned should be equal to ```getDuration()```.
 
 ### status function
 
 The current status for a player is obtained by the AdManager using the ```fun status(): Status``` function.
 
-The enum with all possible values is defined below
+The enum with all possible values is defined below:
 
 ```kotlin
 enum class Status {
@@ -959,11 +956,23 @@ enum class Status {
 }
 ```
 
-The initial player status is ```INITIALIZED```. It will have this value also after ```fun reset()``` is called.
-When the ```fun load(creativeURL: Uri)``` is called the status will change to ```LOADING``` just before it begins and when it completes to ```LOADING_FINISHED```. In case the loading fails the ```FAILED``` status is set
-During playback, if the player needs to buffer the media then it will change the status to ```BUFFERING``` and when the buffering ends it will change it to ```BUFFERING_FINISHED```. When it starts buffering it should also call ```fun onBuffering()``` and when it finishes ```fun onBufferingFinished()```. In this way the AdManager will be notified that a buffering is started or has completed.
+The initial player status should be ```INITIALIZED```. It should have this value also after ```fun reset()``` is called.
+When the ```fun load(creativeURL: Uri)``` is called the status should change to ```LOADING``` just before it begins and when it completes to ```LOADING_FINISHED```. In case the loading fails the ```FAILED``` status should be set.
+During playback, if the player needs to buffer the media then it should change the status to ```BUFFERING``` and when the buffering ends it should change it to ```BUFFERING_FINISHED```. When it starts buffering it should also call ```fun onBuffering()``` and when it finishes ```fun onBufferingFinished()```. In this way the AdManager will be notified that a buffering is started or has completed.
 When the player actively plays the ad the status should be ```PLAYING``` and if it is paused the status should be ```PAUSED```.
-When the player finishes to play a track then the status will be ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
+When the player finishes to play a track then the status should change to ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
+
+### isBufferingWhilePaused function
+
+The value returned by this function is used only for server side playback (streams). Return true if the player buffers the content while paused and starts from that same point when it resumes. Return false if the player does not buffer the content while paused, and when it resumes the playback starts from the live frame of the stream.
+
+### listener functions
+
+The AdPlayer functions ```fun addListener(listener: Listener)``` and ```fun removeListener(listener: Listener)``` should be used to add and remove a listener.
+From the ```Listener``` interface there are only a couple of callbacks that were not explained yet.
+Whenever an error occurs the ```fun onError(error: String)``` callback should be called.
+When doing server side insertion (streams) the ```fun onMetadata(metadataList: List<MetadataItem>)``` function should be called whenever there is metadata in the stream. This is very important for streams. For client side insertion this callback is not used.
+Whenever the player volume changes the ```fun onVolumeChanged(volume: Float)``` callback should be called.
 
 
 # Integrate into Wear OS apps
