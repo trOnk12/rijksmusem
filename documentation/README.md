@@ -141,7 +141,7 @@ lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntim
 androidMaterial = "com.google.android.material:material:$androidMaterialVersion"
 ```
 
-For our wear SDK we use:
+For our Wear OS SDK we use:
 
 ```groovy
 kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
@@ -656,7 +656,7 @@ AdsWizz interactive ads require some permissions on your app.
 There are three types of detectors as follows: ShakeDetector, VoiceDetector and InAppNotification
 
 ## Shake enabled interactive ads.
-These ads, as the name suggests, detect the **shake** of the of phone or wear and execute the selected action.
+These ads, as the name suggests, detect the **shake** of the of phone or Wear OS smartwatch and execute the selected action.
 
 ## Voice enabled interactive ads
 The speech detector uses the microphone to record the voice of the user and then sends this information to Google to
@@ -721,7 +721,7 @@ class MyInteractivityListener : InteractivityListener {
 
 # Companion Banner
 
-AdswizzSDK lets you configure companion banner(s) if you are provided by the Adswizz PIM with a companion zone id.
+AdswizzSDK lets you configure companion banner(s) if you are provided by the AdsWizz PIM with a companion zone id.
 
 
 ## Adding an AdCompanionView
@@ -919,7 +919,7 @@ Below is a quote from [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-cont
 ● icon to indicate the player's ability to render NAI icons from VAST
 ```
 
-In the sdk this list is represented with the following enum:
+In the SDK this list is represented with the following enum:
 
 ```kotlin
 enum class PlayerCapabilities(val rawValue: String) {
@@ -943,7 +943,7 @@ Currently there are 2 player states defined in the VAST document ([VAST_4.2_fina
 ● fullscreen to indicate the player is currently fullscreen
 ```
 
-In the sdk this list is represented with the following enum:
+In the SDK this list is represented with the following enum:
 
 ```kotlin
 enum class PlayerState(val rawValue: String) {
@@ -1040,20 +1040,20 @@ Whenever the player volume changes the ```fun onVolumeChanged(volume: Float)``` 
 
 # Integrate into Wear OS apps
 
-If you have a companion Wear OS app for your Android app, you can also integrate our Wear Sdk. This will allow you to use the SmartWatch as a detector along side your phone.
+If you have a companion Wear OS app for your Android app, you can also integrate our Wear OS SDK. This will allow you to use the smartwatch as a detector along side your phone.
 
-To integrate adswizz wear sdk into your WearOS app simply write the following line into your wear app ```build.gradle``` file.
+To integrate AdsWizz Wear OS SDK into your Wear OS app simply write the following line into your Wear OS app ```build.gradle``` file.
 
 ```groovy
 implementation 'com.adswizz:adswizz-wear-sdk:version'
 ```
 where ```version``` is the latest version of adswizz-wear-sdk provided to you by an AdsWizz PIM.
 
-Keep in mind that for the communication to work between phone and wear app, the apps have to have the same ```aplicationId``` (i.e. ```com.example.sample.app```)
+Keep in mind that for the communication to work between phone and Wear OS app, the apps have to have the same ```aplicationId``` (i.e. ```com.example.sample.app```)
 
 ## ShakeMe on Wear OS
 
-After the ```adswizz-wear-sdk``` integration is done, you don't need to do anything else for this to work. As long as there is a connection between your phone and your wear device, if you receive an interactive ad
+After the ```adswizz-wear-sdk``` integration is done, you don't need to do anything else for this to work. As long as there is a connection between your phone and your Wear OS device, if you receive an interactive ad
 with ```shake``` as detection method, the detector will automatically start on both devices. When one device detects, the other is notified and stops its own detector.
 
 In the following image you can see a complete flow of how the feature works.
@@ -1061,14 +1061,14 @@ In the following image you can see a complete flow of how the feature works.
 <img src="img/SmartWatch-ShakeFlow.png" width="1000" />
 
 ## Voice Detector on Wear OS
-The same as **shakeMe** the voice detector works on WearOS too. After integrating the **wear SDK**, the only thing you need to do
-to have voice detection active on the watch is to make sure you give your WearOS app the ```RECORD_AUDIO``` permission.
+The same as **shakeMe** the voice detector works on Wear OS too. After integrating the **Wear OS SDK**, the only thing you need to do
+to have voice detection active on the watch is to make sure you give your Wear OS app the ```RECORD_AUDIO``` permission.
 
 # AdswizzSDK general settings
 
 ## GDPR consent
 
-AdsWizz services are GDPR compliant. As a result, **_AdswizzSDK_** will decorate urls that connect to Adswizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configure it like this:
+AdsWizz services are GDPR compliant. As a result, **_AdswizzSDK_** will decorate urls that connect to AdsWizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configure it like this:
 
 ```kotlin
     AdswizzSDK.gdprConsent = GDPRConsent.GRANTED
@@ -1151,7 +1151,7 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 
 # Vast Macros
 
-The Adswizz SDK fully supports the following list of macros:
+The AdsWizz SDK fully supports the following list of macros:
 - TIMESTAMP
 - CACHEBUSTING
 - CONTENTPLAYHEAD
@@ -1195,4 +1195,4 @@ This sample demonstrates a basic client-side insertion scenario by showing how t
 ## StreamingSample
 
 This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
-If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **SmartWatch**
+If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **Smartwatch**
