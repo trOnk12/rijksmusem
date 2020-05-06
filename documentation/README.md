@@ -9,8 +9,7 @@
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
-      * [Phone and Tablet SDK initialization and cleanup](#phone-and-tablet-sdk-initialization-and-cleanup)
-      * [Wear SDK initialization and cleanup](#wear-sdk-initialization-and-cleanup)
+      * [SDK initialization and cleanup](#sdk-initialization-and-cleanup)
  * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
@@ -897,7 +896,7 @@ The player name and version can be any strings that you want. They will identify
 
 ### Player capabilities
 
-Below is a quote from VAST_4.2_final_june26.pdf representing a description of all player capabilities:
+Below is a quote from [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) representing a description of all player capabilities:
 
 ```text
 ● skip to indicate the user's ability to skip the ad
@@ -925,7 +924,7 @@ The ```playerCapabilities``` represents a list of the supported player capabilit
 
 ### Player State
 
-Currently there are 2 player states defined in the VAST document (VAST_4.2_final_june26.pdf), they are:
+Currently there are 2 player states defined in the VAST document ([VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf)), they are:
 
 ```text
 ● muted to indicate the player is currently muted
@@ -1166,7 +1165,7 @@ The Adswizz SDK fully supports the following list of macros:
 and partially supports:
 - ERRORCODE - only a part of the error codes are currently covered
 
-For more informations about them consult VAST_4.2_final_june26.pdf.
+For more informations about them consult [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) .
 
 # Sample projects
 
@@ -1184,3 +1183,4 @@ This sample demonstrates a basic client-side insertion scenario by showing how t
 ## StreamingSample
 
 This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
+If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **SmartWatch**
