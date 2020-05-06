@@ -87,7 +87,7 @@ The following can be set as general AdswizzSDK parameters:
 *  (optional) CCPA (U.S. privacy string) consent value
 *  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for VAST macro expansion)
 
-For the client-side scenario, you may use any streaming server provided by AdsWizz or Pandora.
+For the client-side scenario, you may use any streaming server provided by your AdsWizz Integration Manager.
 
 ## Prerequisites for ‘Server-Side Insertion’
 
