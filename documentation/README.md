@@ -71,13 +71,13 @@ The responsibilities are split between streaming server and SDK as follows:
    * detects all events associated with an ad break (start, stop, change of ad)
    * retrieves, displays, synchronizes companion banner with audio content based on metadata information
    * may handle the display area for companion banners outside of an ad break
-   * retrieves and process interactivity information based on metadata
+   * retrieves and processes interactivity information based on metadata
 
 ## Prerequisites for ‘Client-Side Insertion’
 
 In order to successfully do the ‘Client-Side Insertion’ you will need to set/provide the following information for your **_AdswizzAdRequest_** object within **_AdRequestConnection_**:
 *  adServer = the name of AdServer used to fetch ads from
-*  zoneId = identifier of zone used to retrieve audio/video ads from
+*  zones = one or more ```AdswizzAdZone``` to identify the zone/zones used to retrieve audio/video ads from
 *  companionZones = (optional) identifier of zone to retrieve creatives to be displayed by the companion banner
 *  (optional) list of custom site variables used for ads selection (e.g referrer)
 
@@ -162,18 +162,22 @@ The AdswizzAdSDK uses the following permissions:
 ```xml
 <manifest>
 .....
-<uses-permission android:name="android.permission.CALL_PHONE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.WRITE_CONTACTS" />
-<uses-permission android:name="android.permission.WRITE_CALENDAR" />
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.VIBRATE"/>
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.BLUETOOTH" />
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.CAMERA" />
 ......
 </manifest>
 ```
@@ -190,6 +194,14 @@ AdswizzWearSDK uses the following permissions:
 ......
 </manifest>
 ```
+
+If you don't want some of the permissions to show in your app you  can use the following line of code to remove it.
+For example if you don't want the **CAMERA** permission in your final application, you just remove it in your own manifest file like this:
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" tools:node="remove"/>
+```
+Keep in mind that if you remove permissions, some of the features from our SDK might not work. We handle the case of permissions missing so you don't have to worry about crashes.
 
 ## Adding the SDK to your Android Studio Project
 
