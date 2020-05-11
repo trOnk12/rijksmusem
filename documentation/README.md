@@ -648,8 +648,6 @@ When an error occurs during your interaction with the stream manager this callba
 
 Below is a diagram of the AdStreamManager states:
 
-</br></br>
-
 <img src="img/AdStreamManagerState.png" width="1000" />
 
 
