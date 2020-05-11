@@ -9,7 +9,7 @@
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
-      * [SDK initialization and cleanup](#SDK-initialization-and-cleanup)
+      * [SDK initialization and cleanup](#sdk-initialization-and-cleanup)
  * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
       * [Your first ad request](#your-first-ad-request)
       * [Working with AdManager object](#working-with-admanager-object)
@@ -20,10 +20,14 @@
          * [pause](#pause)
          * [skipAd](#skipad)
          * [reset](#reset)
+      * [AdManager life cycle](#admanager-life-cycle)         
  * [<strong>Server-Side Insertion</strong>](#server-side-insertion)
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
+      * [AdStreamManager life cycle](#adstreammanager-life-cycle)      
  * [<strong>Interactive ads</strong>](#interactive-ads)
+      * [Shake enabled interactive ads](#shake-enabled-interactive-ads)
+      * [Voice enabled interactive ads](#voice-enabled-interactive-ads)
       * [Handling interactive ad events](#handling-interactive-ad-events)
  * [<strong>Companion Banner</strong>](#companion-banner)
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
@@ -34,6 +38,7 @@
       * [AdPlayer Interface](#adplayer-interface)
  * [<strong>Integrate into Wear OS apps</strong>](#integrate-into-wear-os-apps)
       * [ShakeMe on Wear OS](#shakeme-on-wear-os)
+      * [Voice Detector on Wear OS](#voice-detector-on-wear-os)
  * [<strong>AdswizzSDK general settings</strong>](#adswizzsdk-general-settings)
       * [GDPR consent](#gdpr-consent)
       * [CCPA config](#ccpa-config)
@@ -42,6 +47,7 @@
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
  * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
+ * [<strong>Vast Macros</strong>](#vast-macros)
  * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
@@ -68,13 +74,13 @@ The responsibilities are split between streaming server and SDK as follows:
    * detects all events associated with an ad break (start, stop, change of ad)
    * retrieves, displays, synchronizes companion banner with audio content based on metadata information
    * may handle the display area for companion banners outside of an ad break
-   * retrieves and process interactivity information based on metadata
+   * retrieves and processes interactivity information based on metadata
 
 ## Prerequisites for ‘Client-Side Insertion’
 
 In order to successfully do the ‘Client-Side Insertion’ you will need to set/provide the following information for your **_AdswizzAdRequest_** object within **_AdRequestConnection_**:
 *  adServer = the name of AdServer used to fetch ads from
-*  zoneId = identifier of zone used to retrieve audio/video ads from
+*  zones = one or more ```AdswizzAdZone``` to identify the zone/zones used to retrieve audio/video ads from
 *  companionZones = (optional) identifier of zone to retrieve creatives to be displayed by the companion banner
 *  (optional) list of custom site variables used for ads selection (e.g referrer)
 
@@ -83,7 +89,7 @@ The following can be set as general AdswizzSDK parameters:
 *  (optional) CCPA (U.S. privacy string) consent value
 *  (optional) integrator context. This contain information that the integrator should provide and will be used by the SDK (for example for VAST macro expansion)
 
-For the client-side scenario, you may use any streaming server and you are not require to use an AIS.
+For the client-side scenario, you may use any streaming server provided by your AdsWizz Integration Manager.
 
 ## Prerequisites for ‘Server-Side Insertion’
 
@@ -115,53 +121,90 @@ In a server-side insertion scenario, it takes the pressure off your app by makin
 * Gradle build system
 
 ## Dependencies
- A list of external dependencies used in our SDK:
+
+ A list of external dependencies used in our phone and tablet SDK:
+
 ```groovy
 kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
 kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 appcompat = "androidx.appcompat:appcompat:${appcompatVersion}"
 coreKtx = "androidx.core:core-ktx:${coreKtxVersion}"
-firebaseAds = "com.google.firebase:firebase-ads:${firebaseAdsVersion}"
 exoPlayer = "com.google.android.exoplayer:exoplayer:$exoPlayerVerison"
 gmsPlayServicesAds = "com.google.android.gms:play-services-ads:$gmsPlayServicesAdsVersion"
+constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+lifeCycleExtensions = "androidx.lifecycle:lifecycle-extensions:$lifeCycleExtensionsVersion"
+kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
+kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
 moshi = "com.squareup.moshi:moshi:$moshiVersion"
 moshiAdapters = "com.squareup.moshi:moshi-adapters:$moshiVersion"
 moshiCodeGen = "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
+protobufJava = "com.google.protobuf:protobuf-java:$protobufJavaVersion"
+playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
+lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
 androidMaterial = "com.google.android.material:material:$androidMaterialVersion"
-constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-lifeCycleExtensions = "androidx.lifecycle:lifecycle-extensions:$lifeCycleExtensionsVersion"
-preferenceKtx = "androidx.preference:preference-ktx:$coreKtxVersion"
-firebaseAnalytics = "com.google.firebase:firebase-analytics:$firebaseVersion"
-crashlyticsSdk = "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
+```
+
+For our Wear OS SDK we use:
+
+```groovy
+kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
+supportWearable = "com.google.android.support:wearable:$wearableSupportVersion"
+playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
+lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
 ```
 
 ## Permissions
 
-With the addition of the AdswizzSDK to your project, there will be some permissions that will appear in your merged manifest file.
+With the addition of the SDK to your project, there will be some permissions that will appear in your merged manifest file.
 You don't need to do anything.
 
-The SDK uses the following permissions:
+The AdswizzAdSDK uses the following permissions:
 
 ```xml
 <manifest>
 .....
-<uses-permission android:name="android.permission.CALL_PHONE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.WRITE_CONTACTS" />
-<uses-permission android:name="android.permission.WRITE_CALENDAR" />
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.VIBRATE"/>
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.BLUETOOTH" />
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.CAMERA" />
+......
+</manifest>
+```
+
+AdswizzWearSDK uses the following permissions:
+
+```xml
+<manifest>
+.....
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ......
 </manifest>
 ```
+
+If you don't want some of the permissions to show in your app you  can use the following line of code to remove it.
+For example if you don't want the **CAMERA** permission in your final application, you just remove it in your own manifest file like this:
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" tools:node="remove"/>
+```
+Keep in mind that if you remove permissions, some of the features from our SDK might not work. We handle the case of permissions missing so you don't have to worry about crashes.
 
 ## Adding the SDK to your Android Studio Project
 
@@ -203,17 +246,21 @@ allprojects {
 }
 ```
 
-2. Inside your module level build.gradle add the following line inside your dependencies block:
+2. Then, inside your module level build.gradle add the following line inside the dependencies block:
 
 ```groovy
 implementation 'com.adswizz:adswizz-sdk:version'
 ```
 
-Where <strong>version</strong> is the latest version of the SDK provided by AdsWizz (i.e. 7.0.0)
+Where <strong>version</strong> is the latest version of the phone and tablet SDK provided by AdsWizz (i.e. 7.1.0 - the latest version). Please notice the below example:
+
+```groovy
+implementation 'com.adswizz:adswizz-sdk:7.1.0'
+```
 
 ## SDK initialization and cleanup
 
-First, you need to add the installationId, provided by an AdsWizz engineer, to your manifest. It should look like this:
+First, you need to add the installationId, provided by an AdsWizz engineer or PIM, to your manifest. It should look like this:
 
 ```xml
 <application
@@ -230,7 +277,7 @@ First, you need to add the installationId, provided by an AdsWizz engineer, to y
 </application>
 ```
 
-Second, you need to add the playerId to your manifest. This can have any value that you want. It should look like this:
+Second, you need to add the playerId to your manifest. This is also obtained from an AdsWizz engineer or PIM. It should look like this:
 
 ```xml
 <application
@@ -289,7 +336,6 @@ AdswizzSDK.cleanup()
 
 Call it when you will no longer need the SDK.
 
-
 # Client-Side Insertion
 
 ## Your first ad request
@@ -299,10 +345,10 @@ You are now ready for your first ad request. You will need to create an AdswizzA
 ```kotlin
 val adRequest: AdswizzAdRequest = AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
             .withServer("SERVER_PROVIDED_BY_PIM")
-            .withZoneId("ZONEID_PROVIDED_BY_PIM")
+            .withZones(setOf(AdswizzAdZone("ZONEID_1_PROVIDED_BY_PIM"), ... AdswizzAdZone("ZONEID_n_PROVIDED_BY_PIM")))
             .build()
 ```
-Ad server and zoneId will be provided to you by an AdsWizz PIM.
+The ad server and the zoneId(s) will be provided to you by an AdsWizz PIM.
 
 After this point you need create an AdRequestConnection object and call requestAds with the ad request object.
 
@@ -318,18 +364,18 @@ As a result, of this call the SDK will provide you with an error if the call was
 
 ## Working with AdManager object
 
-If the request to the AdsWizz Ad server was a success, the SDK will return an AdManager object which you will own and will be the way the SDK will communicate events back to your application. \
+If the request to the AdsWizz Ad server was a success, the SDK will return an AdManager object which you will own and will be the way the SDK will communicate events back to your application.
 To get this communication channel open, you need to set up a listener for the AdManager that conforms to the AdManagerListener interface. The AdManager will call:
 
 `onEventReceived(adManager: AdManager, event: AdEvent)` whenever events of interest might happen in the SDK. Consult AdEvent.Type for a list of possible events from the AdswizzSDK.
 
-If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called
+If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called.
 
 As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**.
 In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.
 
 Next, you need to call prepare method on the **_AdManager_** object.
-This will buffer the ads if you decide the play them with the internal player. Here is how it looks like.
+This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
 
 ```kotlin
 class MainActivity : AppCompatActivity(), AdManagerListener {
@@ -341,7 +387,7 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
         val adRequest: AdswizzAdRequest =
             AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
                 .withServer("SERVER_PROVIDED_BY_PIM")
-                .withZoneId("ZONEID_PROVIDED_BY_PIM")
+                .withZones(setOf(AdswizzAdZone("ZONEID_PROVIDED_BY_PIM")))
                 .withPlayerId("PLAYERID_PROVIDED_BY_PIM")
                 .build()
 
@@ -369,13 +415,13 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
 
     override fun onEventReceived(adManager: AdManager, event: AdEvent) {
         when(event.type) {
-            AdEvent.Type.State.DidFinishLoading ->  {
+            AdEvent.Type.State.ReadyForPlay ->  {
                 adManager.play() //Start playing the next ad in the AdManager
             }
             AdEvent.Type.State.DidFinishPlaying -> {
                 // Current ad has finished playing
             }
-            AdEvent.Type.State.AllAdsDidFinishPlaying -> {
+            AdEvent.Type.State.AllAdsCompleted -> {
                 // All ads from the AdManager have finished
             }
 
@@ -397,15 +443,12 @@ Once presented with an AdManager, one could call different actions on the AdMana
 ## AdManager interface
 ### prepare
 
-You call this method to begin to cycle through the ads in the AdManager. If you decided to let the SDK handle the
-playing of the ads this method ensures that the internal player is starting to buffer enough data so that ad playing
-starts smoothly. Upon calling this method the first ad starts loading. The SDK will trigger
-**_WillStartLoading_** event informing your app that buffering has begun for the ad. Once buffering is done, **_DidFinishLoading_** event for the first ad will be triggered.
+You call this method to begin to cycle through the ads in the AdManager. This method ensures that the player is starting to buffer enough data so that ad playing starts smoothly. Upon calling this method the first ad starts loading. The SDK will trigger **_PreparingForPlay_** event informing your app that buffering has begun for the ad. Once buffering is done, **_ReadyForPlay_** event for the first ad will be triggered.
 
 
 ### play
 
-Call **_play_** when you want to play the ads. This should be done after the callback **_DidFinishLoading_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
+Call **_play_** when you want to play the ads. This should be done after the callback **_ReadyForPlay_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
 
 
 ### pause
@@ -421,21 +464,24 @@ Call **_resume_** when you want to play the ads after a pause. The SDK will trig
 ### skipAd
 
 If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
-a **_DidSkip_** event for the current ad and if the AdManager has a new ad you will receive
-**_WillStartLoading_** for that one. If no ads are available, an **_AllAdsDidFinishPlaying_** will be sent,
-signaling that all ads got processed in the AdManager.
+a **_DidSkip_** or **_NotUsed_** event for the current ad and if the AdManager has a new ad you will receive
+**_PreparingForPlay_** for that one. If no ads are available, an **_AllAdsCompleted_** will be sent,
+signalling that all ads got processed in the AdManager.
 
 
 ### reset
 
-If you decide to skip all ads in the AdManager from the current one you can call this method. For each ad skipped
-your app will trigger **_DidSkip_** and a **_AllAdsDidFinishPlaying_** event will be sent at the end.
+If you decide to skip all ads in the AdManager from the current one you can call this method. For the current ad skipped
+your app will trigger **_DidSkip_** or **_NotUsed_** and for the rest **_NotUsed_**. A **_AllAdsCompleted_** event will be sent at the end.
 Looping through the ad again will need a call to **_prepare_** function.</br>
 
 Below is a descriptive graph with all this information:
 
 </br></br>
 
+## AdManager life cycle
+
+After requesting your first ad from the Adswizz ad server, you are ready to play the ads from the AdManager object. Keep in mind that you might receive more than one ad from the server, but you are not required to play them all. If you decide to play multiple ads in your app, you need to listen to the events that the AdManager sends to your app and decide what is the appropriate action to take. Here is a diagram of the AdManager state.
 
 <img src="img/AdManagerState.png" width="1000" />
 
@@ -445,6 +491,8 @@ Below is a descriptive graph with all this information:
 
 ## Your first stream manager
 
+
+AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners. 
 
 To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you with.
 
@@ -527,7 +575,7 @@ The stream object can play the url using his internal player or using an externa
 To start playing the stream do the following:
 
 ```kotlin
-    streamManager?.play(AIS_URL_PROVIDED_BY_INTEGRATION_MANAGER)
+    streamManager?.play(AIS_STREAM_URL)
 ```
 
 As a response, **_AdswizzSDK_** will call back `fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)` with the provided url that has some extra query params added.
@@ -596,20 +644,45 @@ Whenever the metadata is changed on the stream played by the SDK, you will be no
 When an error occurs during your interaction with the stream manager this callback will be called by the SDK.
 
 
+## AdStreamManager life cycle
+
+Below is a diagram of the AdStreamManager states:
+
+<img src="img/AdStreamManagerState.png" width="1000" />
+
+
 # Interactive ads
+
+An interactive ad is an ad that has at least one detector and at least one action associated with it.
 
 AdsWizz interactive ads require some permissions on your app.
 
-```kotlin
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```xml
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 ```
+There are three types of detectors as follows: ShakeDetector, VoiceDetector and InAppNotification
+
+## Shake enabled interactive ads
+These ads, as the name suggests, detect the **shake** of the of phone or Wear OS smartwatch and execute the selected action.
+
+## Voice enabled interactive ads
+The speech detector uses the microphone to record the voice of the user and then sends this information to Google to
+be analyzed and transformed into words. These words are then matched against the list of keywords that need to be detected.  
+If a match happends then the interactivity action is triggered.
+AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions needed for this
+feature to work are ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
 
 ## Handling interactive ad events
 
@@ -658,7 +731,7 @@ class MyInteractivityListener : InteractivityListener {
 
 # Companion Banner
 
-AdswizzSDK lets you configure companion banner(s) if you are provided by the Adswizz PIM with a companion zone id.
+AdswizzSDK lets you configure companion banner(s) if you are provided by the AdsWizz PIM with a companion zone id.
 
 
 ## Adding an AdCompanionView
@@ -691,7 +764,7 @@ First when you create an **_AdswizzAdRequest_** you must configure the **_compan
 ```kotlin
 val adRequest = AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
                 .withServer("SERVER_PROVIDED_BY_PIM")
-                .withZoneId("ZONEID_PROVIDED_BY_PIM")
+                .withZones(setOf(AdswizzAdZone("ZONEID_PROVIDED_BY_PIM")))
                 .withPlayerId("PLAYERID_PROVIDED_BY_PIM")
                 .withCompanionZones("COMPANION_PROVIDED_BY_PIM")
                 .build()
@@ -719,77 +792,72 @@ AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 
 # Playing ads using your player
 
-AdswizzSDK gives you the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
-By default, the SDK will play the ad. The AdManager object is player agnostic. This means that as long as you provide an
-**_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()``` the adManager will use your
-player to play the ads. Your player must implement the **_AdPlayer_** interface.
+AdswizzSDK gives the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
+By default, the SDK will use its internal player to play the ad. To use the external player you have to provide an **_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()```. See below:
+
+```kotlin
+    adManager.adManagerSettings = AdManagerSettings.Builder().adPlayerInstance(externalPlayer).build()
+```
+
+The provided player (externalPlayer in the example above) must implement the **_AdPlayer_** interface.
 
 ## AdPlayer Interface
 
 ```kotlin
 interface AdPlayer {
 
-    data class MetadataItem(val key: String, val value: String)
+    // Player version.
+    val version: String
 
-    enum class Status {
-        // Player state is unknown. Something has happen.
-        UNKNOWN,
-        // Player is initialized but not playing and does not have an item to play. This should be the default state.
-        INITIALIZED,
-        // Player is about to begin buffering
-        BUFFERING,
-        // Player has finished buffering
-        BUFFERING_FINISHED,
-        // Player is playing the item.
-        PLAYING,
-        // Player has been paused playing
-        PAUSED,
-        // Player has finished the whole item. This would be the last state for an item.
-        FINISHED,
-        // Player failed to load the item
-        FAILED,
-    }
+    // Player name
+    val name: String
+
+    // Player capabilities as described in VAST document
+    val playerCapabilities: List<PlayerCapabilities>
+
+    // Player state as described in VAST document
+    val playerState: List<PlayerState>
+
+    // Current player volume
+    var volume: Float
+
 
     fun load(creativeURL: Uri)
 
-    /**
-    * Starts the playback of the ad and gives the onPlay/onResume event to the listener
-    */
     fun play()
 
-    /**
-    * Pauses the playback of the ad and gives the onPause event to the listener
-    */
     fun pause()
 
-    /**
-    * Resets the player to the initial state
-    */
     fun reset()
 
-    /**
-     * Reflects the current playback time in seconds for the content.x
-     */
+
+    // the current playback time in seconds
     fun getCurrentTime(): Double
 
-    /**
-     * Reflects the current track duration from the player
-     */
+    // the current track duration
     fun getDuration(): Double?
 
-    /**
-     * Reflects the current status for a player.
-     */
+    // the current status for a player. The enum with all possible values is defined below
     fun status(): Status
 
     /**
-    * Used to add a listener to the player's internal state
-    */
-    fun addListener(listener: Listener)
+     * This method only counts for server side playback (streams)
+     *
+     * @returns true if the player buffers the content while paused and starts from that same point when it resumes
+     * @returns false if the player does not buffer while paused, and when it resumes the playback starts from the live frame of the stream
+     */
+    fun isBufferingWhilePaused(): Boolean
 
+
+    fun addListener(listener: Listener)
     fun removeListener(listener: Listener)
 
+
     interface Listener {
+
+        fun onLoading()
+
+        fun onLoadingFinished()
 
         fun onBuffering()
 
@@ -805,40 +873,212 @@ interface AdPlayer {
 
         fun onError(error: String)
 
-        fun onMetadata(metadataList: List<MetadataItem>)
+        fun onMetadata(metadataList: List<MetadataItem>) {
+            // default implementation does nothing. This is only needed for server side insertion
+        }
+
+        fun onVolumeChanged(volume: Float) {
+            // default implementation does nothing
+        }
+    }
+
+    data class MetadataItem(val key: String, val value: String)
+
+    enum class Status {
+        // The player is initialized but not playing and does not have an item to play. This should be the default state
+        INITIALIZED,
+        // The player is about to begin loading
+        LOADING,
+        // The player has finished loading
+        LOADING_FINISHED,
+        // The player is about to begin buffering
+        BUFFERING,
+        // The player has finished buffering
+        BUFFERING_FINISHED,
+        // The player is playing the item
+        PLAYING,
+        // The player has been paused
+        PAUSED,
+        // The player has finished the whole item. This would be the last state for an item
+        FINISHED,
+        // The player failed to load the item
+        FAILED,
+        // The player state is unknown.
+        UNKNOWN;
     }
 
 }
 ```
+
 Keep in mind that you need to call the right events on the listener so that the adManager knows to take the right actions.
+
+### Name and version
+
+The player name and version can be any strings that you want. They will identify the player used.
+
+### Player capabilities
+
+Below is a quote from [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) representing a description of all player capabilities:
+
+```text
+● skip to indicate the user's ability to skip the ad
+● mute to indicate the user's ability to mute/unmute audio
+● autoplay to indicate the player's ability to autoplay media with audio, also implies mautoplay
+● mautoplay to indicate the player's ability to autoplay media when muted
+● fullscreen to indicate the user's ability to enter fullscreen
+● icon to indicate the player's ability to render NAI icons from VAST
+```
+
+In the SDK this list is represented with the following enum:
+
+```kotlin
+enum class PlayerCapabilities(val rawValue: String) {
+    SKIP("skip"),
+    MUTE("mute"),
+    AUTOPLAY("autoplay"),
+    MAUTOPLAY("mautoplay"),
+    FULLSCREEN("fullscreen"),
+    ICON("icon");
+}
+```
+
+The ```playerCapabilities``` represents a list of the supported player capabilities.
+
+### Player State
+
+Currently there are 2 player states defined in the VAST document ([VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf)), they are:
+
+```text
+● muted to indicate the player is currently muted
+● fullscreen to indicate the player is currently fullscreen
+```
+
+In the SDK this list is represented with the following enum:
+
+```kotlin
+enum class PlayerState(val rawValue: String) {
+    MUTED("muted"),
+    FULLSCREEN("fullscreen");
+}
+```
+
+The ```playerState``` represents a list of the current states in which the player is.
+
+### Player volume
+
+The ```volume``` variable can be used to get the player current volume or to set the player current volume. The values are between 0.0f and 1.0f; 0.0f means muted and 1.0f means max volume.
+
+### load function
+
+The ```fun load(creativeURL: Uri)``` function is called by the AdManager when it wants the player to load a media file. The AdPlayer implementation should respond with ```fun onLoading()``` when the loading of the media file is about to begin and with ```fun onLoadingFinished()``` when the loading has been completed.
+
+### play function
+
+When the AdManager wants the playing to begin, for the first time, it will call ```fun play()```. For this case, the AdPlayer will respond with ```fun onPlay()```. When the AdManager wants the playing to resume after a pause it will also call ```fun play()``` but this time the AdPlayer should respond with ```fun onResume()```.
+
+### pause function
+
+There may be a time when the user will want to pause the AdManager. When this will happen the AdManager will call ```fun pause()```. In this case the AdPlayer will repond with ```fun onPause()```.
+
+### reset function
+
+The ```fun reset()``` is called when the AdManager wants to stop everything and bring the AdPlayer to it's initial state.
+
+### getCurrentTime and getDuration
+
+The ```fun getDuration(): Double?``` should return the duration of the track in seconds when it can be obtained from the media resource otherwise null.
+The ```fun getCurrentTime(): Double``` should return the current position of the playhead in the current track in seconds. If no media resource exists then 0.0 should be returned. The value returned by this function should be between 0.0 and the duration returned by ```getDuration()```. When the playing finishes at the end of the track the value returned should be equal to ```getDuration()```.
+
+### status function
+
+The current status for a player is obtained by the AdManager using the ```fun status(): Status``` function.
+
+The enum with all possible values is defined below:
+
+```kotlin
+enum class Status {
+    // The player is initialized but not playing and does not have an item to play. This should be the default state
+    INITIALIZED,
+
+    // The player is about to begin loading
+    LOADING,
+
+    // The player has finished loading
+    LOADING_FINISHED,
+
+    // The player failed to load the item
+    FAILED,
+
+    // The player is about to begin buffering
+    BUFFERING,
+
+    // The player has finished buffering
+    BUFFERING_FINISHED,
+
+    // The player is playing the item
+    PLAYING,
+
+    // The player has been paused
+    PAUSED,
+
+    // The player has finished the whole item. This would be the last state for an item
+    FINISHED,
+
+    // The player state is unknown.
+    UNKNOWN;
+}
+```
+
+The initial player status should be ```INITIALIZED```. It should have this value also after ```fun reset()``` is called.
+When the ```fun load(creativeURL: Uri)``` is called the status should change to ```LOADING``` just before it begins and when it completes to ```LOADING_FINISHED```. In case the loading fails the ```FAILED``` status should be set.
+During playback, if the player needs to buffer the media then it should change the status to ```BUFFERING``` and when the buffering ends it should change it to ```BUFFERING_FINISHED```. When it starts buffering it should also call ```fun onBuffering()``` and when it finishes ```fun onBufferingFinished()```. In this way the AdManager will be notified that a buffering is started or has completed.
+When the player actively plays the ad the status should be ```PLAYING``` and if it is paused the status should be ```PAUSED```.
+When the player finishes to play a track then the status should change to ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
+
+### isBufferingWhilePaused function
+
+The value returned by this function is used only for server side playback (streams). Return true if the player buffers the content while paused and starts from that same point when it resumes. Return false if the player does not buffer the content while paused, and when it resumes the playback starts from the live frame of the stream.
+
+### listener functions
+
+The AdPlayer functions ```fun addListener(listener: Listener)``` and ```fun removeListener(listener: Listener)``` should be used to add and remove a listener.
+From the ```Listener``` interface there are only a couple of callbacks that were not explained yet.
+Whenever an error occurs the ```fun onError(error: String)``` callback should be called.
+When doing server side insertion (streams) the ```fun onMetadata(metadataList: List<MetadataItem>)``` function should be called whenever there is metadata in the stream. This is very important for streams. For client side insertion this callback is not used.
+Whenever the player volume changes the ```fun onVolumeChanged(volume: Float)``` callback should be called.
+
 
 # Integrate into Wear OS apps
 
-If you have a companion Wear OS app for your Android app, you can also integrate our Wear Sdk. This will allow you to use the SmartWatch as a detector along side your phone.
+If you have a companion Wear OS app for your Android app, you can also integrate our Wear OS SDK. This will allow you to use the smartwatch as a detector along side your phone.
 
-To integrate adswizz wear sdk into your WearOS app simply write the following line into your wear app ```build.gradle``` file.
+To integrate AdsWizz Wear OS SDK into your Wear OS app simply write the following line into your Wear OS app ```build.gradle``` file.
 
 ```groovy
 implementation 'com.adswizz:adswizz-wear-sdk:version'
 ```
 where ```version``` is the latest version of adswizz-wear-sdk provided to you by an AdsWizz PIM.
 
-Keep in mind that for the communication to work between phone and wear app, the apps have to have the same ```aplicationId``` (i.e. ```com.example.sample.app```)
+Keep in mind that for the communication to work between phone and Wear OS app, the apps have to have the same ```aplicationId``` (i.e. ```com.example.sample.app```)
 
 ## ShakeMe on Wear OS
 
-After the ```adswizz-wear-sdk``` integration is done, you don't need to do anything else for this to work. As long as there is a connection between your phone and your wear device, if you receive an interactive ad
+After the ```adswizz-wear-sdk``` integration is done, you don't need to do anything else for this to work. As long as there is a connection between your phone and your Wear OS device, if you receive an interactive ad
 with ```shake``` as detection method, the detector will automatically start on both devices. When one device detects, the other is notified and stops its own detector.
 
 In the following image you can see a complete flow of how the feature works.
 
 <img src="img/SmartWatch-ShakeFlow.png" width="1000" />
 
+## Voice Detector on Wear OS
+The same as **shakeMe** the voice detector works on Wear OS too. After integrating the **Wear OS SDK**, the only thing you need to do
+to have voice detection active on the watch is to make sure you give your Wear OS app the ```RECORD_AUDIO``` permission.
+
 # AdswizzSDK general settings
 
 ## GDPR consent
 
-AdsWizz services are GDPR compliant. As a result, **_AdswizzSDK_** will decorate urls that connect to Adswizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configure it like this:
+AdsWizz services are GDPR compliant. As a result, **_AdswizzSDK_** will decorate urls that connect to AdsWizz services accordingly to reflect the desired GDPR user consent. To modify the GDPR consent you need to configure it like this:
 
 ```kotlin
     AdswizzSDK.gdprConsent = GDPRConsent.GRANTED
@@ -866,7 +1106,7 @@ In order to have the companion displayed during 'Server-Side Insertion' an AFR C
 ```kotlin
     AdswizzSDK.afrConfig = AfrConfig(
             AdswizzAdRequest.HttpProtocol.HTTP,
-            "demo.deliveryengine.adswizz.com/",
+            "demo.deliveryengine.adswizz.com",
             "www/delivery/afr.php"
         )
 ```
@@ -919,6 +1159,35 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 |:-----------------|:---------------------|:--------------|
 | * device name and locale <br>* screen brightness level<br>* audio volume level<br>* battery level, status and state (charging or not) <br>* bundle id, version name and version code<br>* storage information (available and total capacities) <br>* OS name and version | * bluetooth name, status (on, off, connected etc.) and devices (currently connected, paired and history). For bluetooth devices we collect: name, address, profile and bluetooth class<br>* WiFi Status (true/false), state and WiFi network name / SSID<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false)<br>* uiMode (normal, desk, car, watch, tv etc.)<br>* microphone permission status<br>* name and type of the active audio device and available devices<br>* app permissions<br>* sensors information: type, name, vendor, version, power used by sensor, resolution, minimum delay allowed between two events, maximum rage of the sensor, the maximum number of events that could be batched, the number of events reserved in the batch mode FIFO, maximum delay and the reporting mode<br>* installed app names | * idfa (identifierForAdvertising) status (enabled/disabled) and ID (if enabled) |
 
+# Vast Macros
+
+The AdsWizz SDK fully supports the following list of macros:
+- TIMESTAMP
+- CACHEBUSTING
+- CONTENTPLAYHEAD
+- MEDIAPLAYHEAD
+- BREAKPOSITION
+- BLOCKEDADCATEGORIES
+- ADCOUNT
+- TRANSACTIONID
+- ADTYPE
+- IFA
+- IFATYPE
+- CLIENTUA
+- DEVICEUA
+- SERVERSIDE
+- APPBUNDLE
+- VASTVERSIONS
+- PLAYERCAPABILITIES
+- PLAYERSTATE
+- ADPLAYHEAD
+- ASSETURI
+- ADSERVINGID
+- LIMITADTRACKING <br>
+and partially supports:
+- ERRORCODE - only a part of the error codes are currently covered
+
+For more informations about them consult [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) .
 
 # Sample projects
 
@@ -936,3 +1205,4 @@ This sample demonstrates a basic client-side insertion scenario by showing how t
 ## StreamingSample
 
 This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
+If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **Smartwatch**
