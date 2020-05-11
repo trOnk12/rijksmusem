@@ -24,6 +24,7 @@
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
  * [<strong>Interactive ads</strong>](#interactive-ads)
+      * [Shake enabled interactive ads](#shake-enabled-interactive-ads)
       * [Voice enabled interactive ads](#voice-enabled-interactive-ads)
       * [Handling interactive ad events](#handling-interactive-ad-events)
  * [<strong>Companion Banner</strong>](#companion-banner)
@@ -249,7 +250,11 @@ allprojects {
 implementation 'com.adswizz:adswizz-sdk:version'
 ```
 
-Where <strong>version</strong> is the latest version of the phone and tablet SDK provided by AdsWizz (i.e. 7.1.0)
+Where <strong>version</strong> is the latest version of the phone and tablet SDK provided by AdsWizz (i.e. 7.1.0 - the latest version). Please notice the below example:
+
+```groovy
+implementation 'com.adswizz:adswizz-sdk:7.1.0'
+```
 
 ## SDK initialization and cleanup
 
@@ -655,7 +660,7 @@ AdsWizz interactive ads require some permissions on your app.
 ```
 There are three types of detectors as follows: ShakeDetector, VoiceDetector and InAppNotification
 
-## Shake enabled interactive ads.
+## Shake enabled interactive ads
 These ads, as the name suggests, detect the **shake** of the of phone or Wear OS smartwatch and execute the selected action.
 
 ## Voice enabled interactive ads
@@ -664,15 +669,6 @@ be analyzed and transformed into words. These words are then matched against the
 If a match happends then the interactivity action is triggered.
 AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions needed for this
 feature to work are ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
-
-## InApp Notification interactive ads
-In-App Notification refers to a pop-up alert style UI component which is configured through the interactivity JSON received from a VAST response in an <AdParameters> tag.
-
-A basic configuration will make the In-App Notification banner to look like in the picture below:
-
-<img src="img/inAppNotif.png" width="1000" />
-
-Pressing a button will trigger the action associated with it.
 
 ## Handling interactive ad events
 
