@@ -20,9 +20,11 @@
          * [pause](#pause)
          * [skipAd](#skipad)
          * [reset](#reset)
+      * [AdManager life cycle](#admanager-life-cycle)         
  * [<strong>Server-Side Insertion</strong>](#server-side-insertion)
       * [Your first stream manager](#your-first-stream-manager)
       * [AdStreamManager Listener interface](#adstreammanager-listener-interface)
+      * [AdStreamManager life cycle](#adstreammanager-life-cycle)      
  * [<strong>Interactive ads</strong>](#interactive-ads)
       * [Shake enabled interactive ads](#shake-enabled-interactive-ads)
       * [Voice enabled interactive ads](#voice-enabled-interactive-ads)
@@ -477,6 +479,9 @@ Below is a descriptive graph with all this information:
 
 </br></br>
 
+## AdManager life cycle
+
+After requesting your first ad from the Adswizz ad server, you are ready to play the ads from the AdManager object. Keep in mind that you might receive more than one ad from the server, but you are not required to play them all. If you decide to play multiple ads in your app, you need to listen to the events that the AdManager sends to your app and decide what is the appropriate action to take. Here is a diagram of the AdManager state.
 
 <img src="img/AdManagerState.png" width="1000" />
 
@@ -486,6 +491,8 @@ Below is a descriptive graph with all this information:
 
 ## Your first stream manager
 
+
+AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners. 
 
 To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you with.
 
@@ -568,7 +575,7 @@ The stream object can play the url using his internal player or using an externa
 To start playing the stream do the following:
 
 ```kotlin
-    streamManager?.play(AIS_URL_PROVIDED_BY_INTEGRATION_MANAGER)
+    streamManager?.play(AIS_STREAM_URL)
 ```
 
 As a response, **_AdswizzSDK_** will call back `fun willStartPlayingUrl(adStreamManager: AdStreamManager, url: Uri)` with the provided url that has some extra query params added.
@@ -635,6 +642,15 @@ Whenever the metadata is changed on the stream played by the SDK, you will be no
 
 ### fun onError(adStreamManager: AdStreamManager, error: Error)
 When an error occurs during your interaction with the stream manager this callback will be called by the SDK.
+
+
+## AdStreamManager life cycle
+
+Below is a diagram of the AdStreamManager states:
+
+</br></br>
+
+<img src="img/AdStreamManagerState.png" width="1000" />
 
 
 # Interactive ads
@@ -1092,7 +1108,7 @@ In order to have the companion displayed during 'Server-Side Insertion' an AFR C
 ```kotlin
     AdswizzSDK.afrConfig = AfrConfig(
             AdswizzAdRequest.HttpProtocol.HTTP,
-            "demo.deliveryengine.adswizz.com/",
+            "demo.deliveryengine.adswizz.com",
             "www/delivery/afr.php"
         )
 ```
