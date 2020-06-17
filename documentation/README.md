@@ -371,8 +371,7 @@ To get this communication channel open, you need to set up a listener for the Ad
 
 If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called.
 
-As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**.
-In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.
+As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values. In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface. Also you can specify the cache policy, the assets quality preferance and if the player should play the ads one by one or as a playlist.
 
 Next, you need to call prepare method on the **_AdManager_** object.
 This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
@@ -400,9 +399,13 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
                 //Handle success
                 adManager.adManagerSettings = AdManagerSettings.Builder() // optional
                     .adPlayerInstance(YOUR_AD_PLAYER_GOES_HERE) // optional
+                    .addCachePolicy(CachePolicy.ASSETS)         // optional
+                    .assetQuality(AssetQuality.MEDIUM)          // optional, other possible values AssetQuality.LOW, AssetQuality.HIGH
+                    .enqueueEnabled(false)                      // optional
                     .build() // optional
                 adManager.setListener(this) // Get notifications from the Ad SDK
                 adManager.prepare() // Start buffering the ads in the AdManager
+                adManager.play() // Start playing when first add finish loading
             } else {
                 //Handle failure
                 Log.e("Error", error.toString())
@@ -416,7 +419,7 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
     override fun onEventReceived(adManager: AdManager, event: AdEvent) {
         when(event.type) {
             AdEvent.Type.State.ReadyForPlay ->  {
-                adManager.play() //Start playing the next ad in the AdManager
+                // An add has finished loading and is ready for play
             }
             AdEvent.Type.State.DidFinishPlaying -> {
                 // Current ad has finished playing
