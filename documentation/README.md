@@ -448,7 +448,7 @@ You call this method to begin to cycle through the ads in the AdManager. This me
 
 ### play
 
-Call **_play_** when you want to play the ads. This should be done after the callback **_ReadyForPlay_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
+Call **_play_** when you want to play the ads. This can be done before or after the callback **_ReadyForPlay_** was triggered. The SDK will respond with the callback **_DidStartPlaying_** when the playback begins. If the playing was pause use **_resume_** function instead, to resume playing.
 
 
 ### pause
@@ -464,8 +464,7 @@ Call **_resume_** when you want to play the ads after a pause. The SDK will trig
 ### skipAd
 
 If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
-a **_DidSkip_** or **_NotUsed_** event for the current ad and if the AdManager has a new ad you will receive
-**_PreparingForPlay_** for that one. If no ads are available, an **_AllAdsCompleted_** will be sent,
+a **_DidSkip_** or **_NotUsed_** event for the current ad and it will start to play the next one. If no ads are available, an **_AllAdsCompleted_** will be sent,
 signalling that all ads got processed in the AdManager.
 
 
@@ -492,7 +491,7 @@ After requesting your first ad from the Adswizz ad server, you are ready to play
 ## Your first stream manager
 
 
-AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners. 
+AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners.
 
 To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you with.
 
