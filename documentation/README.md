@@ -371,7 +371,7 @@ To get this communication channel open, you need to set up a listener for the Ad
 
 If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called.
 
-As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values. In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface. Also you can specify the cache policy, the assets quality preferance and if the player should play the ads one by one or as a playlist.
+As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values. In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface. Also you can specify the cache policy (default none), the assets quality preferance (default high) and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
 
 Next, you need to call prepare method on the **_AdManager_** object.
 This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
@@ -563,12 +563,15 @@ class YourClass {
 
 ```
 
-The stream object can play the url using his internal player or using an external player provided by you. Below is a sample on how to set the external player:
+The stream object can play the url using his internal player or using an external player provided by you. This should be specified in the **_AdManagerStreamingSettings_**. Also the enqueueEnabled feature can be set in this class. Below is a sample on how to set the external player:
 
 
 ```kotlin
     fun createStreamManager() {
-        val settings = AdManagerStreamingSettings.Builder().adPlayerInstance(externalPlayer).build()
+        val settings = AdManagerStreamingSettings.Builder()
+            .adPlayerInstance(externalPlayer)
+            .enqueueEnabled(false)                  // optional
+            .build()
         streamManager = AdswizzAdStreamManager(settings)
         ...
     }
