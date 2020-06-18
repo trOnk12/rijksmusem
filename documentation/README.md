@@ -798,24 +798,33 @@ AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 # Playing ads using your player
 
 AdswizzSDK gives the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
-By default, the SDK will use its internal player to play the ad. To use the external player you have to provide an **_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()```. See below:
+By default, the SDK will use its internal player to play the ad.<br/>
+For client side insertion, to use the external player you have to provide an **_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()```. See below:
 
 ```kotlin
     adManager.adManagerSettings = AdManagerSettings.Builder().adPlayerInstance(externalPlayer).build()
 ```
 
-The provided player (externalPlayer in the example above) must implement the **_AdPlayer_** interface.
+For server side insertion, to use the external player you have to provide an **_AdManagerStreamingSettings_** object with an instance of your player before calling ```streamManager.play(AIS_STREAM_URL)```. See below:
+
+```kotlin
+    streamManager.adManagerStreamingSettings = AdManagerStreamingSettings.Builder().adPlayerInstance(externalPlayer).build()
+```
+
+The provided player (externalPlayer in the examples above) must implement the **_AdPlayer_** interface.
 
 ## AdPlayer Interface
 
 ```kotlin
 interface AdPlayer {
 
-    // Player version.
-    val version: String
+    // region VAST Related
 
     // Player name
     val name: String
+
+    // Player version.
+    val version: String
 
     // Player capabilities as described in VAST document
     val playerCapabilities: List<PlayerCapabilities>
@@ -823,11 +832,31 @@ interface AdPlayer {
     // Player state as described in VAST document
     val playerState: List<PlayerState>
 
-    // Current player volume
-    var volume: Float
+    // endregion
 
 
-    fun load(creativeURL: Uri)
+    // region Player Options
+
+    // The cache assets hint; the AdPlayer may or may not implement this AdManager hint
+    var cacheAssetsHint: Boolean
+
+    // The enqueue functionality hint; the AdPlayer may or may not implement this AdManager hint
+    var enqueueEnabledHint: Boolean
+
+    /**
+     * This val only counts for server side playback (streams)
+     *
+     * @returns true if the player buffers the content while paused and starts from that same point when it resumes
+     * @returns false if the player does not buffer while paused, and when it resumes the playback starts from the live frame of the stream
+     */
+    val isBufferingWhilePaused: Boolean
+
+    // endregion
+
+
+    // region Player Controls
+
+    fun load(creativeUrlString: String)
 
     fun play()
 
@@ -835,34 +864,57 @@ interface AdPlayer {
 
     fun reset()
 
+    fun seekToTrackEnd()
+
+    // endregion
+
+
+    // region Enqueue Related
+
+    fun enqueue(creativeUrlString: String, index: Int) {
+        /* does nothing */
+    }
+
+    fun dequeue(index: Int) {
+        /* does nothing */
+    }
+
+    // endregion
+
+
+    // region Current Values
+
+    // Current player volume. The value will be between 0.0f and 1.0f
+    var volume: Float
 
     // the current playback time in seconds
     fun getCurrentTime(): Double
 
-    // the current track duration
+    // the current track duration in seconds
     fun getDuration(): Double?
 
     // the current status for a player. The enum with all possible values is defined below
     fun status(): Status
 
-    /**
-     * This method only counts for server side playback (streams)
-     *
-     * @returns true if the player buffers the content while paused and starts from that same point when it resumes
-     * @returns false if the player does not buffer while paused, and when it resumes the playback starts from the live frame of the stream
-     */
-    fun isBufferingWhilePaused(): Boolean
+    // endregion
 
+
+    // region Listener
 
     fun addListener(listener: Listener)
     fun removeListener(listener: Listener)
 
-
     interface Listener {
 
-        fun onLoading()
+        /**
+         * @param index: if enqueue is used then index should represent the loading item index. If enqueue is not used then index should always be null
+         */
+        fun onLoading(index: Int?)
 
-        fun onLoadingFinished()
+        /**
+         * @param index: if enqueue is used then index should represent the loading item index. If enqueue is not used then index should always be null
+         */
+        fun onLoadingFinished(index: Int?)
 
         fun onBuffering()
 
@@ -876,6 +928,18 @@ interface AdPlayer {
 
         fun onEnded()
 
+        /**
+         * @param currentTrackIndex: index of the current track
+         */
+        fun onSeekToTrackEnd(currentTrackIndex: Int)
+
+        /**
+         * @param newTrackIndex: index of the new track
+         */
+        fun onTrackChanged(newTrackIndex: Int) {
+            // default implementation does nothing. This is only needed for enqueue functionality
+        }
+
         fun onError(error: String)
 
         fun onMetadata(metadataList: List<MetadataItem>) {
@@ -887,27 +951,35 @@ interface AdPlayer {
         }
     }
 
+    // endregion
+
+
+    // region Helpers
+
     data class MetadataItem(val key: String, val value: String)
 
     enum class Status {
         // The player is initialized but not playing and does not have an item to play. This should be the default state
         INITIALIZED,
-        // The player is about to begin loading
-        LOADING,
-        // The player has finished loading
-        LOADING_FINISHED,
-        // The player is about to begin buffering
-        BUFFERING,
-        // The player has finished buffering
-        BUFFERING_FINISHED,
-        // The player is playing the item
-        PLAYING,
-        // The player has been paused
-        PAUSED,
-        // The player has finished the whole item. This would be the last state for an item
-        FINISHED,
+
         // The player failed to load the item
         FAILED,
+
+        // The player is about to begin buffering
+        BUFFERING,
+
+        // The player has finished buffering
+        BUFFERING_FINISHED,
+
+        // The player is playing the item
+        PLAYING,
+
+        // The player has been paused
+        PAUSED,
+
+        // The player has finished the whole item. This would be the last state for an item
+        FINISHED,
+
         // The player state is unknown.
         UNKNOWN;
     }
@@ -969,25 +1041,53 @@ enum class PlayerState(val rawValue: String) {
 
 The ```playerState``` represents a list of the current states in which the player is.
 
-### Player volume
+### cacheAssetsHint property
 
-The ```volume``` variable can be used to get the player current volume or to set the player current volume. The values are between 0.0f and 1.0f; 0.0f means muted and 1.0f means max volume.
+If true then the user expects that the audio media files are cached by the player. This is a hint so the AdPlayer implementation may or may not take it into consideration.
+
+### enqueueEnabledHint property
+
+If true then the user expects that the audio media files are enqueued in a playlist. This means that the playing will be smoother than when playing one by one. Also this is only a hint. The SDK is able work even if the AdPlayer implementation does not takes this hint into consideration.
+
+### isBufferingWhilePaused property
+
+The value returned by this property is used only for server side playback (streams). Return true if the player buffers the content while paused and starts from that same point when it resumes. Return false if the player does not buffer the content while paused, and when it resumes the playback starts from the live frame of the stream.
 
 ### load function
 
-The ```fun load(creativeURL: Uri)``` function is called by the AdManager when it wants the player to load a media file. The AdPlayer implementation should respond with ```fun onLoading()``` when the loading of the media file is about to begin and with ```fun onLoadingFinished()``` when the loading has been completed.
+The ```fun load(creativeUrlString: String)``` function informs the AdPlayer that it should start the load of the media file. It is called by the AdManager when it detected that the loading didn't started. This means that the ```fun onLoading(index: Int?)``` function was not previously called.
+
+If enqueue is disabled then most likely the loading will happen after the ```load(creativeUrlString: String)``` function is called.
 
 ### play function
 
 When the AdManager wants the playing to begin, for the first time, it will call ```fun play()```. For this case, the AdPlayer will respond with ```fun onPlay()```. When the AdManager wants the playing to resume after a pause it will also call ```fun play()``` but this time the AdPlayer should respond with ```fun onResume()```.
 
+During playback when the current track ends and the next one starts playing the ```fun onTrackChanged(newTrackIndex: Int)``` should be called.
+
 ### pause function
 
-There may be a time when the user will want to pause the AdManager. When this will happen the AdManager will call ```fun pause()```. In this case the AdPlayer will repond with ```fun onPause()```.
+There may be a time when the user will want to pause the AdManager. When this will happen the AdManager will call ```fun pause()```. In this case the AdPlayer will respond with ```fun onPause()```.
 
 ### reset function
 
 The ```fun reset()``` is called when the AdManager wants to stop everything and bring the AdPlayer to it's initial state.
+
+### seekToTrackEnd function
+
+The ```fun seekToTrackEnd()``` is called when the AdManager wants the player to seek to current track's end.
+
+### enqueue function
+
+During execution of the ```adManager.prepare()``` function the AdManager will call ```fun enqueue(creativeUrlString: String, index: Int)``` function for each ad. The index represents the ad position in the AdManager, starting at 0. The creativeUrlString represents the ad media file.
+
+### dequeue function
+
+There may be certain situations when the player will want to remove an ad from the playlist. In this case it will call ```fun dequeue(index: Int)```. The index represents the ad position in the AdManager that should be removed.
+
+### Player volume
+
+The ```volume``` variable can be used to get the player's current volume or to set the player current volume. The values are between 0.0f and 1.0f; 0.0f means muted and 1.0f means max volume.
 
 ### getCurrentTime and getDuration
 
@@ -1005,13 +1105,7 @@ enum class Status {
     // The player is initialized but not playing and does not have an item to play. This should be the default state
     INITIALIZED,
 
-    // The player is about to begin loading
-    LOADING,
-
-    // The player has finished loading
-    LOADING_FINISHED,
-
-    // The player failed to load the item
+    // The player failed to load the item or failed to play the item
     FAILED,
 
     // The player is about to begin buffering
@@ -1029,20 +1123,16 @@ enum class Status {
     // The player has finished the whole item. This would be the last state for an item
     FINISHED,
 
-    // The player state is unknown.
+    // The player state is unknown
     UNKNOWN;
 }
 ```
 
 The initial player status should be ```INITIALIZED```. It should have this value also after ```fun reset()``` is called.
-When the ```fun load(creativeURL: Uri)``` is called the status should change to ```LOADING``` just before it begins and when it completes to ```LOADING_FINISHED```. In case the loading fails the ```FAILED``` status should be set.
+In case the loading fails the ```FAILED``` status should be set. Also this should be set when an error occurs.
 During playback, if the player needs to buffer the media then it should change the status to ```BUFFERING``` and when the buffering ends it should change it to ```BUFFERING_FINISHED```. When it starts buffering it should also call ```fun onBuffering()``` and when it finishes ```fun onBufferingFinished()```. In this way the AdManager will be notified that a buffering is started or has completed.
 When the player actively plays the ad the status should be ```PLAYING``` and if it is paused the status should be ```PAUSED```.
 When the player finishes to play a track then the status should change to ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
-
-### isBufferingWhilePaused function
-
-The value returned by this function is used only for server side playback (streams). Return true if the player buffers the content while paused and starts from that same point when it resumes. Return false if the player does not buffer the content while paused, and when it resumes the playback starts from the live frame of the stream.
 
 ### listener functions
 
