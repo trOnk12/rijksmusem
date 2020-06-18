@@ -1059,6 +1059,8 @@ The ```fun load(creativeUrlString: String)``` function informs the AdPlayer that
 
 If enqueue is disabled then most likely the loading will happen after the ```load(creativeUrlString: String)``` function is called.
 
+When this function is called the AdPlayer implementation should start loading the item and respond with ```fun onLoading(index: Int?)``` callback when the loading of the media file is about to begin and with ```fun onLoadingFinished(index: Int?)``` when the loading has been completed.
+
 ### play function
 
 When the AdManager wants the playing to begin, for the first time, it will call ```fun play()```. For this case, the AdPlayer will respond with ```fun onPlay()```. When the AdManager wants the playing to resume after a pause it will also call ```fun play()``` but this time the AdPlayer should respond with ```fun onResume()```.
@@ -1080,6 +1082,8 @@ The ```fun seekToTrackEnd()``` is called when the AdManager wants the player to 
 ### enqueue function
 
 During execution of the ```adManager.prepare()``` function the AdManager will call ```fun enqueue(creativeUrlString: String, index: Int)``` function for each ad. The index represents the ad position in the AdManager, starting at 0. The creativeUrlString represents the ad media file.
+
+When this function is called the AdPlayer implementation may start loading the enqueued items and respond with ```fun onLoading(index: Int?)``` callback when the loading of a media file is about to begin and with ```fun onLoadingFinished(index: Int?)``` when the loading has been completed.
 
 ### dequeue function
 
