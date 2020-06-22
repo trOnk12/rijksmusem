@@ -52,6 +52,7 @@
  * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
+      * [Precache Sample](#precache-sample)
 
 # Before you start
 
@@ -1367,3 +1368,9 @@ This sample demonstrates a basic client-side insertion scenario by showing how t
 
 This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
 If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **Smartwatch**
+
+## PreCache Sample
+
+This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads,  
+and when the download is complete it starts the playback. You can also choose to play before the download is complete and observe the fallback on enqueue.
+
