@@ -36,6 +36,7 @@
       * [Extra exposure time](#extra-exposure-time)
  * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
+      * [CacheManager](#cache-manager)
  * [<strong>Integrate into Wear OS apps</strong>](#integrate-into-wear-os-apps)
       * [ShakeMe on Wear OS](#shakeme-on-wear-os)
       * [Voice Detector on Wear OS](#voice-detector-on-wear-os)
@@ -371,7 +372,9 @@ To get this communication channel open, you need to set up a listener for the Ad
 
 If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called.
 
-As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values. In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface. Also you can specify the cache policy (default none), the assets quality preferance (default high) and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
+As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values.  
+In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.  
+Also you can specify the cache policy (default none), the assets quality preference (default high) and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
 
 Next, you need to call prepare method on the **_AdManager_** object.
 This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
@@ -596,11 +599,11 @@ The SDK will respond with the callback `fun didFinishPlayingUrl(adStreamManager:
 The stream can be paused and resumed:
 
 ```kotlin
-    ...
+    //...
     streamManager?.pause()
-    ...
+    //...
     streamManager?.resume()
-    ...
+    //...
 ```
 
 The SDK will respond with the callbacks `fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` and `fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` respectively. The url is the same as for `willStartPlayingUrl`.
@@ -1044,6 +1047,10 @@ The ```playerState``` represents a list of the current states in which the playe
 ### cacheAssetsHint property
 
 If true then the user expects that the audio media files are cached by the player. This is a hint so the AdPlayer implementation may or may not take it into consideration.
+If the property is set to true and the player in use is the *internal player* the SDK will start downloading the assets one by one. The ideal way of using the cache is waiting for all the assets to be downloaded, otherwise  
+enqueue should be enough for your needs. In the case that you still decide to play the ads before the download is complete, it will cancel the rest of the downloads, and the playback will fallback on enqueue/load depending  
+on the selected settings. The playback will be instant because the already downloaded data is used right away.
+
 
 ### enqueueEnabledHint property
 
@@ -1081,7 +1088,8 @@ The ```fun seekToTrackEnd()``` is called when the AdManager wants the player to 
 
 ### enqueue function
 
-During execution of the ```adManager.prepare()``` function the AdManager will call ```fun enqueue(creativeUrlString: String, index: Int)``` function for each ad. The index represents the ad position in the AdManager, starting at 0. The creativeUrlString represents the ad media file.
+During execution of the ```adManager.prepare()``` function the AdManager will call ```fun enqueue(creativeUrlString: String, index: Int)``` function for each ad.  
+The index represents the ad position in the AdManager, starting at 0. The creativeUrlString represents the ad media file.
 
 When this function is called the AdPlayer implementation may start loading the enqueued items and respond with ```fun onLoading(index: Int?)``` callback when the loading of a media file is about to begin and with ```fun onLoadingFinished(index: Int?)``` when the loading has been completed.
 
@@ -1172,6 +1180,60 @@ In the following image you can see a complete flow of how the feature works.
 ## Voice Detector on Wear OS
 The same as **shakeMe** the voice detector works on Wear OS too. After integrating the **Wear OS SDK**, the only thing you need to do
 to have voice detection active on the watch is to make sure you give your Wear OS app the ```RECORD_AUDIO``` permission.
+
+## Cache Manager
+Pre-caching the media (creative) assets will allow for your app to serve audio ads in poor network or possibly complete lack of network connection. This will improve user experience because an ad can play instantly or prevent buffering mid ad.
+The **CacheManager** is a singleton that allows us to cache, and also playback media that is already cached. It works in close relation with the player, so if you have your own implementation of the AdPlayer interface
+you can use it, but also ignore it. Right now it only works for players that are based on **ExoPlayer**.
+
+### Working with CacheManager object
+
+There is a listener that you can implement to receive updates about the status of a cache object (**CacheManager.Listener**)
+```kotlin
+CacheManager {
+//...
+    interface Listener {
+        fun onDownloadStarted(assetUri: String)
+        fun onDownloadBuffered(assetUri: String)
+        fun onDownloadCompleted(assetUri: String)
+        fun onDownloadFailed(assetUri: String, error: Error)
+    }
+    //...
+}
+```
+To add an asset to the download queue you can call
+```kotlin
+CacheManager.addAssetToCache(assetUri: String, listener: Listener? = null)
+```
+where assetUri is the url for the asset, and the listener is your implementation of the above interface. As you can see the listener is optional. If you add
+the listener here, you will only receive updates for this particular asset.
+
+```kotlin
+CacheManager.cancelDownload(assetUri: String) // Cancels the download specify by assetUri
+
+CacheManager.removeListener(assetUri: String, listener: Listener) // removes all the listeners for that specific assetUri
+
+CacheManager.addGlobalListener(listener: Listener) // adds a listener that receives callbacks for every assetUri
+CacheManager.removeGlobalListener(listener: Listener) // removes a global listener
+```
+
+The **url** of an asset acts as it's **ID** in the cache. So if we want to play an asset from cache it's really straight forward:
+When you are creating the media source for your exoplayer instance, you can get the CacheDataSourceFactory from the CacheManager as follows:
+
+```kotlin
+CacheManager.getCacheDataSourceFactory(upstreamFactory: DefaultHttpDataSourceFactory)
+```
+This returns a CacheDataSourceFactory. An example for usage would look something like this:
+```kotlin
+private fun buildMediaSource(urlString: String): MediaSource {
+        val dataSourceFactory = DefaultHttpDataSourceFactory("AdSDK")
+        val uri = Uri.parse(urlString)
+        return ProgressiveMediaSource.Factory(CacheManager.getCacheDataSourceFactory(dataSourceFactory))
+                            .setTag(urlString)
+                            .createMediaSource(uri)
+
+        }
+```
 
 # AdswizzSDK general settings
 
