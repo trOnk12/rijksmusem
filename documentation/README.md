@@ -1195,7 +1195,6 @@ CacheManager {
 //...
     interface Listener {
         fun onDownloadStarted(assetUri: String)
-        fun onDownloadBuffered(assetUri: String)
         fun onDownloadCompleted(assetUri: String)
         fun onDownloadFailed(assetUri: String, error: Error)
     }
