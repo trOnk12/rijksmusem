@@ -450,7 +450,7 @@ Once presented with an AdManager, one could call different actions on the AdMana
 ## AdManager interface
 ### prepare
 
-You call this method to begin to cycle through the ads in the AdManager. This method ensures that the player is starting to buffer enough data so that ad playing starts smoothly. Upon calling this method the first ad starts loading. The SDK will trigger **_PreparingForPlay_** event informing your app that buffering has begun for the ad. Once buffering is done, **_ReadyForPlay_** event for the first ad will be triggered.
+You call this method to begin to cycle through the ads in the AdManager. This method ensures that the player is starting to buffer enough data so that ad playing starts smoothly. Upon calling this method the ads start loading. The SDK will trigger **_PreparingForPlay_** event informing your app that buffering has begun for a specific ad. Once buffering is done, **_ReadyForPlay_** event for the ad will be triggered.
 
 
 ### play
@@ -1372,4 +1372,3 @@ If the ad that comes from the stream is interactive, you can observe the interac
 
 This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads,  
 and when the download is complete it starts the playback. You can also choose to play before the download is complete and observe the fallback on enqueue.
-
