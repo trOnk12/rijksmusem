@@ -3,7 +3,7 @@
   <groupId>com.adswizz</groupId>
   <artifactId>adswizz-wear-sdk-dev</artifactId>
   <versioning>
-    <release>7.2.32</release>
+    <release>7.2.35</release>
     <versions>
       <version>7.0.0</version>
       <version>7.0.1</version>
@@ -30,7 +30,8 @@
       <version>7.2.29</version>
       <version>7.2.31</version>
       <version>7.2.32</version>
+      <version>7.2.35</version>
     </versions>
-    <lastUpdated>20200724181956</lastUpdated>
+    <lastUpdated>20200729130521</lastUpdated>
   </versioning>
 </metadata>
