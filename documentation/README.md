@@ -47,6 +47,9 @@
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
  * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
+ * [<strong>Multiprocess Host App Guide</strong>](#multiprocess-host-app-guide)
+    * [Companion Support](#companion-support)
+    * [Limitations](#limitations)
  * [<strong>Vast Macros</strong>](#vast-macros)
  * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
@@ -492,7 +495,7 @@ After requesting your first ad from the Adswizz ad server, you are ready to play
 ## Your first stream manager
 
 
-AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners. 
+AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners.
 
 To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you with.
 
@@ -1188,6 +1191,37 @@ and partially supports:
 - ERRORCODE - only a part of the error codes are currently covered
 
 For more informations about them consult [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) .
+
+# Multiprocess Host App Guide
+
+The Adswizz SDK is able to work within a multiprocess host application. If your app runs the playback logic in one process and the ui logic in another here you will find what you will need to do in order to make it work.
+
+In your manifest add the following lines:
+```xml
+    <service
+        android:name="com.ad.core.companion.internal.ipc.AdCompanionService"
+        android:enabled="true"
+        android:exported="false"
+        android:process="NAME_OF_THE_PLAYBACK_PROCESS" />
+```
+where `NAME_OF_THE_PLAYBACK_PROCESS` is the name of the process in which `AdswizzSDK.initialize(context: Context)` function is called.
+
+## Companion Support
+
+Having the app split in 2 separate processes means that the user may encounter the situation where one process is dead and the other active.
+
+In case the playback process is killed the `AdCompanionView` class has 2 methods that can be used:
+ - `fun clearContent()`. When called cleans the visual content of the companion view. By default when the playback process dies the content remains unchanged.
+ - `fun reconnect()`. The app should call this method after the playback process was restored and the Adswizz SDK reinitialized and ready to use. Calling `reconnect` will register the `AdCompanionView` into Adswizz SDK.
+
+ In case the ui process is killed, the Adswizz SDK will detect the lost `AdCompanionView` connection and it will gracefully close it.
+
+## Limitations
+
+The following features don't have support in multiprocess applications:
+- In-app notification detector: in a multiprocess application it will not appear on screen. So the actions can't be triggered because the user will be unable to press the buttons.
+- Permissions action: the action will not appear on-screen, although it can be triggered.
+- Analytics logs: the logs will come only from the playback process.
 
 # Sample projects
 
