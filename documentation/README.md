@@ -48,6 +48,7 @@
  * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
  * [<strong>Vast Macros</strong>](#vast-macros)
+ * [<strong>AdswizzSDK Analytics</strong>](#adswizzsdk-analytics)
  * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
@@ -1188,6 +1189,36 @@ and partially supports:
 - ERRORCODE - only a part of the error codes are currently covered
 
 For more informations about them consult [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) .
+
+# AdswizzSDK analytics
+
+AdswizzSDK collects information on how you are using the SDK. We also collect data about the ad insertion flow on both client and server side. The data we are collecting 
+will help us in the future to create a more robust and easy to integrate SDK. In an effort to be more transparent, we will also provide access to all the analytics events we 
+are collecting, so you can hook up your preferred service (for example Firebase from Google) in order to create your own metrics. 
+
+In order to do that you have to do two things:
+1. Implement our AnalyticsConnector interface
+```kotlin
+class MyAnalyticsConnector: AnalyticsConnector {
+    override fun onLog(analyticsEvent: AnalyticsEvent) {
+        // every time we log something you will also get the callback here and can 
+        // do whatever you want with the event
+    }
+
+    override fun onSend() {
+        // When this gets called you should flush the stored events ASAP.
+        // Can be called when SDK un-initializes 
+    }
+}
+```
+2. After you create your AnalyticsConnector, you have to add yourself as listener. To do that use the following lines of code
+```kotlin
+val myAnalyticsConnector = MyAnalyticsConnector()
+AdswizzSDK.analytics?.add(myAnalyticsConnector)
+
+```
+
+
 
 # Sample projects
 
