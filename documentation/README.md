@@ -1195,6 +1195,7 @@ For more informations about them consult [VAST_4.2_final_june26.pdf](https://iab
 AdswizzSDK collects and exposes information on SDK’s events that occur during its lifecycle. It was built to log different event types (informative and errors) that cover both integration robustness and ad lifecycle management in both client-side and server-side scenarios.
 
 To enable integrators complement their specific app analytics systems (e.g. Firebase, Mixpanel etc) with AdsWizz SDK internal events, the analytics framework provides you with the ability to receive all the events from the SDK and forward them to your own ingestion pipelines by implementing our AnalyticsConnector interface.
+If you want to learn more about the types of events you can listen and use, please reach out to your Integration Manager at AdsWizz.
 
 AdsWizz may also use this mechanism to collect and analyze SDK performance metrics in order to identify integration specific issues that might affect capacity or impressions/opportunities ratio.
 
