@@ -1192,11 +1192,14 @@ For more informations about them consult [VAST_4.2_final_june26.pdf](https://iab
 
 # AdswizzSDK analytics
 
-AdswizzSDK collects information on how you are using the SDK. We also collect data about the ad insertion flow on both client and server side. The data we are collecting 
-will help us in the future to create a more robust and easy to integrate SDK. In an effort to be more transparent, we will also provide access to all the analytics events we 
-are collecting, so you can hook up your preferred service (for example Firebase from Google) in order to create your own metrics. 
+AdswizzSDK collects and exposes information on SDK’s events that occur during its lifecycle. It was built to log different event types (informative and errors) that cover both integration robustness and ad lifecycle management in both client-side and server-side scenarios.
 
-In order to do that you have to do two things:
+To enable integrators complement their specific app analytics systems (e.g. Firebase, Mixpanel etc) with AdsWizz SDK internal events, the analytics framework provides you with the ability to receive all the events from the SDK and forward them to your own ingestion pipelines by implementing our AnalyticsConnector interface.
+
+AdsWizz may also use this mechanism to collect and analyze SDK performance metrics in order to identify integration specific issues that might affect capacity or impressions/opportunities ratio.
+
+In order to register and receive the analytics events, you have to do two things:
+
 1. Implement our AnalyticsConnector interface
 ```kotlin
 class MyAnalyticsConnector: AnalyticsConnector {
