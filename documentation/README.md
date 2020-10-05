@@ -1357,7 +1357,7 @@ For more informations about them consult [VAST_4.2_final_june26.pdf](https://iab
 
 # Multiprocess Host App Guide
 
-The Adswizz SDK is able to work within a multiprocess host application. If your app runs the playback logic in one process and the ui logic in another here you will find what you will need to do in order to make it work.
+The Adswizz SDK is able to work within a multiprocess host application. If your app runs the playback logic in one process and the UI logic in another one, here you will find what you will need to do in order to make it work.
 
 In your manifest add the following lines:
 ```xml
@@ -1377,7 +1377,7 @@ In case the playback process is killed the `AdCompanionView` class has 2 methods
  - `fun clearContent()`. When called cleans the visual content of the companion view. By default when the playback process dies the content remains unchanged.
  - `fun reconnect()`. The app should call this method after the playback process was restored and the Adswizz SDK reinitialized and ready to use. Calling `reconnect` will register the `AdCompanionView` into Adswizz SDK.
 
- In case the ui process is killed, the Adswizz SDK will detect the lost `AdCompanionView` connection and it will gracefully close it.
+ In case the UI process is killed, the Adswizz SDK will detect that the registered `AdCompanionView` is no longer available and it will gracefully unregistered it.
 
 ## Limitations
 
@@ -1439,5 +1439,4 @@ If the ad that comes from the stream is interactive, you can observe the interac
 
 ## PreCache Sample
 
-This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads,  
-and when the download is complete it starts the playback. You can also choose to play before the download is complete and observe the fallback on enqueue.
+This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads, and when the download is complete it starts the playback. Alternatively, you can also play the ads before the download is complete. In this second scenario please notice that the enqueue functionality is used instead.
