@@ -52,6 +52,7 @@
  * [<strong>Multiprocess Host App Guide</strong>](#multiprocess-host-app-guide)
       * [Companion Support](#companion-support)
       * [Limitations](#limitations)
+ * [<strong>AdswizzSDK Analytics</strong>](#adswizzsdk-analytics)
  * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
@@ -1353,6 +1354,7 @@ and partially supports:
 
 For more informations about them consult [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) .
 
+
 # Multiprocess Host App Guide
 
 The Adswizz SDK is able to work within a multiprocess host application. If your app runs the playback logic in one process and the ui logic in another here you will find what you will need to do in order to make it work.
@@ -1383,6 +1385,39 @@ The following features don't have support in multiprocess applications:
 - In-app notification detector: in a multiprocess application it will not appear on screen. So the actions can't be triggered because the user will be unable to press the buttons.
 - Permissions action: the action will not appear on-screen, although it can be triggered.
 - Analytics logs: the logs will come only from the playback process.
+
+# AdswizzSDK analytics
+
+AdswizzSDK collects and exposes information on SDK’s events that occur during its lifecycle. It was built to log different event types (informative and errors) that cover both integration robustness and ad lifecycle management in both client-side and server-side scenarios.
+
+To enable integrators complement their specific app analytics systems (e.g. Firebase, Mixpanel etc) with AdsWizz SDK internal events, the analytics framework provides you with the ability to receive all the events from the SDK and forward them to your own ingestion pipelines by implementing our AnalyticsConnector interface.
+If you want to learn more about the types of events you can listen and use, please reach out to your Integration Manager at AdsWizz.
+
+AdsWizz may also use this mechanism to collect and analyze SDK performance metrics in order to identify integration specific issues that might affect capacity or impressions/opportunities ratio.
+
+In order to register and receive the analytics events, you have to do two things:
+
+1. Implement our AnalyticsConnector interface
+```kotlin
+class MyAnalyticsConnector: AnalyticsConnector {
+    override fun onLog(analyticsEvent: AnalyticsEvent) {
+        // every time we log something you will also get the callback here and can 
+        // do whatever you want with the event
+    }
+
+    override fun onSend() {
+        // When this gets called you should flush the stored events ASAP.
+        // Can be called when SDK un-initializes 
+    }
+}
+```
+2. After you create your AnalyticsConnector, you have to add yourself as listener. To do that use the following lines of code
+```kotlin
+val myAnalyticsConnector = MyAnalyticsConnector()
+AdswizzSDK.analytics?.add(myAnalyticsConnector)
+
+```
+
 
 # Sample projects
 
