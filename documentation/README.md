@@ -6,6 +6,7 @@
       * [Prerequisites for ‘Server-Side Insertion’](#prerequisites-for-server-side-insertion)
  * [<strong>Get started</strong>](#get-started)
       * [Prerequisites](#prerequisites)
+      * [Changelog](#changelog)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
@@ -125,6 +126,10 @@ In a server-side insertion scenario, it takes the pressure off your app by makin
 
 * AndroidStudio 3.4+
 * Gradle build system
+
+## Changelog
+
+Please check [here](CHANGELOG.md) the latest AdswizzSDK version and all the new changes & fixed it comes with.
 
 ## Dependencies
 
