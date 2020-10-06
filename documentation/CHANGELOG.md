@@ -5,15 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [7.2.0] - 2020-09-30
-- Added enqueue capability for AdPlayer
-- Added pre-caching functionality for ad media
-- Added sdk analytics
-- Added multi-process support for AdCompanion
-- Added tap-tap detector for interactive ads
-- Added open measurement plugin
-- Added context based targeting
-- Added **cacheAssetsHint**, **enqueueEnabledHint**, **seekToTrackEnd**, **enqueue** and **dequeue** to **AdPlayer** interface. The changes are not backwards compatible.
-- Added **onSeekToTrackEnd** and **onTrackChanged** to **AdPlayer.Listener** interface. The changes are not backwards compatible.
+### Added
+- Enqueue capability for AdPlayer
+- Pre-caching functionality for ad media
+- Sdk analytics
+- Multi-process support for AdCompanion
+- Tap-tap detector for interactive ads
+- Open measurement plugin
+- Context based targeting
+- Added **cacheAssetsHint**, **enqueueEnabledHint**, **seekToTrackEnd**, **enqueue** and **dequeue** to **AdPlayer** interface. The changes to **AdPlayer** interface are not backwards compatible.
+- Added **onSeekToTrackEnd** and **onTrackChanged** to **AdPlayer.Listener** interface. The changs to **AdPlayer.Listener** interface are not backwards compatible.
 - Added **clearContent** and **reconnect** to **AdCompanionView**
 
 ## [7.1.6] - 2020-09-07
