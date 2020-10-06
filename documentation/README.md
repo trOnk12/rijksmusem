@@ -129,7 +129,7 @@ In a server-side insertion scenario, it takes the pressure off your app by makin
 
 ## Changelog
 
-Please check [here](CHANGELOG.md) the latest AdswizzSDK version and all the new changes & fixed it comes with.
+Please check [here](CHANGELOG.md) the latest AdswizzSDK version and all the new changes & fixes it comes with.
 
 ## Dependencies
 
