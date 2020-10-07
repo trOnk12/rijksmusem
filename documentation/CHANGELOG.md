@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Open measurement plugin
 - Context based targeting
 - Added **cacheAssetsHint**, **enqueueEnabledHint**, **seekToTrackEnd**, **enqueue** and **dequeue** to **AdPlayer** interface. The changes to **AdPlayer** interface are not backwards compatible.
-- Added **onSeekToTrackEnd** and **onTrackChanged** to **AdPlayer.Listener** interface. The changs to **AdPlayer.Listener** interface are not backwards compatible.
+- Added **onSeekToTrackEnd** and **onTrackChanged** to **AdPlayer.Listener** interface. The changes to **AdPlayer.Listener** interface are not backwards compatible.
 - Added **clearContent** and **reconnect** to **AdCompanionView**
 
 ## [7.1.6] - 2020-09-07
