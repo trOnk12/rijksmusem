@@ -6,6 +6,7 @@
       * [Prerequisites for ‘Server-Side Insertion’](#prerequisites-for-server-side-insertion)
  * [<strong>Get started</strong>](#get-started)
       * [Prerequisites](#prerequisites)
+      * [Changelog](#changelog)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
@@ -36,6 +37,7 @@
       * [Extra exposure time](#extra-exposure-time)
  * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
+      * [CacheManager](#cache-manager)
  * [<strong>Integrate into Wear OS apps</strong>](#integrate-into-wear-os-apps)
       * [ShakeMe on Wear OS](#shakeme-on-wear-os)
       * [Voice Detector on Wear OS](#voice-detector-on-wear-os)
@@ -48,10 +50,14 @@
  * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
  * [<strong>Vast Macros</strong>](#vast-macros)
+ * [<strong>Multiprocess Host App Guide</strong>](#multiprocess-host-app-guide)
+      * [Companion Support](#companion-support)
+      * [Limitations](#limitations)
  * [<strong>AdswizzSDK Analytics</strong>](#adswizzsdk-analytics)
  * [<strong>Sample projects</strong>](#sample-projects)
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
+      * [Precache Sample](#precache-sample)
 
 # Before you start
 
@@ -120,6 +126,10 @@ In a server-side insertion scenario, it takes the pressure off your app by makin
 
 * AndroidStudio 3.4+
 * Gradle build system
+
+## Changelog
+
+Please check [here](CHANGELOG.md) the latest AdswizzSDK version and all the new changes & fixes it comes with.
 
 ## Dependencies
 
@@ -372,8 +382,9 @@ To get this communication channel open, you need to set up a listener for the Ad
 
 If an error happens in the SDK while using this object, `onEventErrorReceived(adManager: AdManager, ad: AdData?, error: Error)` will be called.
 
-As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**.
-In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.
+As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values.  
+In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.  
+Also you can specify the cache policy (default none), the assets quality preference (default high) and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
 
 Next, you need to call prepare method on the **_AdManager_** object.
 This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
@@ -401,9 +412,13 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
                 //Handle success
                 adManager.adManagerSettings = AdManagerSettings.Builder() // optional
                     .adPlayerInstance(YOUR_AD_PLAYER_GOES_HERE) // optional
+                    .addCachePolicy(CachePolicy.ASSETS)         // optional
+                    .assetQuality(AssetQuality.MEDIUM)          // optional, other possible values AssetQuality.LOW, AssetQuality.HIGH
+                    .enqueueEnabled(false)                      // optional
                     .build() // optional
                 adManager.setListener(this) // Get notifications from the Ad SDK
                 adManager.prepare() // Start buffering the ads in the AdManager
+                adManager.play() // Start playing when first add finish loading
             } else {
                 //Handle failure
                 Log.e("Error", error.toString())
@@ -417,7 +432,7 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
     override fun onEventReceived(adManager: AdManager, event: AdEvent) {
         when(event.type) {
             AdEvent.Type.State.ReadyForPlay ->  {
-                adManager.play() //Start playing the next ad in the AdManager
+                // An add has finished loading and is ready for play
             }
             AdEvent.Type.State.DidFinishPlaying -> {
                 // Current ad has finished playing
@@ -444,12 +459,12 @@ Once presented with an AdManager, one could call different actions on the AdMana
 ## AdManager interface
 ### prepare
 
-You call this method to begin to cycle through the ads in the AdManager. This method ensures that the player is starting to buffer enough data so that ad playing starts smoothly. Upon calling this method the first ad starts loading. The SDK will trigger **_PreparingForPlay_** event informing your app that buffering has begun for the ad. Once buffering is done, **_ReadyForPlay_** event for the first ad will be triggered.
+You call this method to begin to cycle through the ads in the AdManager. This method ensures that the player is starting to buffer enough data so that ad playing starts smoothly. Upon calling this method the ads start loading. The SDK will trigger **_PreparingForPlay_** event informing your app that buffering has begun for a specific ad. Once buffering is done, **_ReadyForPlay_** event for the ad will be triggered.
 
 
 ### play
 
-Call **_play_** when you want to play the ads. This should be done after the callback **_ReadyForPlay_** was triggered. The SDK will respond with the callback **_DidStartPlaying_**. If the playing was pause use **_resume_** function instead, to resume playing.
+Call **_play_** when you want to play the ads. This can be done before or after the callback **_ReadyForPlay_** was triggered. The SDK will respond with the callback **_DidStartPlaying_** when the playback begins. If the playing was pause use **_resume_** function instead, to resume playing.
 
 
 ### pause
@@ -465,8 +480,7 @@ Call **_resume_** when you want to play the ads after a pause. The SDK will trig
 ### skipAd
 
 If you need to skip an ad you can call this method to skip the current ad from the AdManager. Your app will receive
-a **_DidSkip_** or **_NotUsed_** event for the current ad and if the AdManager has a new ad you will receive
-**_PreparingForPlay_** for that one. If no ads are available, an **_AllAdsCompleted_** will be sent,
+a **_DidSkip_** or **_NotUsed_** event for the current ad and it will start to play the next one. If no ads are available, an **_AllAdsCompleted_** will be sent,
 signalling that all ads got processed in the AdManager.
 
 
@@ -493,7 +507,7 @@ After requesting your first ad from the Adswizz ad server, you are ready to play
 ## Your first stream manager
 
 
-AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners. 
+AdswizzSDK handles interactive ad insertions, while playing HLS or ICY live streams from Ad Insertion Servers. This is possible by reading the player's metadata for specific Adswizz data and convert it in Adswizz interactive formats or companion banners.
 
 To get started, you need to create an **_AdswizzAdStreamManager_** object with a URL pointing to the ad server your Integration Manager provided you with.
 
@@ -562,12 +576,15 @@ class YourClass {
 
 ```
 
-The stream object can play the url using his internal player or using an external player provided by you. Below is a sample on how to set the external player:
+The stream object can play the url using his internal player or using an external player provided by you. This should be specified in the **_AdManagerStreamingSettings_**. Also the enqueueEnabled feature can be set in this class. Below is a sample on how to set the external player:
 
 
 ```kotlin
     fun createStreamManager() {
-        val settings = AdManagerStreamingSettings.Builder().adPlayerInstance(externalPlayer).build()
+        val settings = AdManagerStreamingSettings.Builder()
+            .adPlayerInstance(externalPlayer)
+            .enqueueEnabled(false)                  // optional
+            .build()
         streamManager = AdswizzAdStreamManager(settings)
         ...
     }
@@ -592,11 +609,11 @@ The SDK will respond with the callback `fun didFinishPlayingUrl(adStreamManager:
 The stream can be paused and resumed:
 
 ```kotlin
-    ...
+    //...
     streamManager?.pause()
-    ...
+    //...
     streamManager?.resume()
-    ...
+    //...
 ```
 
 The SDK will respond with the callbacks `fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` and `fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri)` respectively. The url is the same as for `willStartPlayingUrl`.
@@ -794,24 +811,33 @@ AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 # Playing ads using your player
 
 AdswizzSDK gives the possibility to choose whether to play the ad media with your player or let the SDK handle that for you.
-By default, the SDK will use its internal player to play the ad. To use the external player you have to provide an **_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()```. See below:
+By default, the SDK will use its internal player to play the ad.<br/>
+For client side insertion, to use the external player you have to provide an **_AdManagerSettings_** object with an instance of your player before calling ```adManager.prepare()```. See below:
 
 ```kotlin
     adManager.adManagerSettings = AdManagerSettings.Builder().adPlayerInstance(externalPlayer).build()
 ```
 
-The provided player (externalPlayer in the example above) must implement the **_AdPlayer_** interface.
+For server side insertion, to use the external player you have to provide an **_AdManagerStreamingSettings_** object with an instance of your player before calling ```streamManager.play(AIS_STREAM_URL)```. See below:
+
+```kotlin
+    streamManager.adManagerStreamingSettings = AdManagerStreamingSettings.Builder().adPlayerInstance(externalPlayer).build()
+```
+
+The provided player (externalPlayer in the examples above) must implement the **_AdPlayer_** interface.
 
 ## AdPlayer Interface
 
 ```kotlin
 interface AdPlayer {
 
-    // Player version.
-    val version: String
+    // region VAST Related
 
     // Player name
     val name: String
+
+    // Player version.
+    val version: String
 
     // Player capabilities as described in VAST document
     val playerCapabilities: List<PlayerCapabilities>
@@ -819,11 +845,31 @@ interface AdPlayer {
     // Player state as described in VAST document
     val playerState: List<PlayerState>
 
-    // Current player volume
-    var volume: Float
+    // endregion
 
 
-    fun load(creativeURL: Uri)
+    // region Player Options
+
+    // The cache assets hint; the AdPlayer may or may not implement this AdManager hint
+    var cacheAssetsHint: Boolean
+
+    // The enqueue functionality hint; the AdPlayer may or may not implement this AdManager hint
+    var enqueueEnabledHint: Boolean
+
+    /**
+     * This val only counts for server side playback (streams)
+     *
+     * @returns true if the player buffers the content while paused and starts from that same point when it resumes
+     * @returns false if the player does not buffer while paused, and when it resumes the playback starts from the live frame of the stream
+     */
+    val isBufferingWhilePaused: Boolean
+
+    // endregion
+
+
+    // region Player Controls
+
+    fun load(creativeUrlString: String)
 
     fun play()
 
@@ -831,34 +877,57 @@ interface AdPlayer {
 
     fun reset()
 
+    fun seekToTrackEnd()
+
+    // endregion
+
+
+    // region Enqueue Related
+
+    fun enqueue(creativeUrlString: String, index: Int) {
+        /* does nothing */
+    }
+
+    fun dequeue(index: Int) {
+        /* does nothing */
+    }
+
+    // endregion
+
+
+    // region Current Values
+
+    // Current player volume. The value will be between 0.0f and 1.0f
+    var volume: Float
 
     // the current playback time in seconds
     fun getCurrentTime(): Double
 
-    // the current track duration
+    // the current track duration in seconds
     fun getDuration(): Double?
 
     // the current status for a player. The enum with all possible values is defined below
     fun status(): Status
 
-    /**
-     * This method only counts for server side playback (streams)
-     *
-     * @returns true if the player buffers the content while paused and starts from that same point when it resumes
-     * @returns false if the player does not buffer while paused, and when it resumes the playback starts from the live frame of the stream
-     */
-    fun isBufferingWhilePaused(): Boolean
+    // endregion
 
+
+    // region Listener
 
     fun addListener(listener: Listener)
     fun removeListener(listener: Listener)
 
-
     interface Listener {
 
-        fun onLoading()
+        /**
+         * @param index: if enqueue is used then index should represent the loading item index. If enqueue is not used then index should always be null
+         */
+        fun onLoading(index: Int?)
 
-        fun onLoadingFinished()
+        /**
+         * @param index: if enqueue is used then index should represent the loading item index. If enqueue is not used then index should always be null
+         */
+        fun onLoadingFinished(index: Int?)
 
         fun onBuffering()
 
@@ -872,6 +941,18 @@ interface AdPlayer {
 
         fun onEnded()
 
+        /**
+         * @param currentTrackIndex: index of the current track
+         */
+        fun onSeekToTrackEnd(currentTrackIndex: Int)
+
+        /**
+         * @param newTrackIndex: index of the new track
+         */
+        fun onTrackChanged(newTrackIndex: Int) {
+            // default implementation does nothing. This is only needed for enqueue functionality
+        }
+
         fun onError(error: String)
 
         fun onMetadata(metadataList: List<MetadataItem>) {
@@ -883,27 +964,35 @@ interface AdPlayer {
         }
     }
 
+    // endregion
+
+
+    // region Helpers
+
     data class MetadataItem(val key: String, val value: String)
 
     enum class Status {
         // The player is initialized but not playing and does not have an item to play. This should be the default state
         INITIALIZED,
-        // The player is about to begin loading
-        LOADING,
-        // The player has finished loading
-        LOADING_FINISHED,
-        // The player is about to begin buffering
-        BUFFERING,
-        // The player has finished buffering
-        BUFFERING_FINISHED,
-        // The player is playing the item
-        PLAYING,
-        // The player has been paused
-        PAUSED,
-        // The player has finished the whole item. This would be the last state for an item
-        FINISHED,
+
         // The player failed to load the item
         FAILED,
+
+        // The player is about to begin buffering
+        BUFFERING,
+
+        // The player has finished buffering
+        BUFFERING_FINISHED,
+
+        // The player is playing the item
+        PLAYING,
+
+        // The player has been paused
+        PAUSED,
+
+        // The player has finished the whole item. This would be the last state for an item
+        FINISHED,
+
         // The player state is unknown.
         UNKNOWN;
     }
@@ -965,25 +1054,62 @@ enum class PlayerState(val rawValue: String) {
 
 The ```playerState``` represents a list of the current states in which the player is.
 
-### Player volume
+### cacheAssetsHint property
 
-The ```volume``` variable can be used to get the player current volume or to set the player current volume. The values are between 0.0f and 1.0f; 0.0f means muted and 1.0f means max volume.
+If true then the user expects that the audio media files are cached by the player. This is a hint so the AdPlayer implementation may or may not take it into consideration.
+If the property is set to true and the player in use is the *internal player* the SDK will start downloading the assets one by one. The ideal way of using the cache is waiting for all the assets to be downloaded, otherwise  
+enqueue should be enough for your needs. In the case that you still decide to play the ads before the download is complete, it will cancel the rest of the downloads, and the playback will fallback on enqueue/load depending  
+on the selected settings. The playback will be instant because the already downloaded data is used right away.
+
+
+### enqueueEnabledHint property
+
+If true then the user expects that the audio media files are enqueued in a playlist. This means that the playing will be smoother than when playing one by one. Also this is only a hint. The SDK is able work even if the AdPlayer implementation does not takes this hint into consideration.
+
+### isBufferingWhilePaused property
+
+The value returned by this property is used only for server side playback (streams). Return true if the player buffers the content while paused and starts from that same point when it resumes. Return false if the player does not buffer the content while paused, and when it resumes the playback starts from the live frame of the stream.
 
 ### load function
 
-The ```fun load(creativeURL: Uri)``` function is called by the AdManager when it wants the player to load a media file. The AdPlayer implementation should respond with ```fun onLoading()``` when the loading of the media file is about to begin and with ```fun onLoadingFinished()``` when the loading has been completed.
+The ```fun load(creativeUrlString: String)``` function informs the AdPlayer that it should start the load of the media file. It is called by the AdManager when it detected that the loading didn't started. This means that the ```fun onLoading(index: Int?)``` function was not previously called.
+
+If enqueue is disabled then most likely the loading will happen after the ```load(creativeUrlString: String)``` function is called.
+
+When this function is called the AdPlayer implementation should start loading the item and respond with ```fun onLoading(index: Int?)``` callback when the loading of the media file is about to begin and with ```fun onLoadingFinished(index: Int?)``` when the loading has been completed.
 
 ### play function
 
 When the AdManager wants the playing to begin, for the first time, it will call ```fun play()```. For this case, the AdPlayer will respond with ```fun onPlay()```. When the AdManager wants the playing to resume after a pause it will also call ```fun play()``` but this time the AdPlayer should respond with ```fun onResume()```.
 
+During playback when the current track ends and the next one starts playing the ```fun onTrackChanged(newTrackIndex: Int)``` should be called.
+
 ### pause function
 
-There may be a time when the user will want to pause the AdManager. When this will happen the AdManager will call ```fun pause()```. In this case the AdPlayer will repond with ```fun onPause()```.
+There may be a time when the user will want to pause the AdManager. When this will happen the AdManager will call ```fun pause()```. In this case the AdPlayer will respond with ```fun onPause()```.
 
 ### reset function
 
 The ```fun reset()``` is called when the AdManager wants to stop everything and bring the AdPlayer to it's initial state.
+
+### seekToTrackEnd function
+
+The ```fun seekToTrackEnd()``` is called when the AdManager wants the player to seek to current track's end.
+
+### enqueue function
+
+During execution of the ```adManager.prepare()``` function the AdManager will call ```fun enqueue(creativeUrlString: String, index: Int)``` function for each ad.  
+The index represents the ad position in the AdManager, starting at 0. The creativeUrlString represents the ad media file.
+
+When this function is called the AdPlayer implementation may start loading the enqueued items and respond with ```fun onLoading(index: Int?)``` callback when the loading of a media file is about to begin and with ```fun onLoadingFinished(index: Int?)``` when the loading has been completed.
+
+### dequeue function
+
+There may be certain situations when the player will want to remove an ad from the playlist. In this case it will call ```fun dequeue(index: Int)```. The index represents the ad position in the AdManager that should be removed.
+
+### Player volume
+
+The ```volume``` variable can be used to get the player's current volume or to set the player current volume. The values are between 0.0f and 1.0f; 0.0f means muted and 1.0f means max volume.
 
 ### getCurrentTime and getDuration
 
@@ -1001,13 +1127,7 @@ enum class Status {
     // The player is initialized but not playing and does not have an item to play. This should be the default state
     INITIALIZED,
 
-    // The player is about to begin loading
-    LOADING,
-
-    // The player has finished loading
-    LOADING_FINISHED,
-
-    // The player failed to load the item
+    // The player failed to load the item or failed to play the item
     FAILED,
 
     // The player is about to begin buffering
@@ -1025,20 +1145,16 @@ enum class Status {
     // The player has finished the whole item. This would be the last state for an item
     FINISHED,
 
-    // The player state is unknown.
+    // The player state is unknown
     UNKNOWN;
 }
 ```
 
 The initial player status should be ```INITIALIZED```. It should have this value also after ```fun reset()``` is called.
-When the ```fun load(creativeURL: Uri)``` is called the status should change to ```LOADING``` just before it begins and when it completes to ```LOADING_FINISHED```. In case the loading fails the ```FAILED``` status should be set.
+In case the loading fails the ```FAILED``` status should be set. Also this should be set when an error occurs.
 During playback, if the player needs to buffer the media then it should change the status to ```BUFFERING``` and when the buffering ends it should change it to ```BUFFERING_FINISHED```. When it starts buffering it should also call ```fun onBuffering()``` and when it finishes ```fun onBufferingFinished()```. In this way the AdManager will be notified that a buffering is started or has completed.
 When the player actively plays the ad the status should be ```PLAYING``` and if it is paused the status should be ```PAUSED```.
 When the player finishes to play a track then the status should change to ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
-
-### isBufferingWhilePaused function
-
-The value returned by this function is used only for server side playback (streams). Return true if the player buffers the content while paused and starts from that same point when it resumes. Return false if the player does not buffer the content while paused, and when it resumes the playback starts from the live frame of the stream.
 
 ### listener functions
 
@@ -1074,6 +1190,59 @@ In the following image you can see a complete flow of how the feature works.
 ## Voice Detector on Wear OS
 The same as **shakeMe** the voice detector works on Wear OS too. After integrating the **Wear OS SDK**, the only thing you need to do
 to have voice detection active on the watch is to make sure you give your Wear OS app the ```RECORD_AUDIO``` permission.
+
+## Cache Manager
+Pre-caching the media (creative) assets will allow for your app to serve audio ads in poor network or possibly complete lack of network connection. This will improve user experience because an ad can play instantly or prevent buffering mid ad.
+The **CacheManager** is a singleton that allows us to cache, and also playback media that is already cached. It works in close relation with the player, so if you have your own implementation of the AdPlayer interface
+you can use it, but also ignore it. Right now it only works for players that are based on **ExoPlayer**.
+
+### Working with CacheManager object
+
+There is a listener that you can implement to receive updates about the status of a cache object (**CacheManager.Listener**)
+```kotlin
+CacheManager {
+//...
+    interface Listener {
+        fun onDownloadStarted(assetUri: String)
+        fun onDownloadCompleted(assetUri: String)
+        fun onDownloadFailed(assetUri: String, error: Error)
+    }
+    //...
+}
+```
+To add an asset to the download queue you can call
+```kotlin
+CacheManager.addAssetToCache(assetUri: String, listener: Listener? = null)
+```
+where assetUri is the url for the asset, and the listener is your implementation of the above interface. As you can see the listener is optional. If you add
+the listener here, you will only receive updates for this particular asset.
+
+```kotlin
+CacheManager.cancelDownload(assetUri: String) // Cancels the download specify by assetUri
+
+CacheManager.removeListener(assetUri: String, listener: Listener) // removes all the listeners for that specific assetUri
+
+CacheManager.addGlobalListener(listener: Listener) // adds a listener that receives callbacks for every assetUri
+CacheManager.removeGlobalListener(listener: Listener) // removes a global listener
+```
+
+The **url** of an asset acts as it's **ID** in the cache. So if we want to play an asset from cache it's really straight forward:
+When you are creating the media source for your exoplayer instance, you can get the CacheDataSourceFactory from the CacheManager as follows:
+
+```kotlin
+CacheManager.getCacheDataSourceFactory(upstreamFactory: DefaultHttpDataSourceFactory)
+```
+This returns a CacheDataSourceFactory. An example for usage would look something like this:
+```kotlin
+private fun buildMediaSource(urlString: String): MediaSource {
+        val dataSourceFactory = DefaultHttpDataSourceFactory("AdSDK")
+        val uri = Uri.parse(urlString)
+        return ProgressiveMediaSource.Factory(CacheManager.getCacheDataSourceFactory(dataSourceFactory))
+                            .setTag(urlString)
+                            .createMediaSource(uri)
+
+        }
+```
 
 # AdswizzSDK general settings
 
@@ -1190,6 +1359,38 @@ and partially supports:
 
 For more informations about them consult [VAST_4.2_final_june26.pdf](https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf) .
 
+
+# Multiprocess Host App Guide
+
+The Adswizz SDK is able to work within a multiprocess host application. If your app runs the playback logic in one process and the UI logic in another one, here you will find what you will need to do in order to make it work.
+
+In your manifest add the following lines:
+```xml
+    <service
+        android:name="com.ad.core.companion.internal.ipc.AdCompanionService"
+        android:enabled="true"
+        android:exported="false"
+        android:process="NAME_OF_THE_PLAYBACK_PROCESS" />
+```
+where `NAME_OF_THE_PLAYBACK_PROCESS` is the name of the process in which `AdswizzSDK.initialize(context: Context)` function is called.
+
+## Companion Support
+
+Having the app split in 2 separate processes means that the user may encounter the situation where one process is dead and the other active.
+
+In case the playback process is killed the `AdCompanionView` class has 2 methods that can be used:
+ - `fun clearContent()`. When called cleans the visual content of the companion view. By default when the playback process dies the content remains unchanged.
+ - `fun reconnect()`. The app should call this method after the playback process was restored and the Adswizz SDK reinitialized and ready to use. Calling `reconnect` will register the `AdCompanionView` into Adswizz SDK.
+
+ In case the UI process is killed, the Adswizz SDK will detect that the registered `AdCompanionView` is no longer available and it will gracefully unregistered it.
+
+## Limitations
+
+The following features don't have support in multiprocess applications:
+- In-app notification detector: in a multiprocess application it will not appear on screen. So the actions can't be triggered because the user will be unable to press the buttons.
+- Permissions action: the action will not appear on-screen, although it can be triggered.
+- Analytics logs: the logs will come only from the playback process.
+
 # AdswizzSDK analytics
 
 AdswizzSDK collects and exposes information on SDK’s events that occur during its lifecycle. It was built to log different event types (informative and errors) that cover both integration robustness and ad lifecycle management in both client-side and server-side scenarios.
@@ -1223,7 +1424,6 @@ AdswizzSDK.analytics?.add(myAnalyticsConnector)
 ```
 
 
-
 # Sample projects
 
 The best way to see the AdswizzSDK in action is by studying the example projects included in the `/samples` folder. Download the `/samples` folder using the below `git` command:
@@ -1241,3 +1441,7 @@ This sample demonstrates a basic client-side insertion scenario by showing how t
 
 This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
 If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **Smartwatch**
+
+## PreCache Sample
+
+This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads, and when the download is complete it starts the playback. Alternatively, you can also play the ads before the download is complete. In this second scenario please notice that the enqueue functionality is used instead.

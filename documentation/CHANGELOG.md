@@ -5,7 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [7.2.0] - 2020-09-30
--Added SDK-Analytics
+### Added
+- Enqueue capability for AdPlayer
+- Pre-caching functionality for ad media
+- Sdk analytics
+- Multi-process support for AdCompanion
+- Tap-tap detector for interactive ads
+- Open measurement plugin
+- Context based targeting
+- Added **cacheAssetsHint**, **enqueueEnabledHint**, **seekToTrackEnd**, **enqueue** and **dequeue** to **AdPlayer** interface. The changes to **AdPlayer** interface are not backwards compatible.
+- Added **onSeekToTrackEnd** and **onTrackChanged** to **AdPlayer.Listener** interface. The changes to **AdPlayer.Listener** interface are not backwards compatible.
+- Added **clearContent** and **reconnect** to **AdCompanionView**
 
 ## [7.1.6] - 2020-09-07
 - Fixed an issue with decoration on the server side
@@ -20,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Introduced a new obfuscation parameter to avoid "Duplicate class a.b.a.c.a" compilation errors
 
 ## [7.1.2] - 2020-07-03
-- Fixed a minor issue related to the 'Multiple Zone Request' support 
+- Fixed a minor issue related to the 'Multiple Zone Request' support
 
 ## [7.1.1] - 2020-05-20
 - Fixed a possible "ConcurrentModificationException" that may appear when using the external ad player.
