@@ -62,6 +62,9 @@
 # Before you start
 
 This guide is addressed to the Android developers who want to integrate AdswizzSDK in their apps.
+
+AdswizzSDK is not thread safe, so it is expected that all the calls to the SDK are done on the main thread. AdswizzSDK does all the heavy lifting on other threads, so that the main one remains responsive.
+
 Here is a quick overview. More details will be provided for each scenario in their respective section.
 
 ## What is Client-Side Insertion
@@ -1406,13 +1409,13 @@ In order to register and receive the analytics events, you have to do two things
 ```kotlin
 class MyAnalyticsConnector: AnalyticsConnector {
     override fun onLog(analyticsEvent: AnalyticsEvent) {
-        // every time we log something you will also get the callback here and can 
+        // every time we log something you will also get the callback here and can
         // do whatever you want with the event
     }
 
     override fun onSend() {
         // When this gets called you should flush the stored events ASAP.
-        // Can be called when SDK un-initializes 
+        // Can be called when SDK un-initializes
     }
 }
 ```
