@@ -1383,7 +1383,7 @@ The Adswizz SDK is able to work within a multiprocess host application. If your 
 In your manifest add the following lines:
 ```xml
     <service
-        android:name="com.ad.core.companion.internal.ipc.AdCompanionService"
+        android:name="com.ad.core.companion.ipc.AdCompanionService"
         android:enabled="true"
         android:exported="false"
         android:process="NAME_OF_THE_PLAYBACK_PROCESS" />
