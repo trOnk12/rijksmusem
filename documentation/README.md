@@ -29,6 +29,7 @@
  * [<strong>Interactive ads</strong>](#interactive-ads)
       * [Shake enabled interactive ads](#shake-enabled-interactive-ads)
       * [Voice enabled interactive ads](#voice-enabled-interactive-ads)
+      * [TapTap enabled interactive ads](#taptap-enabled-interactive-ads)
       * [Handling interactive ad events](#handling-interactive-ad-events)
  * [<strong>Companion Banner</strong>](#companion-banner)
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
@@ -692,18 +693,30 @@ AdsWizz interactive ads require some permissions on your app.
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.location.gps" />
+    <!-- Required for 28 and below. -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <!-- Required for 29+. -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 ```
-There are three types of detectors as follows: ShakeDetector, VoiceDetector and InAppNotification
+There are four types of detectors as follows: ShakeDetector, VoiceDetector, InAppNotification, TapTapDetector
 
 ## Shake enabled interactive ads
 These ads, as the name suggests, detect the **shake** of the of phone or Wear OS smartwatch and execute the selected action.
+For this type of detector to work when the app is in background or the screen is locked you will need to have a foreground service.
 
 ## Voice enabled interactive ads
-The speech detector uses the microphone to record the voice of the user and then sends this information to Google to
-be analyzed and transformed into words. These words are then matched against the list of keywords that need to be detected.  
-If a match happends then the interactivity action is triggered.
-AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions needed for this
-feature to work are ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
+The speech detector uses the microphone to record the voice of the user and then sends this information to Google to be analyzed and transformed into words. These words are then matched against the list of keywords that need to be detected. If a match happens then the interactivity action is triggered.
+AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions needed for this feature to work are ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```. Also, for this type of detector to work when the app is in background or the screen is locked you will need to have a foreground service and the ```foregroundServiceType``` param should contain the keyword ```microphone```.
+
+## TapTap enabled interactive ads
+These ads, as the name suggests, detect the **double tap** of the of phone or Wear OS smartwatch and execute the selected action.
+For this type of detector to work when the app is in background or the screen is locked you will need to have a foreground service.
 
 ## Handling interactive ad events
 
