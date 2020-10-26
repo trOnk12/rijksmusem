@@ -5,9 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [7.2.1] - 2020-10-26
-- Companions: if there are more than one **AdCompanionView**s then there will be a single create view event that will be generated per ad
-- Updated documentation regarding voice detectors
-- Improved **BasicSample**
+- Ad Companion behaviour change: when multiple **AdCompanionView** objects are used or created for the same ad then there will be a single **createView** event that will be fired per ad
+- Updated documentation regarding Voice Detectors
+- Improved **BasicSample** app
 
 ## [7.2.0] - 2020-09-30
 ### Added
