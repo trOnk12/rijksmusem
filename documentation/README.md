@@ -29,6 +29,7 @@
  * [<strong>Interactive ads</strong>](#interactive-ads)
       * [Shake enabled interactive ads](#shake-enabled-interactive-ads)
       * [Voice enabled interactive ads](#voice-enabled-interactive-ads)
+      * [TapTap enabled interactive ads](#taptap-enabled-interactive-ads)
       * [Handling interactive ad events](#handling-interactive-ad-events)
  * [<strong>Companion Banner</strong>](#companion-banner)
       * [Adding an AdCompanionView](#adding-an-adcompanionview)
@@ -62,6 +63,9 @@
 # Before you start
 
 This guide is addressed to the Android developers who want to integrate AdswizzSDK in their apps.
+
+AdswizzSDK is not thread safe, so it is expected that all the calls to the SDK are done on the main thread. AdswizzSDK does all the heavy lifting on other threads, so that the main one remains responsive.
+
 Here is a quick overview. More details will be provided for each scenario in their respective section.
 
 ## What is Client-Side Insertion
@@ -689,18 +693,30 @@ AdsWizz interactive ads require some permissions on your app.
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.location.gps" />
+    <!-- Required for 28 and below. -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <!-- Required for 29+. -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 ```
-There are three types of detectors as follows: ShakeDetector, VoiceDetector and InAppNotification
+There are four types of detectors as follows: ShakeDetector, VoiceDetector, InAppNotification, TapTapDetector
 
 ## Shake enabled interactive ads
 These ads, as the name suggests, detect the **shake** of the of phone or Wear OS smartwatch and execute the selected action.
+For this type of detector to work when the app is in background or the screen is locked you will need to have a foreground service.
 
 ## Voice enabled interactive ads
-The speech detector uses the microphone to record the voice of the user and then sends this information to Google to
-be analyzed and transformed into words. These words are then matched against the list of keywords that need to be detected.  
-If a match happends then the interactivity action is triggered.
-AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions needed for this
-feature to work are ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```.
+The speech detector uses the microphone to record the voice of the user and then sends this information to Google to be analyzed and transformed into words. These words are then matched against the list of keywords that need to be detected. If a match happens then the interactivity action is triggered.
+AdsWizz SDK relies on the native Android Speech Recognizer for voice detection. The only permissions needed for this feature to work are ```android.permission.RECORD_AUDIO``` and ```"android.permission.INTERNET"```. Also, for this type of detector to work when the app is in background or the screen is locked you will need to have a foreground service and the ```foregroundServiceType``` param should contain the keyword ```microphone```.
+
+## TapTap enabled interactive ads
+These ads, as the name suggests, detect the **double tap** of the of phone or Wear OS smartwatch and execute the selected action.
+For this type of detector to work when the app is in background or the screen is locked you will need to have a foreground service.
 
 ## Handling interactive ad events
 
@@ -1367,7 +1383,7 @@ The Adswizz SDK is able to work within a multiprocess host application. If your 
 In your manifest add the following lines:
 ```xml
     <service
-        android:name="com.ad.core.companion.internal.ipc.AdCompanionService"
+        android:name="com.ad.core.companion.ipc.AdCompanionService"
         android:enabled="true"
         android:exported="false"
         android:process="NAME_OF_THE_PLAYBACK_PROCESS" />
@@ -1406,13 +1422,13 @@ In order to register and receive the analytics events, you have to do two things
 ```kotlin
 class MyAnalyticsConnector: AnalyticsConnector {
     override fun onLog(analyticsEvent: AnalyticsEvent) {
-        // every time we log something you will also get the callback here and can 
+        // every time we log something you will also get the callback here and can
         // do whatever you want with the event
     }
 
     override fun onSend() {
         // When this gets called you should flush the stored events ASAP.
-        // Can be called when SDK un-initializes 
+        // Can be called when SDK un-initializes
     }
 }
 ```
