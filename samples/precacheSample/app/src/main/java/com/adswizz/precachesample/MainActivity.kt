@@ -1,48 +1,37 @@
-package com.adswizz.basicsample
+package com.adswizz.precachesample
 
 import android.content.pm.ActivityInfo
-import android.graphics.Color
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.SpannableStringBuilder
 import android.text.method.ScrollingMovementMethod
-import android.text.style.ForegroundColorSpan
-import android.text.style.RelativeSizeSpan
-import android.text.style.TypefaceSpan
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.ad.core.adBaseManager.AdData
 import com.ad.core.adBaseManager.AdEvent
 import com.ad.core.adFetcher.AdRequestConnection
 import com.ad.core.adManager.AdManager
 import com.ad.core.adManager.AdManagerListener
+import com.ad.core.adManager.AdManagerSettings
+import com.ad.core.cache.CacheManager
+import com.ad.core.cache.CachePolicy
 import com.adswizz.core.adFetcher.AdswizzAdRequest
 import com.adswizz.core.adFetcher.AdswizzAdZone
 import com.adswizz.sdk.AdswizzSDK
 import kotlinx.android.synthetic.main.activity_main.*
-import java.text.SimpleDateFormat
-import java.util.*
 
-// Basic app shows minimal client side functionality
-
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(), CacheManager.Listener {
     companion object {
         const val SERVER_URL = "demo.deliveryengine.adswizz.com"
         const val ZONE_ID = "13396"
-        //const val ZONE_ID = "14578"
-    }
-
-    private enum class AdManagerState {
-        Unknown, ReadyForPlay, Playing, Paused, AllAdsCompleted
+        const val ZONE_ID_2 = "11993"
     }
 
     private var adManager: AdManager? = null
-    private var adRequestConnection: AdRequestConnection? = null
-
-    private var adManagerState: AdManagerState = AdManagerState.Unknown
+    private var adManagerSettings: AdManagerSettings? = null
+    private var count = 0
 
     private val listener = object : AdManagerListener {
         override fun onEventReceived(adManager: AdManager, event: AdEvent) {
@@ -53,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
                 AdEvent.Type.State.Initialized -> {
                     appLogs.addEntry("Ad ${event.ad?.id} - initialized")
+                    count++
                 }
 
                 AdEvent.Type.State.Unknown -> {
@@ -64,8 +54,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 AdEvent.Type.State.ReadyForPlay -> {
-                    adManagerState = AdManagerState.ReadyForPlay
                     appLogs.addEntry("Ad ${event.ad?.id} - ready for play")
+                    //adManager.play()
                 }
 
                 AdEvent.Type.State.WillStartBuffering -> {
@@ -77,17 +67,14 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 AdEvent.Type.State.DidStartPlaying -> {
-                    adManagerState = AdManagerState.Playing
                     appLogs.addEntry("Ad ${event.ad?.id} - did start playing")
                 }
 
                 AdEvent.Type.State.DidResumePlaying -> {
-                    adManagerState = AdManagerState.Playing
                     appLogs.addEntry("Ad ${event.ad?.id} - did resume playing")
                 }
 
                 AdEvent.Type.State.DidPausePlaying -> {
-                    adManagerState = AdManagerState.Paused
                     appLogs.addEntry("Ad ${event.ad?.id} - did pause playing")
                 }
 
@@ -100,8 +87,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 AdEvent.Type.State.AllAdsCompleted -> {
-                    adManagerState = AdManagerState.AllAdsCompleted
-                    playButton.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp)
                     appLogs.addEntry("Ad - all ads completed")
                 }
 
@@ -118,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 AdEvent.Type.Position.Start -> {
-                    appLogs.addEntry("Ad ${event.ad?.id} - 0% start")
+                    appLogs.addEntry("Ad ${event.ad?.id} - 0%  start")
                 }
 
                 AdEvent.Type.Position.FirstQuartile -> {
@@ -163,60 +148,38 @@ class MainActivity : AppCompatActivity() {
         appLogs.movementMethod = scroll
 
         AdswizzSDK.initialize(this)
+        adManagerSettings = AdManagerSettings.Builder()
+            .addCachePolicy(CachePolicy.ASSETS)
+            .enqueueEnabled(true)
+            .build()
 
-        sdkVersion.text = "${getString(R.string.adswizz_version_prefix)}${com.adswizz.sdk.BuildConfig.VERSION_NAME}"
-
+        CacheManager.addGlobalListener(this)
         //Build the Ad Request with the needed parameters
         AdswizzAdRequest.Builder()
             .withServer(SERVER_URL)
-            .withZones(setOf(AdswizzAdZone(ZONE_ID)))
-            .build() { adRequest ->
+            .withZones(setOf(AdswizzAdZone(ZONE_ID), AdswizzAdZone(ZONE_ID_2)))
+            .build { adRequest ->
                 // Create the AdRequestConnection using the above adRequest
-                adRequestConnection = AdRequestConnection(adRequest)
-                adRequestConnection?.requestAds { adManager, error ->
+                val adRequestConnection = AdRequestConnection(adRequest)
+                adRequestConnection.requestAds { adManager, error ->
+                    // Handle the response from server
                     handleResponse(error, adManager)
                 }
-            }
 
-        playButton.setOnClickListener {
-
-            when (adManagerState) {
-                AdManagerState.Unknown, AdManagerState.ReadyForPlay -> {
-                    if (adManagerState == AdManagerState.Unknown) {
-                        appLogs.addEntry("Recommendation: just to be sure that the ad playback will start immediately wait for the <<AdEvent.Type.State.ReadyForPlay>> event")
-                    }
-                    it.setBackgroundResource(R.drawable.ic_pause_arrow_black_24dp)
+                playButton.setOnClickListener {
                     adManager?.play()
                 }
-                AdManagerState.Paused -> {
-                    it.setBackgroundResource(R.drawable.ic_pause_arrow_black_24dp)
-                    adManager?.resume()
-                }
-                AdManagerState.Playing -> {
-                    it.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp)
-                    adManager?.pause()
-                }
-                AdManagerState.AllAdsCompleted -> {
-                    it.setBackgroundResource(R.drawable.ic_pause_arrow_black_24dp)
+                replayButton.setOnClickListener {
                     adManager?.reset()
-                    adManager?.prepare()
-                    adManager?.play()
+                    adManager = null
+
+                    appLogs.text = ""
+
+                    adRequestConnection.requestAds { adManager, error ->
+                        handleResponse(error, adManager)
+                    }
                 }
             }
-        }
-
-        replayButton.setOnClickListener {
-            adManager?.reset()
-            adManager = null
-            adManagerState = AdManagerState.Unknown
-
-            appLogs.text = ""
-
-            adRequestConnection?.requestAds { adManager, error ->
-                handleResponse(error, adManager)
-            }
-        }
-
     }
 
     private fun handleResponse(
@@ -227,7 +190,9 @@ class MainActivity : AppCompatActivity() {
             appLogs.addEntry("RequestError: ${error.message}")
         }
         if (adManager != null) {
+
             this.adManager = adManager
+            this.adManager?.adManagerSettings = adManagerSettings
             appLogs.addEntry("Received ad manager")
             adManager.setListener(listener)
             adManager.prepare()
@@ -240,19 +205,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun TextView.addEntry(entry: String) {
-        val ssBuilder = SpannableStringBuilder(this.text)
-
-        val timeStamp: String = SimpleDateFormat("HH:mm:ss.SSS").format(Date())
-        val entryLine = "$timeStamp $entry\n"
-
-        ssBuilder.append(entryLine)
-
-        val spanStart = ssBuilder.length - entryLine.length
-        val spanEnd = spanStart + timeStamp.length
-        ssBuilder.setSpan(RelativeSizeSpan(0.7f), spanStart, spanEnd, 0)
-        ssBuilder.setSpan(ForegroundColorSpan(Color.DKGRAY), spanStart, spanEnd, 0)
-        ssBuilder.setSpan(TypefaceSpan("sans-serif-condensed"), spanStart, spanEnd, 0)
-
-        this.text = ssBuilder
+        val strBuilder = StringBuilder(this.text)
+        strBuilder.append(entry)
+        strBuilder.append("\n\n")
+        this.text = strBuilder.toString()
     }
+
+    override fun onDownloadCompleted(assetUri: String) {
+        appLogs.addEntry("Download completed for: $assetUri")
+        count--
+
+        if (count == 0) {
+            adManager?.play() // play when all files have downloaded
+        }
+    }
+
+    override fun onDownloadFailed(assetUri: String, error: Error) {
+        appLogs.addEntry("Download failed for: $assetUri")
+    }
+
+    override fun onDownloadStarted(assetUri: String) {
+        appLogs.addEntry("Download started for: $assetUri")
+    }
+
 }

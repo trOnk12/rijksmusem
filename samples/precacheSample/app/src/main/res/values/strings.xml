@@ -1,0 +1,4 @@
+<resources>
+    <string name="precache_sample_app">Precache Sample</string>
+    <string name="app_logs">App Logs:</string>
+</resources>
