@@ -1,4 +1,5 @@
 <resources>
     <string name="basic_sample_app">Basic Sample</string>
     <string name="app_logs">App Logs:</string>
+    <string name="adswizz_version_prefix">AdsWizz SDK v</string>
 </resources>
