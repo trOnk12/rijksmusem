@@ -404,7 +404,6 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
             AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
                 .withServer("SERVER_PROVIDED_BY_PIM")
                 .withZones(setOf(AdswizzAdZone("ZONEID_PROVIDED_BY_PIM")))
-                .withPlayerId("PLAYERID_PROVIDED_BY_PIM")
                 .build()
 
         val adRequestConnection =
@@ -799,7 +798,6 @@ First when you create an **_AdswizzAdRequest_** you must configure the **_compan
 val adRequest = AdswizzAdRequest.Builder() //Build the Ad Request with the needed parameters
                 .withServer("SERVER_PROVIDED_BY_PIM")
                 .withZones(setOf(AdswizzAdZone("ZONEID_PROVIDED_BY_PIM")))
-                .withPlayerId("PLAYERID_PROVIDED_BY_PIM")
                 .withCompanionZones("COMPANION_PROVIDED_BY_PIM")
                 .build()
 ```
@@ -1436,9 +1434,7 @@ class MyAnalyticsConnector: AnalyticsConnector {
 ```kotlin
 val myAnalyticsConnector = MyAnalyticsConnector()
 AdswizzSDK.analytics?.add(myAnalyticsConnector)
-
 ```
-
 
 # Sample projects
 
