@@ -79,11 +79,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="10dp"
-        android:background="#00ff00"
+        android:background="@drawable/rounded_corners"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appLogs" />
+        app:layout_constraintTop_toBottomOf="@id/appLogs"
+        app:video_surface_type="surface_view"
+        app:video_view_id="1" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

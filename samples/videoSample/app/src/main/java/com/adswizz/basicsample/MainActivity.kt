@@ -18,6 +18,8 @@ import com.ad.core.adBaseManager.AdEvent
 import com.ad.core.adFetcher.AdRequestConnection
 import com.ad.core.adManager.AdManager
 import com.ad.core.adManager.AdManagerListener
+import com.ad.core.adManager.AdManagerSettings
+import com.ad.core.video.AdVideoView
 import com.adswizz.core.adFetcher.AdswizzAdRequest
 import com.adswizz.core.adFetcher.AdswizzAdZone
 import com.adswizz.sdk.AdswizzSDK
@@ -31,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val SERVER_URL = "demo.deliveryengine.adswizz.com"
-        const val ZONE_ID = "13396"
+        const val ZONE_ID = "14756"
         //const val ZONE_ID = "14578"
     }
 
@@ -216,7 +218,6 @@ class MainActivity : AppCompatActivity() {
                 handleResponse(error, adManager)
             }
         }
-
     }
 
     private fun handleResponse(
@@ -228,6 +229,9 @@ class MainActivity : AppCompatActivity() {
         }
         if (adManager != null) {
             this.adManager = adManager
+            this.adManager?.adManagerSettings = AdManagerSettings.Builder()
+                    .videoViewId(1)
+                    .build()
             appLogs.addEntry("Received ad manager")
             adManager.setListener(listener)
             adManager.prepare()
