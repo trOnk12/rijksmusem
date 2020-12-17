@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name='Basic Sample'
+rootProject.name='Video Sample'

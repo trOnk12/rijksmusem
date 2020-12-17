@@ -8,7 +8,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:4.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -25,6 +25,17 @@ allprojects {
             credentials(HttpHeaderCredentials) {
                 name = "Authorization"
                 value = "Bearer a25aa17c5f909970ae0a75d0817ac426edde692c"
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
+
+        maven {
+            url "https://raw.githubusercontent.com/adswizz/ad-sdk-android-dev/master/releases"
+            credentials(HttpHeaderCredentials) {
+                name = "Authorization"
+                value = "Bearer d3a8a035841f85a67c120e7b6bed50bc2b669923"
             }
             authentication {
                 header(HttpHeaderAuthentication)
