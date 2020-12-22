@@ -36,6 +36,14 @@
       * [Setting up](#setting-up)
       * [Companion events](#companion-events)
       * [Extra exposure time](#extra-exposure-time)
+ * [<strong>Video ads</strong>](#video-ads)
+      * [Adding an AdVideoView](#adding-an-advideoview)
+      * [Setup video support](#setup-video-support)
+      * [Subclassing AdVideoView](#subclassing-advideoview)
+      * [Video View Listener](#video-view-listener)
+      * [Viewability](#viewability)
+         * [Friendly obstructions](#friendly-obstructions)
+         * [Video state](#video-state)
  * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
       * [CacheManager](#cache-manager)
@@ -48,6 +56,8 @@
       * [AFR config](#afr-config)
       * [Integrator Context](#integrator-context)
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
+ * [<strong>Open Measurement in AdswizzSDK</strong>](#open-measurement-in-adswizzsdk)
+      * [Video controls obstructions](#video-controls-obstructions)
  * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
  * [<strong>Vast Macros</strong>](#vast-macros)
@@ -388,7 +398,7 @@ If an error happens in the SDK while using this object, `onEventErrorReceived(ad
 
 As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values.  
 In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.  
-Also you can specify the cache policy (default none), the assets quality preference (default high) and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
+Also you can specify the cache policy (default none), the assets quality preference (default high), the video view id and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
 
 Next, you need to call prepare method on the **_AdManager_** object.
 This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
@@ -418,7 +428,8 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
                     .addCachePolicy(CachePolicy.ASSETS)         // optional
                     .assetQuality(AssetQuality.MEDIUM)          // optional, other possible values AssetQuality.LOW, AssetQuality.HIGH
                     .enqueueEnabled(false)                      // optional
-                    .build() // optional
+                    .videoViewId(1)                             // optional
+                    .build()                                    // optional
                 adManager.setListener(this) // Get notifications from the Ad SDK
                 adManager.prepare() // Start buffering the ads in the AdManager
                 adManager.play() // Start playing when first add finish loading
@@ -820,6 +831,166 @@ If you need to keep the companion on the screen for a longer time(or indefinitel
 val adCompanionOptions = AdCompanionOptions()
 adCompanionOptions.extraExposureTime = 1.2// these are seconds.
 AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
+```
+
+# Video ads
+
+AdswizzSDK is capable of handling video content when an ad server delivers video ads. The ad lifecycle is the same as for audio ads. The additional steps needed to play video ads are described below.
+
+## Adding an AdVideoView
+
+**_AdVideoView_** is an instance of **_View_** responsible for rendering video content during video ads playback. Just like companion views, a video view can be created either programatically or by adding it in a layout xml file.
+
+Once created, you have ownership over this view and you can add it to your hierarchy like any other UI component.
+
+The **_AdVideoView_** uses the following custom attributes:
+- **_video_view_id_**: is used to identify the video view. It should be a non-negative integer value and it should be unique among all ad video views used by the host app. If a negative value is put then an exception will be thrown. In case this attribute is omitted then an auto-generated id (of negative value) will be assigned by the SDK.
+- **_resize_mode_**: when a video is rendered, the SDK needs to know how to resize the video frame in comparison with the video view. This attribute can be changed at any time. The following options are available:
+     * **_fit_**: either the width or height is decreased to obtain the desired aspect ratio.
+     * **_fixed_width_**: the width is fixed and the height is increased or decreased to obtain the desired aspect ratio.
+     * **_fixed_height_**: the height is fixed and the width is increased or decreased to obtain the desired aspect ratio.
+     * **_fill_**: the specified aspect ratio is ignored.
+     * **_zoom_**: either the width or height is increased to obtain the desired aspect ratio.
+- **_video_surface_type_**: the type of surface used to render the video
+    * **_auto_select_**: the AdswizzSDK will choose the best option
+    * **_none_**: the video will not be rendered in the view
+    * **_surface_view_**: the AdswizzSDK will use **_SurfaceView_** to render the video.
+    * **_texture_view_**: the AdswizzSDK will use **_TextureView_** to render the video.
+
+Example:
+```kotlin
+    <com.ad.core.video.AdVideoView
+        android:id="@+id/videoView1"
+        app:resize_mode="fit"
+        app:video_surface_type="surface_view"
+        app:video_view_id="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+```
+
+## Setup video support
+
+The first step is to let the SDK know that you wish to render video content to your users. To do that, you'll need to pass the video view id of the **_AdVideoView_** when setting up the Ad Manager via **_AdManagerSettings_**:
+
+```kotlin
+    adManager.adManagerSettings = AdManagerSettings.Builder()
+        .videoViewId(1)
+        ....
+        .build()
+```
+
+At this point the video view doesn't have to be visible / added to your hierarchy yet. But remember that you own the video view instance and it is your responsability to keep track of.
+
+The **_AdVideoView_** will render video content during the video ad playback. After the video ad finished playing, the video view may be dismissed.
+You can only set one ad video view id on an Ad Manager but you can reuse the same video view id for multiple ad managers if they don't run at the same time.
+
+To clean the **_AdVideoView_** you can use the **_cleanContent()_** function. This may be useful when the ad finishes playing if you want to clean the last video frame.
+
+## Subclassing AdVideoView
+
+**_AdVideoView_** can be subclassed and used just like any other **_View_** based component. However you should not temper with the subviews managed by the SDK. Nor should you disable user interaction on **_AdVideoView_** because by doing so you will prevent from correctly reporting click through or click trackings.
+
+
+# Video View Listener
+
+There are no specific video events to respond to, however you can set a listener to your **_AdVideoView_** instance that implements to the **_AdVideoView.Listener_** interface. Just like companion views, you will be notified to decide whether or not to override click through target URL on the video view. You will also be notified when the application is about to go to background due to a click through. The interface is displayed below:
+
+```kotlin
+interface Listener {
+    /**
+     * Called immediately when a touch event is detected over the ad video view.
+     * Give the host application a chance to override the default behaviour when a video `clickThrough` event occurs.
+     * @return true if the host application wants to handle itself the target url
+     * @return false otherwise. In this case the target url will be handled internally by the SDK
+     *
+     * @param adVideoView: The `AdVideoView` instance which received the touch event
+     */
+    fun shouldOverrideVideoClickThrough(adVideoView: AdVideoView): Boolean
+
+    /**
+     *  Called when the application is about to go to background as a result of
+     *  a video `clickThrough` event and the target url is opened in the external browser.
+     *
+     *  @param adVideoView: The `AdVideoView` instance which triggers the event
+     */
+    fun willLeaveApplication(adVideoView: AdVideoView)
+}
+```
+
+# Viewability
+
+Viewability enables AdswizzSDK to allow third party verification measurement for both audio and video ads. See [Open Measurement in AdswizzSDK](#open-measurement-in-adswizzsdk) for more details.
+
+## Friendly obstructions
+
+When there are any native elements which are part of the **_AdVideoView_** container, such as a skip button, some logo text, or other kind of overlay, you should register them as "friendly" obstructions to prevent them from counting towards coverage of the video ad during playback. This applies to any view that obstructs the **_AdVideoView_** and is not in it's subview tree.
+
+After you identify such elements that should be marked as friendly, you can create an **_AdVideoFriendlyObstruction_** object by passing in the **_view_** which is causing the obstruction, a **_purpose_** (see `AdVideoFriendlyObstructionPurpose` enum for all possible cases) and an optional **_detailedReason_**. After that, just
+register the newly created obstruction object to your **_AdVideoView_** instance.
+
+
+```kotlin
+
+.....
+
+val videoView = rootView.findViewById(R.id.videoView)
+val closeButton = rootView.findViewById(R.id.closeButton)
+.....
+
+val obstruction = AdVideoFriendlyObstruction(closeButton, AdVideoFriendlyObstructionPurpose.CLOSE_AD, "Close button")
+videoView.registerFriendlyObstruction(obstruction)
+
+```
+
+When you're done with them, these obstructions can be removed one by one by calling:
+
+```kotlin
+videoView.unregisterFriendlyObstruction(obstruction)
+```
+or all at once by calling:
+
+```kotlin
+videoView.unregisterAllFriendlyObstructions()
+```
+
+To get the list with all friendly obstructons for a view you can use:
+
+```kotlin
+val list = videoView.getFriendlyObstructionList()
+```
+
+
+## Video state
+
+Rounding up the viewability support, AdswizzSDK enables you to communicate your **_AdVideoView_** state by using the **_state_** property. Set the state whenever the video view transitions to one of the following:
+
+### normal
+The video view's default playback size.
+
+### expanded
+The video view has expanded from its original size.
+
+### collapsed
+The video view has been reduced from its original size. The video is still potentially visible.
+
+### fullscreen
+The video view has entered fullscreen mode.
+
+### minimized
+The video view is collapsed in such a way that the video is hidden. The video may or may not still be progressing in this state, and sound may be audible.
+
+Below is an example:
+
+```kotlin
+
+// Default state is AdVideoState.NORMAL
+val videoView = rootView.findViewById(R.id.videoView)
+.....
+
+// When your video view transitions to another state (e.g fullscreen).
+// Inform AdswizzSDK for any state change for viewability purposes.
+videoView.state = AdVideoState.FULLSCREEN
+
 ```
 
 # Playing ads using your player
@@ -1330,6 +1501,31 @@ By default, the **_AdCompanionView_** will end displaying the content after the 
     val adCompanionOptions = AdCompanionOptions(exposureTime)
     AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 ```
+
+# Open Measurement in AdswizzSDK
+
+**_AdswizzSDK_** includes the [Open Measurement SDK](https://iabtechlab.com/standards/open-measurement-sdk/), an industry standard developed by the IAB and designed to enable third-party viewability and verification measurement for audio and video ads served through VAST servers. **_Open Measurement_** is enabled by default in AdswizzSDK and ads must be configured to traffic **_<AdVerifications>_** in their VAST. Additionally, refrain from covering the **_AdVideoView_** container with any overlays (transparent or opaque) because these are taken into account by the OM SDK, marked as obstructions and therefore affect viewability and reporting.
+For more info see [Viewability](#viewability) on how to register your overlays as "friendly" obstructions by using **_AdVideoFriendlyObstruction_** objects.
+
+## Video controls obstructions
+
+Video controls such as pause buttons or progress bars provide important playback information to your users. On mobile, it is common practice to render large, touch-friendly controls over the container which renders video content. When using **_AdswizzSDK_**, one way to show these controls is by adding them above the **_AdVideoView_** container. Usually, the controls are child elements of this view that covers (even partially) the underlying video player.
+When video ad viewability is calculated through the Open Measurement SDK, all views overlaying the video content are considered obstructions and reduce the viewability rate. If an overlay (even fully transparent) sits above the entire video ad view, it is possible for inventory to be declared completely unviewable.
+The Open Measurement SDK allows for video controls to be considered "friendly" obstructions that contribute to the user’s experience. Once registered as "friendly", these controls are excluded from ad viewability measurement. Also it should be noted that the Open Measurement SDK automatically adds all views in the **_AdVideoView_** subview tree as friendly obstructions so they do not count for viewability measurement.
+
+Here are some examples of elements that are appropriate to be registered as friendly obstructions:
+  * transparent overlays that might be used to capture user taps
+  * playback buttons
+    + pause
+    + play
+    + skip
+    + fullscreen
+    + minimize
+    + Cast/Airplay
+    + progress/seek
+  * other playback relevant controls
+
+Usually, elements like pop ups or dialogs should not be registered.
 
 # (Optional) Prepare your application for advanced targetability capabilities
 
