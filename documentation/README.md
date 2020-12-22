@@ -898,7 +898,7 @@ To clean the **_AdVideoView_** you can use the **_cleanContent()_** function. Th
 **_AdVideoView_** can be subclassed and used just like any other **_View_** based component. However you should not temper with the subviews managed by the SDK. Nor should you disable user interaction on **_AdVideoView_** because by doing so you will prevent from correctly reporting click through or click trackings.
 
 
-# Video View Listener
+## Video View Listener
 
 There are no specific video events to respond to, however you can set a listener to your **_AdVideoView_** instance that implements to the **_AdVideoView.Listener_** interface. Just like companion views, you will be notified to decide whether or not to override click through target URL on the video view. You will also be notified when the application is about to go to background due to a click through. The interface is displayed below:
 
