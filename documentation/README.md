@@ -189,7 +189,7 @@ The AdswizzAdSDK uses the following permissions:
 
 ```xml
 <manifest>
-.....
+....
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -213,7 +213,7 @@ The AdswizzAdSDK uses the following permissions:
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <!-- Required for 29+. -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
-......
+....
 </manifest>
 ```
 
@@ -221,12 +221,12 @@ AdswizzWearSDK uses the following permissions:
 
 ```xml
 <manifest>
-.....
+....
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
-......
+....
 </manifest>
 ```
 
@@ -303,9 +303,9 @@ First, you need to add the installationId, provided by an AdsWizz engineer or PI
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    .......
+    ....
     <meta-data android:name="com.adswizz.core.installationId" android:value="ADD_YOUR_INSTALLATION_ID_HERE" />
-    .......
+    ....
 </application>
 ```
 
@@ -320,10 +320,10 @@ Second, you need to add the playerId to your manifest. This is also obtained fro
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    .......
+    ....
     <meta-data android:name="com.adswizz.core.installationId" android:value="ADD_YOUR_INSTALLATION_ID_HERE" />
     <meta-data android:name="com.adswizz.core.playerId" android:value="ADD_YOUR_PLAYER_ID_HERE" />
-    .......
+    ....
 </application>
 ```
 Next, you need to initialize the AdswizzSDK. The recommended way to do this is in the onCreate of your application. If you already extended
@@ -356,7 +356,7 @@ Don't forget to add this new class in your manifest. It should look like this:
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    .......
+    ....
 </application>
 ```
 
@@ -798,14 +798,14 @@ ad is playing.
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
-.....
+....
     <com.ads.coresdk.companion.AdCompanionView
             android:id="@+id/companionView1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
-.......
+....
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 ## Setting up
@@ -924,11 +924,11 @@ interface Listener {
 }
 ```
 
-# Viewability
+## Viewability
 
 Viewability enables AdswizzSDK to allow third party verification measurement for both audio and video ads. See [Open Measurement in AdswizzSDK](#open-measurement-in-adswizzsdk) for more details.
 
-## Friendly obstructions
+### Friendly obstructions
 
 When there are any native elements which are part of the **_AdVideoView_** container, such as a skip button, some logo text, or other kind of overlay, you should register them as "friendly" obstructions to prevent them from counting towards coverage of the video ad during playback. This applies to any view that obstructs the **_AdVideoView_** and is not in it's subview tree.
 
@@ -938,11 +938,11 @@ register the newly created obstruction object to your **_AdVideoView_** instance
 
 ```kotlin
 
-.....
+....
 
 val videoView = rootView.findViewById(R.id.videoView)
 val closeButton = rootView.findViewById(R.id.closeButton)
-.....
+....
 
 val obstruction = AdVideoFriendlyObstruction(closeButton, AdVideoFriendlyObstructionPurpose.CLOSE_AD, "Close button")
 videoView.registerFriendlyObstruction(obstruction)
@@ -971,19 +971,19 @@ val list = videoView.getFriendlyObstructionList()
 
 Rounding up the viewability support, AdswizzSDK enables you to communicate your **_AdVideoView_** state by using the **_state_** property. Set the state whenever the video view transitions to one of the following:
 
-### normal
+### NORMAL
 The video view's default playback size.
 
-### expanded
+### EXPANDED
 The video view has expanded from its original size.
 
-### collapsed
+### COLLAPSED
 The video view has been reduced from its original size. The video is still potentially visible.
 
-### fullscreen
+### FULLSCREEN
 The video view has entered fullscreen mode.
 
-### minimized
+### MINIMIZED
 The video view is collapsed in such a way that the video is hidden. The video may or may not still be progressing in this state, and sound may be audible.
 
 Below is an example:
@@ -992,7 +992,7 @@ Below is an example:
 
 // Default state is AdVideoState.NORMAL
 val videoView = rootView.findViewById(R.id.videoView)
-.....
+....
 
 // When your video view transitions to another state (e.g fullscreen).
 // Inform AdswizzSDK for any state change for viewability purposes.
