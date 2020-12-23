@@ -5,11 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [7.3.0] - 2020-12-20
 
+Added
+
 - Added support for skippable ads, marked in VAST by *skipoffset* attribute. Ads will be skippable from the start if VAST specify a skipoffset equal to 0.
 - Added skipOffset in *AdData* public interface to signal after how many seconds can the ad be skipped by the user.
-- OMSDK capabilities for server side
 - New interactive format for voice with variable listening time.
+- OMSDK capabilities for server side
 - Video Ads capabilities added to the SDK
+- Added *videoViewId* in *AdManagerSettings* and in *AdManagerStreamingSettings* public interface to help setup video support.
+- Added *AdVideoView* public class to control rendering video content.
+- Added a basic sample on how to setup and run video ads.
 
 ## [7.2.2] - 2020-11-16
 - Fixed an issue that impacts the decoration when the wearable sdk is also used
