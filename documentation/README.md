@@ -949,7 +949,7 @@ AdswizzSDK is capable of handling video content when an ad server delivers video
 
 ## Adding an AdVideoView
 
-**_AdVideoView_** is an instance of **_View_** responsible for rendering video content during video ads playback. Just like companion views, a video view can be created either programatically or by adding it in a layout xml file.
+**_AdVideoView_** is an instance of **_View_** responsible for rendering video content during video ads playback. Just like companion views - see [Companion Banner](#companion-banner) section, a video view can be created either programmatically or by adding it in a layout xml file.
 
 Once created, you have ownership over this view and you can add it to your hierarchy like any other UI component.
 
@@ -1738,9 +1738,13 @@ class MyAnalyticsConnector: AnalyticsConnector {
 ```
 2. After you create your AnalyticsConnector, you have to add yourself as listener. To do that use the following lines of code
 ```kotlin
-val myAnalyticsConnector = MyAnalyticsConnector()
+myAnalyticsConnector = MyAnalyticsConnector()
 AdswizzSDK.analytics?.add(myAnalyticsConnector)
 ```
+---
+**NOTE**
+`AdswizzSDK` keeps a weak reference to the `AnalyticsConnector`, so it's host app responsibility to keep a strong reference to the `AnalyticsConnector` instance while listening for analytics events. 
+---
 
 # Sample projects
 
