@@ -35,6 +35,14 @@ class MainActivity : AppCompatActivity() {
             appLogs.addEntry("Did finish playing url: $url")
         }
 
+        override fun didPausePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            appLogs.addEntry("Did pause playing url: $url")
+        }
+
+        override fun didResumePlayingUrl(adStreamManager: AdStreamManager, url: Uri) {
+            appLogs.addEntry("Did resume playing url: $url")
+        }
+
         override fun adBreakStarted(
             adStreamManager: AdStreamManager, adBaseManager: AdBaseManager
         ) {

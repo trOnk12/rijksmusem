@@ -9,6 +9,7 @@
       * [Changelog](#changelog)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
+      * [Package visibility](#package-visibility)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
       * [SDK initialization and cleanup](#sdk-initialization-and-cleanup)
  * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
@@ -36,6 +37,14 @@
       * [Setting up](#setting-up)
       * [Companion events](#companion-events)
       * [Extra exposure time](#extra-exposure-time)
+ * [<strong>Video ads</strong>](#video-ads)
+      * [Adding an AdVideoView](#adding-an-advideoview)
+      * [Setup video support](#setup-video-support)
+      * [Subclassing AdVideoView](#subclassing-advideoview)
+      * [Video View Listener](#video-view-listener)
+      * [Viewability](#viewability)
+         * [Friendly obstructions](#friendly-obstructions)
+         * [Video state](#video-state)
  * [<strong>Playing ads using your player</strong>](#playing-ads-using-your-player)
       * [AdPlayer Interface](#adplayer-interface)
       * [CacheManager](#cache-manager)
@@ -48,6 +57,8 @@
       * [AFR config](#afr-config)
       * [Integrator Context](#integrator-context)
       * [Extra exposure time for an AdCompanionView](#extra-exposure-time-for-an-adcompanionview)
+ * [<strong>Open Measurement in AdswizzSDK</strong>](#open-measurement-in-adswizzsdk)
+      * [Video controls obstructions](#video-controls-obstructions)
  * [<strong>(Optional) Prepare your application for advanced targetability capabilities</strong>](#optional-prepare-your-application-for-advanced-targetability-capabilities)
       * [Privacy implications](#privacy-implications)
  * [<strong>Vast Macros</strong>](#vast-macros)
@@ -59,6 +70,7 @@
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
       * [Precache Sample](#precache-sample)
+      * [Video Ads Sample](#video-ads-sample)
 
 # Before you start
 
@@ -70,7 +82,7 @@ Here is a quick overview. More details will be provided for each scenario in the
 
 ## What is Client-Side Insertion
 
-'Client-Side Insertion' represents the insertion of ads into the audio stream done by the integrator. Your app is responsible for the built-in logic to decide when to start and end an ad break by fetching ads from the ad server and playing them with your apps's audio/video capabilities. The SDK will handle all communication during ad fetching with the ad server while being in charge with the display of companion banner and performing various event reporting (impressions & quartiles).
+'Client-Side Insertion' represents the insertion of ads into the audio/video stream done by the integrator. Your app is responsible for the built-in logic to decide when to start and end an ad break by fetching ads from the ad server and playing them with your apps's audio/video capabilities. The SDK will handle all communication during ad fetching with the ad server while being in charge with the display of companion banner and performing various event reporting (impressions & quartiles).
 
 ## What is Server-Side Insertion
 
@@ -153,22 +165,63 @@ kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ko
 moshi = "com.squareup.moshi:moshi:$moshiVersion"
 moshiAdapters = "com.squareup.moshi:moshi-adapters:$moshiVersion"
 moshiCodeGen = "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
-protobufJava = "com.google.protobuf:protobuf-java:$protobufJavaVersion"
+protobufJavaLite = "com.google.protobuf:protobuf-javalite:$protobufJavaLiteVersion"
 playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
 androidMaterial = "com.google.android.material:material:$androidMaterialVersion"
+commonsMath3 = "org.apache.commons:commons-math3:$commonsMath3Version"
+gmsPlayServicesLocation = "com.google.android.gms:play-services-location:$gmsPlayServicesLocationVersion"
+awsAndroidSdkCore = "com.amazonaws:aws-android-sdk-core:$awsAndroidSdkCoreVersion"
+workManagerRuntime = "androidx.work:work-runtime-ktx:$workManagerRuntimeVersion"
 ```
 
 For our Wear OS SDK we use:
 
 ```groovy
 kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
+androidXWear = "androidx.wear:wear:$androidXWearVersion"
 supportWearable = "com.google.android.support:wearable:$wearableSupportVersion"
+googleWearable = "com.google.android.wearable:wearable:$googleWearableVersion"
 playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
 lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
+commonsMath3 = "org.apache.commons:commons-math3:$commonsMath3Version"
 ```
+
+We have tested the above dependencies using the following version numbers:<br>
+
+```groovy
+//Library
+appcompatVersion = '1.1.0'
+coreKtxVersion = '1.1.0'
+exoPlayerVerison = '2.10.0' // and '2.11.3' too
+gmsPlayServicesAdsVersion = '18.2.0'
+moshiVersion = '1.8.0'
+androidMaterialVersion = "1.0.0"
+constraintLayoutVersion = "1.1.3"
+lifeCycleExtensionsVersion = "2.1.0"
+kotlinxCoroutinesVersion = "1.3.2"
+workManagerRuntimeVersion = "2.4.0"
+protobufJavaLiteVersion = '3.11.0'
+
+//WearOS
+wearableSupportVersion = '2.5.0'
+playServicesWearableVersion = '17.0.0'
+percentLayoutVersion = '1.0.0'
+legacySupportVersion = '1.0.0'
+recyclerViewVersion = '1.1.0'
+lifecycleRuntimeKtxVersion = '2.2.0'
+androidXWearVersion = '1.0.0'
+googleWearableVersion = '2.5.0'
+```
+
+---
+**NOTE**
+
+If you are excluding any tested dependency version and use another version instead of it (that doesn't ensure backward/forward compatibility with the version we have tested) you may encounter unexpected behaviour.
+
+---  
 
 ## Permissions
 
@@ -179,7 +232,7 @@ The AdswizzAdSDK uses the following permissions:
 
 ```xml
 <manifest>
-.....
+....
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -196,7 +249,14 @@ The AdswizzAdSDK uses the following permissions:
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.CAMERA" />
-......
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <!-- Required for 28 and below. -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <!-- Required for 29+. -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+....
 </manifest>
 ```
 
@@ -204,12 +264,12 @@ AdswizzWearSDK uses the following permissions:
 
 ```xml
 <manifest>
-.....
+....
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
-......
+....
 </manifest>
 ```
 
@@ -220,6 +280,69 @@ For example if you don't want the **CAMERA** permission in your final applicatio
 <uses-permission android:name="android.permission.CAMERA" tools:node="remove"/>
 ```
 Keep in mind that if you remove permissions, some of the features from our SDK might not work. We handle the case of permissions missing so you don't have to worry about crashes.
+
+## Package visibility
+
+Android 11 changes how apps can query and interact with other apps that the user has installed on a device. Using the <queries> element, apps can define the set of other packages that they can access. This element helps encourage the principle of least privilege by telling the system which other packages to make visible to your app, and it helps app stores like Google Play assess the privacy and security that your app provides for users.
+
+The AdswizzAdSDK uses the following queries setup:
+
+```xml
+<manifest>
+....
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.INSERT" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+        </intent>
+
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.here.app.maps" />
+        <package android:name="com.waze" />
+        <package android:name="net.osmand" />
+        <package android:name="com.sygic.aura" />
+        <package android:name="com.nng.igo.primong.igoworld" />
+
+        <package android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
+
+    </queries>
+....
+</manifest>
+```
+
+AdswizzWearSDK uses the following queries setup:
+
+```xml
+<manifest>
+....
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
+....
+</manifest>
+```
+
+If you want to change these queries in your app you can use the following line of code to remove it. Afterwards you will have to write your own <queries>.
+
+```xml
+<queries tools:node="remove" />
+```
+
+Please note that if you remove the queries, some of the features from our SDK might not work. The system manages these automatically so you don't have to worry about crashes.
 
 ## Adding the SDK to your Android Studio Project
 
@@ -286,9 +409,9 @@ First, you need to add the installationId, provided by an AdsWizz engineer or PI
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    .......
+    ....
     <meta-data android:name="com.adswizz.core.installationId" android:value="ADD_YOUR_INSTALLATION_ID_HERE" />
-    .......
+    ....
 </application>
 ```
 
@@ -303,10 +426,10 @@ Second, you need to add the playerId to your manifest. This is also obtained fro
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    .......
+    ....
     <meta-data android:name="com.adswizz.core.installationId" android:value="ADD_YOUR_INSTALLATION_ID_HERE" />
     <meta-data android:name="com.adswizz.core.playerId" android:value="ADD_YOUR_PLAYER_ID_HERE" />
-    .......
+    ....
 </application>
 ```
 Next, you need to initialize the AdswizzSDK. The recommended way to do this is in the onCreate of your application. If you already extended
@@ -339,7 +462,7 @@ Don't forget to add this new class in your manifest. It should look like this:
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    .......
+    ....
 </application>
 ```
 
@@ -388,7 +511,7 @@ If an error happens in the SDK while using this object, `onEventErrorReceived(ad
 
 As a first step, an **_AdManager_** needs to have some settings. You can create an **_AdManagerSettings_** object and pass it to your newly created instance of **_AdManager_**. Otherwise the **_AdMnager_** will use the default values.  
 In this object you can specify if you want to play the ad with the SDK’s internal player or a player of your choice that must conform to **_AdPlayer_** interface.  
-Also you can specify the cache policy (default none), the assets quality preference (default high) and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
+Also you can specify the cache policy (default none), the assets quality preference (default high), the video view id and if the player should play the ads one by one or as a playlist (enqueueEnabled, default true).
 
 Next, you need to call prepare method on the **_AdManager_** object.
 This will buffer the ads if you decide to play them with the internal player. Here is how it looks like.
@@ -418,7 +541,8 @@ class MainActivity : AppCompatActivity(), AdManagerListener {
                     .addCachePolicy(CachePolicy.ASSETS)         // optional
                     .assetQuality(AssetQuality.MEDIUM)          // optional, other possible values AssetQuality.LOW, AssetQuality.HIGH
                     .enqueueEnabled(false)                      // optional
-                    .build() // optional
+                    .videoViewId(1)                             // optional
+                    .build()                                    // optional
                 adManager.setListener(this) // Get notifications from the Ad SDK
                 adManager.prepare() // Start buffering the ads in the AdManager
                 adManager.play() // Start playing when first add finish loading
@@ -703,6 +827,43 @@ AdsWizz interactive ads require some permissions on your app.
     <!-- Required for 29+. -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 ```
+
+Also it requires the following package visibility queries:
+
+```xml
+    <queries>
+
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.INSERT" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+        </intent>
+
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.here.app.maps" />
+        <package android:name="com.waze" />
+        <package android:name="net.osmand" />
+        <package android:name="com.sygic.aura" />
+        <package android:name="com.nng.igo.primong.igoworld" />
+
+        <package android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
+
+    </queries>
+```
+
+Both, permissions and queries are included in the AdswizzSDK.
+
 There are four types of detectors as follows: ShakeDetector, VoiceDetector, InAppNotification, TapTapDetector
 
 ## Shake enabled interactive ads
@@ -780,14 +941,14 @@ ad is playing.
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
-.....
+....
     <com.ads.coresdk.companion.AdCompanionView
             android:id="@+id/companionView1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
-.......
+....
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 ## Setting up
@@ -820,6 +981,166 @@ If you need to keep the companion on the screen for a longer time(or indefinitel
 val adCompanionOptions = AdCompanionOptions()
 adCompanionOptions.extraExposureTime = 1.2// these are seconds.
 AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
+```
+
+# Video ads
+
+AdswizzSDK is capable of handling video content when an ad server delivers video ads. The ad lifecycle is the same as for audio ads. The additional steps needed to play video ads are described below.
+
+## Adding an AdVideoView
+
+**_AdVideoView_** is an instance of **_View_** responsible for rendering video content during video ads playback. Just like companion views - see [Companion Banner](#companion-banner) section, a video view can be created either programmatically or by adding it in a layout xml file.
+
+Once created, you have ownership over this view and you can add it to your hierarchy like any other UI component.
+
+The **_AdVideoView_** uses the following custom attributes:
+- **_video_view_id_**: is used to identify the video view. It should be a non-negative integer value and it should be unique among all ad video views used by the host app. If a negative value is put then an exception will be thrown. In case this attribute is omitted then an auto-generated id (of negative value) will be assigned by the SDK.
+- **_resize_mode_**: when a video is rendered, the SDK needs to know how to resize the video frame in comparison with the video view. This attribute can be changed at any time. The following options are available:
+     * **_fit_**: either the width or height is decreased to obtain the desired aspect ratio.
+     * **_fixed_width_**: the width is fixed and the height is increased or decreased to obtain the desired aspect ratio.
+     * **_fixed_height_**: the height is fixed and the width is increased or decreased to obtain the desired aspect ratio.
+     * **_fill_**: the specified aspect ratio is ignored.
+     * **_zoom_**: either the width or height is increased to obtain the desired aspect ratio.
+- **_video_surface_type_**: the type of surface used to render the video
+    * **_auto_select_**: the AdswizzSDK will choose the best option
+    * **_none_**: the video will not be rendered in the view
+    * **_surface_view_**: the AdswizzSDK will use **_SurfaceView_** to render the video.
+    * **_texture_view_**: the AdswizzSDK will use **_TextureView_** to render the video.
+
+Example:
+```kotlin
+    <com.ad.core.video.AdVideoView
+        android:id="@+id/videoView1"
+        app:resize_mode="fit"
+        app:video_surface_type="surface_view"
+        app:video_view_id="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+```
+
+## Setup video support
+
+The first step is to let the SDK know that you wish to render video content to your users. To do that, you'll need to pass the video view id of the **_AdVideoView_** when setting up the Ad Manager via **_AdManagerSettings_**:
+
+```kotlin
+    adManager.adManagerSettings = AdManagerSettings.Builder()
+        .videoViewId(1)
+        ....
+        .build()
+```
+
+At this point the video view doesn't have to be visible / added to your hierarchy yet. But remember that you own the video view instance and it is your responsability to keep track of.
+
+The **_AdVideoView_** will render video content during the video ad playback. After the video ad finished playing, the video view may be dismissed.
+You can only set one ad video view id on an Ad Manager but you can reuse the same video view id for multiple ad managers if they don't run at the same time.
+
+To clean the **_AdVideoView_** you can use the **_cleanContent()_** function. This may be useful when the ad finishes playing if you want to clean the last video frame.
+
+## Subclassing AdVideoView
+
+**_AdVideoView_** can be subclassed and used just like any other **_View_** based component. However you should not temper with the subviews managed by the SDK. Nor should you disable user interaction on **_AdVideoView_** because by doing so you will prevent from correctly reporting click through or click trackings.
+
+
+## Video View Listener
+
+There are no specific video events to respond to, however you can set a listener to your **_AdVideoView_** instance that implements the **_AdVideoView.Listener_** interface. Just like companion views, you will be notified to decide whether or not to override click through target URL on the video view. You will also be notified when the application is about to go to background due to a click through. The interface is displayed below:
+
+```kotlin
+interface Listener {
+    /**
+     * Called immediately when a touch event is detected over the ad video view.
+     * Give the host application a chance to override the default behaviour when a video `clickThrough` event occurs.
+     * @return true if the host application wants to handle itself the target url
+     * @return false otherwise. In this case the target url will be handled internally by the SDK
+     *
+     * @param adVideoView: The `AdVideoView` instance which received the touch event
+     */
+    fun shouldOverrideVideoClickThrough(adVideoView: AdVideoView): Boolean
+
+    /**
+     *  Called when the application is about to go to background as a result of
+     *  a video `clickThrough` event and the target url is opened in the external browser.
+     *
+     *  @param adVideoView: The `AdVideoView` instance which triggers the event
+     */
+    fun willLeaveApplication(adVideoView: AdVideoView)
+}
+```
+
+## Viewability
+
+Viewability enables AdswizzSDK to allow third party verification measurement for both audio and video ads. See [Open Measurement in AdswizzSDK](#open-measurement-in-adswizzsdk) for more details.
+
+### Friendly obstructions
+
+When there are any native elements which are part of the **_AdVideoView_** container, such as a skip button, some logo text, or other kind of overlay, you should register them as "friendly" obstructions to prevent them from counting towards coverage of the video ad during playback. This applies to any view that obstructs the **_AdVideoView_** and is not in it's subview tree.
+
+After you identify such elements that should be marked as friendly, you can create an **_AdVideoFriendlyObstruction_** object by passing in the **_view_** which is causing the obstruction, a **_purpose_** (see `AdVideoFriendlyObstructionPurpose` enum for all possible cases) and an optional **_detailedReason_**. After that, just
+register the newly created obstruction object to your **_AdVideoView_** instance.
+
+
+```kotlin
+
+....
+
+val videoView = rootView.findViewById(R.id.videoView)
+val closeButton = rootView.findViewById(R.id.closeButton)
+....
+
+val obstruction = AdVideoFriendlyObstruction(closeButton, AdVideoFriendlyObstructionPurpose.CLOSE_AD, "Close button")
+videoView.registerFriendlyObstruction(obstruction)
+
+```
+
+When you're done with them, these obstructions can be removed one by one by calling:
+
+```kotlin
+videoView.unregisterFriendlyObstruction(obstruction)
+```
+or all at once by calling:
+
+```kotlin
+videoView.unregisterAllFriendlyObstructions()
+```
+
+To get the list with all friendly obstructons for a view you can use:
+
+```kotlin
+val list = videoView.getFriendlyObstructionList()
+```
+
+
+## Video state
+
+Rounding up the viewability support, AdswizzSDK enables you to communicate your **_AdVideoView_** state by using the **_state_** property. Set the state whenever the video view transitions to one of the following:
+
+### NORMAL
+The video view's default playback size.
+
+### EXPANDED
+The video view has expanded from its original size.
+
+### COLLAPSED
+The video view has been reduced from its original size. The video is still potentially visible.
+
+### FULLSCREEN
+The video view has entered fullscreen mode.
+
+### MINIMIZED
+The video view is collapsed in such a way that the video is hidden. The video may or may not still be progressing in this state, and sound may be audible.
+
+Below is an example:
+
+```kotlin
+
+// Default state is AdVideoState.NORMAL
+val videoView = rootView.findViewById(R.id.videoView)
+....
+
+// When your video view transitions to another state (e.g fullscreen).
+// Inform AdswizzSDK for any state change for viewability purposes.
+videoView.state = AdVideoState.FULLSCREEN
+
 ```
 
 # Playing ads using your player
@@ -925,6 +1246,42 @@ interface AdPlayer {
 
     // endregion
 
+    // region Video
+
+    /**
+     * Sets a surface to render the video content
+     *
+     * @param surface - the surface to be used to render the video content
+     *
+     * @since 7.3.0
+     */
+    fun setVideoSurface(surface: Surface) {
+        /* does nothing */
+    }
+
+    /**
+     * Removes a surface previously set to render the video content
+     *
+     * @param surface - the surface that was used to render the video content
+     *
+     * @since 7.3.0
+     */
+    fun clearVideoSurface(surface: Surface) {
+        /* does nothing */
+    }
+
+    /**
+     * Sets the video view state for viewability purposes
+     *
+     * @param videoState - the state of the video view. Possible values: MINIMIZED, COLLAPSED, NORMAL, EXPANDED, FULLSCREEN
+     *
+     * @since 7.3.0
+     */
+    fun setVideoState(videoState: AdVideoState?) {
+        /* does nothing */
+    }
+
+    // endregion
 
     // region Listener
 
@@ -974,6 +1331,19 @@ interface AdPlayer {
         }
 
         fun onVolumeChanged(volume: Float) {
+            // default implementation does nothing
+        }
+
+        /**
+         * Called when video size changes and also when it starts with the initial values
+         *
+         * @param player - this player
+         * @param width - the video width
+         * @param height - the video height
+         *
+         * @since 7.3.0
+         */
+        fun onVideoSizeChanged(player: AdPlayer, width: Int, height: Int) {
             // default implementation does nothing
         }
     }
@@ -1062,7 +1432,9 @@ In the SDK this list is represented with the following enum:
 ```kotlin
 enum class PlayerState(val rawValue: String) {
     MUTED("muted"),
-    FULLSCREEN("fullscreen");
+    FULLSCREEN("fullscreen"),
+    FOREGROUND("foregrounded"),
+    BACKGROUND("backgrounded");
 }
 ```
 
@@ -1070,7 +1442,7 @@ The ```playerState``` represents a list of the current states in which the playe
 
 ### cacheAssetsHint property
 
-If true then the user expects that the audio media files are cached by the player. This is a hint so the AdPlayer implementation may or may not take it into consideration.
+If true then the user expects that the audio/video media files are cached by the player. This is a hint so the AdPlayer implementation may or may not take it into consideration.
 If the property is set to true and the player in use is the *internal player* the SDK will start downloading the assets one by one. The ideal way of using the cache is waiting for all the assets to be downloaded, otherwise  
 enqueue should be enough for your needs. In the case that you still decide to play the ads before the download is complete, it will cancel the rest of the downloads, and the playback will fallback on enqueue/load depending  
 on the selected settings. The playback will be instant because the already downloaded data is used right away.
@@ -1078,7 +1450,7 @@ on the selected settings. The playback will be instant because the already downl
 
 ### enqueueEnabledHint property
 
-If true then the user expects that the audio media files are enqueued in a playlist. This means that the playing will be smoother than when playing one by one. Also this is only a hint. The SDK is able work even if the AdPlayer implementation does not takes this hint into consideration.
+If true then the user expects that the audio/video media files are enqueued in a playlist. This means that the playing will be smoother than when playing one by one. Also this is only a hint. The SDK is able work even if the AdPlayer implementation does not takes this hint into consideration.
 
 ### isBufferingWhilePaused property
 
@@ -1170,6 +1542,17 @@ During playback, if the player needs to buffer the media then it should change t
 When the player actively plays the ad the status should be ```PLAYING``` and if it is paused the status should be ```PAUSED```.
 When the player finishes to play a track then the status should change to ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
 
+### video functions
+
+If the player needs to render video content then there are a couple of functions to implement:
+- ```setVideoSurface```: this should provide a ```Surface``` to the player and it should use it to render the video content.
+- ```clearVideoSurface```: when this is called the ```Surface``` should be removed and the player should stop rendering the video in it. The playback may continue.
+
+Just before you start rendering to the surface you should call the ```fun onVideoSizeChanged(player: AdPlayer, width: Int, height: Int)``` so that the listener knows the initial frame size of the video. Whenever this size changes you should call it again with the new values just before the frame with the new size is rendered.
+
+Also, for macro expansion purposes it is recommended to implement the ```setVideoState``` function which will be called when the state of the video view will change. This should be useful to determine if ```FULLSCREEN``` will be returned when calling ```playerState```.
+
+
 ### listener functions
 
 The AdPlayer functions ```fun addListener(listener: Listener)``` and ```fun removeListener(listener: Listener)``` should be used to add and remove a listener.
@@ -1206,7 +1589,7 @@ The same as **shakeMe** the voice detector works on Wear OS too. After integrati
 to have voice detection active on the watch is to make sure you give your Wear OS app the ```RECORD_AUDIO``` permission.
 
 ## Cache Manager
-Pre-caching the media (creative) assets will allow for your app to serve audio ads in poor network or possibly complete lack of network connection. This will improve user experience because an ad can play instantly or prevent buffering mid ad.
+Pre-caching the media (creative) assets will allow for your app to serve audio/video ads in poor network or possibly complete lack of network connection. This will improve user experience because an ad can play instantly or prevent buffering mid ad.
 The **CacheManager** is a singleton that allows us to cache, and also playback media that is already cached. It works in close relation with the player, so if you have your own implementation of the AdPlayer interface
 you can use it, but also ignore it. Right now it only works for players that are based on **ExoPlayer**.
 
@@ -1331,6 +1714,31 @@ By default, the **_AdCompanionView_** will end displaying the content after the 
     AdswizzSDK.setAdCompanionOptions(adCompanionOptions)
 ```
 
+# Open Measurement in AdswizzSDK
+
+**_AdswizzSDK_** includes the [Open Measurement SDK](https://iabtechlab.com/standards/open-measurement-sdk/), an industry standard developed by the IAB and designed to enable third-party viewability and verification measurement for audio and video ads served through VAST servers. **_Open Measurement_** is enabled by default in AdswizzSDK and ads must be configured to traffic **_<AdVerifications>_** in their VAST. Additionally, refrain from covering the **_AdVideoView_** container with any overlays (transparent or opaque) because these are taken into account by the OM SDK, marked as obstructions and therefore affect viewability and reporting.
+For more info see [Viewability](#viewability) on how to register your overlays as "friendly" obstructions by using **_AdVideoFriendlyObstruction_** objects.
+
+## Video controls obstructions
+
+Video controls such as pause buttons or progress bars provide important playback information to your users. On mobile, it is common practice to render large, touch-friendly controls over the container which renders video content. When using **_AdswizzSDK_**, one way to show these controls is by adding them above the **_AdVideoView_** container. Usually, the controls are child elements of this view that covers (even partially) the underlying video player.
+When video ad viewability is calculated through the Open Measurement SDK, all views overlaying the video content are considered obstructions and reduce the viewability rate. If an overlay (even fully transparent) sits above the entire video ad view, it is possible for inventory to be declared completely unviewable.
+The Open Measurement SDK allows for video controls to be considered "friendly" obstructions that contribute to the user’s experience. Once registered as "friendly", these controls are excluded from ad viewability measurement. Also it should be noted that the Open Measurement SDK automatically adds all views in the **_AdVideoView_** subview tree as friendly obstructions so they do not count for viewability measurement.
+
+Here are some examples of elements that are appropriate to be registered as friendly obstructions:
+  * transparent overlays that might be used to capture user taps
+  * playback buttons
+    + pause
+    + play
+    + skip
+    + fullscreen
+    + minimize
+    + Cast/Airplay
+    + progress/seek
+  * other playback relevant controls
+
+Usually, elements like pop ups or dialogs should not be registered.
+
 # (Optional) Prepare your application for advanced targetability capabilities
 
 ## Privacy implications
@@ -1341,7 +1749,7 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 | Data collected for <br>**_Device Targeting_** | Data collected for <br>**_Contextual Targeting_** | Data collected for <br>**_User Targeting_**|
 |:-----------------|:---------------------|:--------------|
-| * device name and locale <br>* screen brightness level<br>* audio volume level<br>* battery level, status and state (charging or not) <br>* bundle id, version name and version code<br>* storage information (available and total capacities) <br>* OS name and version | * bluetooth name, status (on, off, connected etc.) and devices (currently connected, paired and history). For bluetooth devices we collect: name, address, profile and bluetooth class<br>* WiFi Status (true/false), state and WiFi network name / SSID<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false)<br>* uiMode (normal, desk, car, watch, tv etc.)<br>* microphone permission status<br>* name and type of the active audio device and available devices<br>* app permissions<br>* sensors information: type, name, vendor, version, power used by sensor, resolution, minimum delay allowed between two events, maximum rage of the sensor, the maximum number of events that could be batched, the number of events reserved in the batch mode FIFO, maximum delay and the reporting mode<br>* installed app names | * idfa (identifierForAdvertising) status (enabled/disabled) and ID (if enabled) |
+| * device name and locale <br>* screen brightness level<br>* audio volume level<br>* battery level, status and state (charging or not) <br>* bundle id, version name and version code<br>* storage information (available and total capacities) <br>* OS name and version | * bluetooth name, status (on, off, connected etc.) and devices (currently connected, paired and history). For bluetooth devices we collect: name, address, profile and bluetooth class<br>* WiFi Status (true/false), state and WiFi network name / SSID<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false)<br>* uiMode (normal, desk, car, watch, tv etc.)<br>* microphone permission status<br>* name and type of the active audio device and available devices<br>* app permissions<br>* sensors information: type, name, vendor, version, power used by sensor, resolution, minimum delay allowed between two events, maximum rage of the sensor, the maximum number of events that could be batched, the number of events reserved in the batch mode FIFO, maximum delay and the reporting mode<br>* installed app names<br>* user's activity like walking, biking, or driving | * idfa (identifierForAdvertising) status (enabled/disabled) and ID (if enabled) |
 
 # Vast Macros
 
@@ -1432,9 +1840,16 @@ class MyAnalyticsConnector: AnalyticsConnector {
 ```
 2. After you create your AnalyticsConnector, you have to add yourself as listener. To do that use the following lines of code
 ```kotlin
-val myAnalyticsConnector = MyAnalyticsConnector()
+myAnalyticsConnector = MyAnalyticsConnector()
 AdswizzSDK.analytics?.add(myAnalyticsConnector)
 ```
+
+---
+**NOTE**
+
+`AdswizzSDK` keeps a weak reference to the `AnalyticsConnector`, so it's host app responsibility to keep a strong reference to the `AnalyticsConnector` instance while listening for analytics events.
+
+---
 
 # Sample projects
 
@@ -1454,6 +1869,11 @@ This sample demonstrates a basic client-side insertion scenario by showing how t
 This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
 If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **Smartwatch**
 
+
 ## PreCache Sample
 
 This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads, and when the download is complete it starts the playback. Alternatively, you can also play the ads before the download is complete. In this second scenario please notice that the enqueue functionality is used instead.
+
+## Video Ads Sample
+
+This app demonstrates a client-side insertion with video by showing how to add a _**videoViewId**_ to the _**AdManagerSettings**_ and also a _**AdVideoView**_ to the layout. It is similar with the Basic Sample.
