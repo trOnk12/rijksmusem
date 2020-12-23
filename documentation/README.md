@@ -163,21 +163,28 @@ kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ko
 moshi = "com.squareup.moshi:moshi:$moshiVersion"
 moshiAdapters = "com.squareup.moshi:moshi-adapters:$moshiVersion"
 moshiCodeGen = "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
-protobufJava = "com.google.protobuf:protobuf-java:$protobufJavaVersion"
+protobufJavaLite = "com.google.protobuf:protobuf-javalite:$protobufJavaLiteVersion"
 playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
 androidMaterial = "com.google.android.material:material:$androidMaterialVersion"
+commonsMath3 = "org.apache.commons:commons-math3:$commonsMath3Version"
+gmsPlayServicesLocation = "com.google.android.gms:play-services-location:$gmsPlayServicesLocationVersion"
+awsAndroidSdkCore = "com.amazonaws:aws-android-sdk-core:$awsAndroidSdkCoreVersion"
+workManagerRuntime = "androidx.work:work-runtime-ktx:$workManagerRuntimeVersion"
 ```
 
 For our Wear OS SDK we use:
 
 ```groovy
 kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
+androidXWear = "androidx.wear:wear:$androidXWearVersion"
 supportWearable = "com.google.android.support:wearable:$wearableSupportVersion"
+googleWearable = "com.google.android.wearable:wearable:$googleWearableVersion"
 playServicesWearable = "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 kotlinxCoroutines= "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
 lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntimeKtxVersion"
+commonsMath3 = "org.apache.commons:commons-math3:$commonsMath3Version"
 ```
 
 ## Permissions
