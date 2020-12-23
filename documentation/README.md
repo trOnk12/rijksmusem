@@ -9,6 +9,7 @@
       * [Changelog](#changelog)
       * [Dependencies](#dependencies)
       * [Permissions](#permissions)
+      * [Package visibility](#package-visibility)
       * [Adding the SDK to your AndroidStudioProject project](#adding-the-sdk-to-your-android-studio-project)
       * [SDK initialization and cleanup](#sdk-initialization-and-cleanup)
  * [<strong>Client-Side Insertion</strong>](#client-side-insertion)
@@ -244,6 +245,69 @@ For example if you don't want the **CAMERA** permission in your final applicatio
 <uses-permission android:name="android.permission.CAMERA" tools:node="remove"/>
 ```
 Keep in mind that if you remove permissions, some of the features from our SDK might not work. We handle the case of permissions missing so you don't have to worry about crashes.
+
+## Package visibility
+
+Android 11 changes how apps can query and interact with other apps that the user has installed on a device. Using the <queries> element, apps can define the set of other packages that they can access. This element helps encourage the principle of least privilege by telling the system which other packages to make visible to your app, and it helps app stores like Google Play assess the privacy and security that your app provides for users.
+
+The AdswizzAdSDK uses the following queries setup:
+
+```xml
+<manifest>
+....
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.INSERT" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+        </intent>
+
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.here.app.maps" />
+        <package android:name="com.waze" />
+        <package android:name="net.osmand" />
+        <package android:name="com.sygic.aura" />
+        <package android:name="com.nng.igo.primong.igoworld" />
+
+        <package android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
+
+    </queries>
+....
+</manifest>
+```
+
+AdswizzWearSDK uses the following queries setup:
+
+```xml
+<manifest>
+....
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
+....
+</manifest>
+```
+
+If you want to change these queries in your app you can use the following line of code to remove it. Afterwards you will have to write your own <queries>.
+
+```xml
+<queries tools:node="remove" />
+```
+
+Keep in mind that if you remove the queries, some of the features from our SDK might not work. The system manages these automatically so you don't have to worry about crashes.
 
 ## Adding the SDK to your Android Studio Project
 
