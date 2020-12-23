@@ -217,7 +217,9 @@ googleWearableVersion = '2.5.0'
 
 ---
 **NOTE**
+
 If you are excluding any tested dependency version and use another version instead of it (that doesn't ensure backward/forward compatibility with the version we have tested) you may encounter unexpected behaviour.
+
 ---  
 
 ## Permissions
@@ -1840,9 +1842,12 @@ class MyAnalyticsConnector: AnalyticsConnector {
 myAnalyticsConnector = MyAnalyticsConnector()
 AdswizzSDK.analytics?.add(myAnalyticsConnector)
 ```
+
 ---
 **NOTE**
+
 `AdswizzSDK` keeps a weak reference to the `AnalyticsConnector`, so it's host app responsibility to keep a strong reference to the `AnalyticsConnector` instance while listening for analytics events.
+
 ---
 
 # Sample projects
