@@ -1429,7 +1429,9 @@ In the SDK this list is represented with the following enum:
 ```kotlin
 enum class PlayerState(val rawValue: String) {
     MUTED("muted"),
-    FULLSCREEN("fullscreen");
+    FULLSCREEN("fullscreen"),
+    FOREGROUND("foregrounded"),
+    BACKGROUND("backgrounded");
 }
 ```
 
