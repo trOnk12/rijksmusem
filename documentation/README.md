@@ -1539,6 +1539,15 @@ During playback, if the player needs to buffer the media then it should change t
 When the player actively plays the ad the status should be ```PLAYING``` and if it is paused the status should be ```PAUSED```.
 When the player finishes to play a track then the status should change to ```FINISHED```. It should also call ```fun onEnded()``` to notify the AdManager that the playback has finished.
 
+### video functions
+
+If the player needs to render video content then there are a couple of functions to implement:
+- setVideoSurface: this should provide a **_Surface__* to the player and it should use it to render the video content.
+- clearVideoSurface: when this is called the **_Surface_** should be removed and the player should stop rendering the video in it. The playback may continue.
+
+Also, for macro expansion purposes it is recommended to implement the **_setVideoState_** function which will be called when the state of the video view will change. This should be useful to determine if **_FULLSCREEN_** will be returned when calling **_playerState_**.
+
+
 ### listener functions
 
 The AdPlayer functions ```fun addListener(listener: Listener)``` and ```fun removeListener(listener: Listener)``` should be used to add and remove a listener.
