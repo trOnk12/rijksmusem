@@ -1542,10 +1542,12 @@ When the player finishes to play a track then the status should change to ```FIN
 ### video functions
 
 If the player needs to render video content then there are a couple of functions to implement:
-- setVideoSurface: this should provide a **_Surface_** to the player and it should use it to render the video content.
-- clearVideoSurface: when this is called the **_Surface_** should be removed and the player should stop rendering the video in it. The playback may continue.
+- setVideoSurface: this should provide a ```Surface``` to the player and it should use it to render the video content.
+- clearVideoSurface: when this is called the ```Surface``` should be removed and the player should stop rendering the video in it. The playback may continue.
 
-Also, for macro expansion purposes it is recommended to implement the **_setVideoState_** function which will be called when the state of the video view will change. This should be useful to determine if ```FULLSCREEN``` will be returned when calling **_playerState_**.
+Just before you start rendering to the surface you should call the ```fun onVideoSizeChanged(player: AdPlayer, width: Int, height: Int)``` so that the listener knows the initial frame size of the video. Whenever this size changes you should call it again with the new values just before the frame with the new size is rendered.
+
+Also, for macro expansion purposes it is recommended to implement the ```setVideoState``` function which will be called when the state of the video view will change. This should be useful to determine if ```FULLSCREEN``` will be returned when calling ```playerState```.
 
 
 ### listener functions
