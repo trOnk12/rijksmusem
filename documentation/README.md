@@ -188,6 +188,38 @@ lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleRuntim
 commonsMath3 = "org.apache.commons:commons-math3:$commonsMath3Version"
 ```
 
+We have tested the above dependencies using the following version numbers:<br>
+
+```groovy
+//Library
+appcompatVersion = '1.1.0'
+coreKtxVersion = '1.1.0'
+exoPlayerVerison = '2.10.0' // and '2.11.3' too
+gmsPlayServicesAdsVersion = '18.2.0'
+moshiVersion = '1.8.0'
+androidMaterialVersion = "1.0.0"
+constraintLayoutVersion = "1.1.3"
+lifeCycleExtensionsVersion = "2.1.0"
+kotlinxCoroutinesVersion = "1.3.2"
+workManagerRuntimeVersion = "2.4.0"
+protobufJavaLiteVersion = '3.11.0'
+
+//WearOS
+wearableSupportVersion = '2.5.0'
+playServicesWearableVersion = '17.0.0'
+percentLayoutVersion = '1.0.0'
+legacySupportVersion = '1.0.0'
+recyclerViewVersion = '1.1.0'
+lifecycleRuntimeKtxVersion = '2.2.0'
+androidXWearVersion = '1.0.0'
+googleWearableVersion = '2.5.0'
+```
+
+---
+**NOTE**
+If you are excluding any tested dependency version and use another version instead of it (that doesn't ensure backward/forward compatibility with the version we have tested) you may encounter unexpected behaviour.
+---  
+
 ## Permissions
 
 With the addition of the SDK to your project, there will be some permissions that will appear in your merged manifest file.
