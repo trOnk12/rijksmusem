@@ -81,7 +81,7 @@ Here is a quick overview. More details will be provided for each scenario in the
 
 ## What is Client-Side Insertion
 
-'Client-Side Insertion' represents the insertion of ads into the audio stream done by the integrator. Your app is responsible for the built-in logic to decide when to start and end an ad break by fetching ads from the ad server and playing them with your apps's audio/video capabilities. The SDK will handle all communication during ad fetching with the ad server while being in charge with the display of companion banner and performing various event reporting (impressions & quartiles).
+'Client-Side Insertion' represents the insertion of ads into the audio/video stream done by the integrator. Your app is responsible for the built-in logic to decide when to start and end an ad break by fetching ads from the ad server and playing them with your apps's audio/video capabilities. The SDK will handle all communication during ad fetching with the ad server while being in charge with the display of companion banner and performing various event reporting (impressions & quartiles).
 
 ## What is Server-Side Insertion
 
@@ -1439,7 +1439,7 @@ The ```playerState``` represents a list of the current states in which the playe
 
 ### cacheAssetsHint property
 
-If true then the user expects that the audio media files are cached by the player. This is a hint so the AdPlayer implementation may or may not take it into consideration.
+If true then the user expects that the audio/video media files are cached by the player. This is a hint so the AdPlayer implementation may or may not take it into consideration.
 If the property is set to true and the player in use is the *internal player* the SDK will start downloading the assets one by one. The ideal way of using the cache is waiting for all the assets to be downloaded, otherwise  
 enqueue should be enough for your needs. In the case that you still decide to play the ads before the download is complete, it will cancel the rest of the downloads, and the playback will fallback on enqueue/load depending  
 on the selected settings. The playback will be instant because the already downloaded data is used right away.
@@ -1447,7 +1447,7 @@ on the selected settings. The playback will be instant because the already downl
 
 ### enqueueEnabledHint property
 
-If true then the user expects that the audio media files are enqueued in a playlist. This means that the playing will be smoother than when playing one by one. Also this is only a hint. The SDK is able work even if the AdPlayer implementation does not takes this hint into consideration.
+If true then the user expects that the audio/video media files are enqueued in a playlist. This means that the playing will be smoother than when playing one by one. Also this is only a hint. The SDK is able work even if the AdPlayer implementation does not takes this hint into consideration.
 
 ### isBufferingWhilePaused property
 
@@ -1586,7 +1586,7 @@ The same as **shakeMe** the voice detector works on Wear OS too. After integrati
 to have voice detection active on the watch is to make sure you give your Wear OS app the ```RECORD_AUDIO``` permission.
 
 ## Cache Manager
-Pre-caching the media (creative) assets will allow for your app to serve audio ads in poor network or possibly complete lack of network connection. This will improve user experience because an ad can play instantly or prevent buffering mid ad.
+Pre-caching the media (creative) assets will allow for your app to serve audio/video ads in poor network or possibly complete lack of network connection. This will improve user experience because an ad can play instantly or prevent buffering mid ad.
 The **CacheManager** is a singleton that allows us to cache, and also playback media that is already cached. It works in close relation with the player, so if you have your own implementation of the AdPlayer interface
 you can use it, but also ignore it. Right now it only works for players that are based on **ExoPlayer**.
 
@@ -1746,7 +1746,7 @@ Please be advised that if you choose to enable the Raw Data Signal Collection, y
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 | Data collected for <br>**_Device Targeting_** | Data collected for <br>**_Contextual Targeting_** | Data collected for <br>**_User Targeting_**|
 |:-----------------|:---------------------|:--------------|
-| * device name and locale <br>* screen brightness level<br>* audio volume level<br>* battery level, status and state (charging or not) <br>* bundle id, version name and version code<br>* storage information (available and total capacities) <br>* OS name and version | * bluetooth name, status (on, off, connected etc.) and devices (currently connected, paired and history). For bluetooth devices we collect: name, address, profile and bluetooth class<br>* WiFi Status (true/false), state and WiFi network name / SSID<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false)<br>* uiMode (normal, desk, car, watch, tv etc.)<br>* microphone permission status<br>* name and type of the active audio device and available devices<br>* app permissions<br>* sensors information: type, name, vendor, version, power used by sensor, resolution, minimum delay allowed between two events, maximum rage of the sensor, the maximum number of events that could be batched, the number of events reserved in the batch mode FIFO, maximum delay and the reporting mode<br>* installed app names | * idfa (identifierForAdvertising) status (enabled/disabled) and ID (if enabled) |
+| * device name and locale <br>* screen brightness level<br>* audio volume level<br>* battery level, status and state (charging or not) <br>* bundle id, version name and version code<br>* storage information (available and total capacities) <br>* OS name and version | * bluetooth name, status (on, off, connected etc.) and devices (currently connected, paired and history). For bluetooth devices we collect: name, address, profile and bluetooth class<br>* WiFi Status (true/false), state and WiFi network name / SSID<br>* network carrier name and country<br>* accelerometer, GPS and gyroscope data<br>* headphone jack status (plugged/unplugged)<br>* time zone information (in GMT format)<br>* daylight saving time status (true/false)<br>* uiMode (normal, desk, car, watch, tv etc.)<br>* microphone permission status<br>* name and type of the active audio device and available devices<br>* app permissions<br>* sensors information: type, name, vendor, version, power used by sensor, resolution, minimum delay allowed between two events, maximum rage of the sensor, the maximum number of events that could be batched, the number of events reserved in the batch mode FIFO, maximum delay and the reporting mode<br>* installed app names<br>* user's activity like walking, biking, or driving | * idfa (identifierForAdvertising) status (enabled/disabled) and ID (if enabled) |
 
 # Vast Macros
 
@@ -1863,6 +1863,11 @@ This sample demonstrates a basic client-side insertion scenario by showing how t
 This sample demonstrates a basic server-side insertion scenario by showing how to create and customize an _**AdswizzAdStreamManager**_.
 If the ad that comes from the stream is interactive, you can observe the interactivity on both the **Phone** and the **Smartwatch**
 
+
 ## PreCache Sample
 
 This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads, and when the download is complete it starts the playback. Alternatively, you can also play the ads before the download is complete. In this second scenario please notice that the enqueue functionality is used instead.
+
+## Video Sample
+
+This app demonstrates a client-side insertion with video by showing how to add a _**videoViewId**_ to the _**AdManagerSettings**_ and also a _**AdVideoView**_ to the layout. It is similar with the Basic Sample.
