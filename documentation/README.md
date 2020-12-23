@@ -1542,10 +1542,10 @@ When the player finishes to play a track then the status should change to ```FIN
 ### video functions
 
 If the player needs to render video content then there are a couple of functions to implement:
-- setVideoSurface: this should provide a **_Surface__* to the player and it should use it to render the video content.
+- setVideoSurface: this should provide a **_Surface__** to the player and it should use it to render the video content.
 - clearVideoSurface: when this is called the **_Surface_** should be removed and the player should stop rendering the video in it. The playback may continue.
 
-Also, for macro expansion purposes it is recommended to implement the **_setVideoState_** function which will be called when the state of the video view will change. This should be useful to determine if **_FULLSCREEN_** will be returned when calling **_playerState_**.
+Also, for macro expansion purposes it is recommended to implement the **_setVideoState_** function which will be called when the state of the video view will change. This should be useful to determine if ```FULLSCREEN``` will be returned when calling **_playerState_**.
 
 
 ### listener functions
