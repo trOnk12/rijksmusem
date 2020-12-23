@@ -1040,7 +1040,7 @@ To clean the **_AdVideoView_** you can use the **_cleanContent()_** function. Th
 
 ## Video View Listener
 
-There are no specific video events to respond to, however you can set a listener to your **_AdVideoView_** instance that implements to the **_AdVideoView.Listener_** interface. Just like companion views, you will be notified to decide whether or not to override click through target URL on the video view. You will also be notified when the application is about to go to background due to a click through. The interface is displayed below:
+There are no specific video events to respond to, however you can set a listener to your **_AdVideoView_** instance that implements the **_AdVideoView.Listener_** interface. Just like companion views, you will be notified to decide whether or not to override click through target URL on the video view. You will also be notified when the application is about to go to background due to a click through. The interface is displayed below:
 
 ```kotlin
 interface Listener {
@@ -1243,6 +1243,42 @@ interface AdPlayer {
 
     // endregion
 
+    // region Video
+
+    /**
+     * Sets a surface to render the video content
+     *
+     * @param surface - the surface to be used to render the video content
+     *
+     * @since 7.3.0
+     */
+    fun setVideoSurface(surface: Surface) {
+        /* does nothing */
+    }
+
+    /**
+     * Removes a surface previously set to render the video content
+     *
+     * @param surface - the surface that was used to render the video content
+     *
+     * @since 7.3.0
+     */
+    fun clearVideoSurface(surface: Surface) {
+        /* does nothing */
+    }
+
+    /**
+     * Sets the video view state for viewability purposes
+     *
+     * @param videoState - the state of the video view. Possible values: MINIMIZED, COLLAPSED, NORMAL, EXPANDED, FULLSCREEN
+     *
+     * @since 7.3.0
+     */
+    fun setVideoState(videoState: AdVideoState?) {
+        /* does nothing */
+    }
+
+    // endregion
 
     // region Listener
 
@@ -1292,6 +1328,19 @@ interface AdPlayer {
         }
 
         fun onVolumeChanged(volume: Float) {
+            // default implementation does nothing
+        }
+
+        /**
+         * Called when video size changes and also when it starts with the initial values
+         *
+         * @param player - this player
+         * @param width - the video width
+         * @param height - the video height
+         *
+         * @since 7.3.0
+         */
+        fun onVideoSizeChanged(player: AdPlayer, width: Int, height: Int) {
             // default implementation does nothing
         }
     }
@@ -1780,7 +1829,7 @@ AdswizzSDK.analytics?.add(myAnalyticsConnector)
 ```
 ---
 **NOTE**
-`AdswizzSDK` keeps a weak reference to the `AnalyticsConnector`, so it's host app responsibility to keep a strong reference to the `AnalyticsConnector` instance while listening for analytics events. 
+`AdswizzSDK` keeps a weak reference to the `AnalyticsConnector`, so it's host app responsibility to keep a strong reference to the `AnalyticsConnector` instance while listening for analytics events.
 ---
 
 # Sample projects
