@@ -824,6 +824,43 @@ AdsWizz interactive ads require some permissions on your app.
     <!-- Required for 29+. -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 ```
+
+Also it requires the following package visibility queries:
+
+```xml
+    <queries>
+
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.INSERT" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+        </intent>
+
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.here.app.maps" />
+        <package android:name="com.waze" />
+        <package android:name="net.osmand" />
+        <package android:name="com.sygic.aura" />
+        <package android:name="com.nng.igo.primong.igoworld" />
+
+        <package android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
+
+    </queries>
+```
+
+Both, permissions and queries are included in the AdswizzSDK.
+
 There are four types of detectors as follows: ShakeDetector, VoiceDetector, InAppNotification, TapTapDetector
 
 ## Shake enabled interactive ads
