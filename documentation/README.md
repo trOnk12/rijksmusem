@@ -307,7 +307,7 @@ If you want to change these queries in your app you can use the following line o
 <queries tools:node="remove" />
 ```
 
-Keep in mind that if you remove the queries, some of the features from our SDK might not work. The system manages these automatically so you don't have to worry about crashes.
+Please note that if you remove the queries, some of the features from our SDK might not work. The system manages these automatically so you don't have to worry about crashes.
 
 ## Adding the SDK to your Android Studio Project
 
