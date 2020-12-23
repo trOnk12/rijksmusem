@@ -70,6 +70,7 @@
       * [BasicSample](#basicsample)
       * [StreamingSample](#streamingsample)
       * [Precache Sample](#precache-sample)
+      * [Video Ads Sample](#video-ads-sample)
 
 # Before you start
 
@@ -1873,6 +1874,6 @@ If the ad that comes from the stream is interactive, you can observe the interac
 
 This sample demonstrates a client-side insertion scenario with enqueue + precache enabled. It makes an _**AdswizzAdRequest**_, after that it starts downloading the ads, and when the download is complete it starts the playback. Alternatively, you can also play the ads before the download is complete. In this second scenario please notice that the enqueue functionality is used instead.
 
-## Video Sample
+## Video Ads Sample
 
 This app demonstrates a client-side insertion with video by showing how to add a _**videoViewId**_ to the _**AdManagerSettings**_ and also a _**AdVideoView**_ to the layout. It is similar with the Basic Sample.
