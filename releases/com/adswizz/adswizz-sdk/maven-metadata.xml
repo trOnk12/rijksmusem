@@ -3,8 +3,8 @@
   <groupId>com.adswizz</groupId>
   <artifactId>adswizz-sdk</artifactId>
   <versioning>
-    <latest>7.3.0</latest>
-    <release>7.3.0</release>
+    <latest>7.3.1beta</latest>
+    <release>7.3.1beta</release>
     <versions>
       <version>7.0.0</version>
       <version>7.1.0</version>
@@ -19,7 +19,8 @@
       <version>7.2.2</version>
       <version>7.2.2-exoplayer2.12</version>
       <version>7.3.0</version>
+      <version>7.3.1beta</version>
     </versions>
-    <lastUpdated>20201222150410</lastUpdated>
+    <lastUpdated>20210204165705</lastUpdated>
   </versioning>
 </metadata>
