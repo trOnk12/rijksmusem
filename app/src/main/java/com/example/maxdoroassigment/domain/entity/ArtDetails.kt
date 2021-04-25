@@ -1,4 +1,4 @@
-package com.example.maxdoro_recruitment_task.domain.entity
+package com.example.maxdoroassigment.domain.entity
 
 data class ArtDetails(
     val artDetailsIdentifier: ArtDetailsIdentifier,

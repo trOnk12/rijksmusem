@@ -1,12 +1,8 @@
-package com.example.maxdororecruitmenttask.domain.entity
+package com.example.maxdoroassigment.domain.entity
 
 data class Art(
-    val artIdentifier: ArtIdentifier,
-    val artDescriptionInfo: ArtDescriptionInfo,
-)
-
-data class ArtIdentifier(
-    val objectNumber: String,
+    val id: String,
+    val artDescriptionInfo: ArtDescriptionInfo
 )
 
 data class ArtDescriptionInfo(
