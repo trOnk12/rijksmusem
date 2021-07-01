@@ -1,0 +1,453 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 1352fc0..507f905 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -20,7 +20,7 @@ android {
+ 
+     buildTypes {
+         release {
+-            minifyEnabled true
++            minifyEnabled false
+             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+         }
+     }
+@@ -34,6 +34,8 @@ android {
+ }
+ 
+ dependencies {
++    implementation project(":shoplist")
++
+     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+     implementation 'androidx.core:core-ktx:1.3.2'
+     implementation 'androidx.appcompat:appcompat:1.2.0'
+diff --git a/app/src/main/java/com/netguru/codereview/MainActivity.kt b/app/src/main/java/com/netguru/codereview/MainActivity.kt
+index a6d3247..25acadf 100644
+--- a/app/src/main/java/com/netguru/codereview/MainActivity.kt
++++ b/app/src/main/java/com/netguru/codereview/MainActivity.kt
+@@ -1,11 +1,14 @@
+ package com.netguru.codereview
+ 
+-import androidx.appcompat.app.AppCompatActivity
+ import android.os.Bundle
++import androidx.appcompat.app.AppCompatActivity
++import com.netguru.codereview.ui.MainFragment
+ 
+ class MainActivity : AppCompatActivity() {
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.activity_main)
++
++        supportFragmentManager.beginTransaction().replace(R.id.container, MainFragment()).commitNow()
+     }
+ }
+diff --git a/settings.gradle b/settings.gradle
+index f1c11ac..02ae9da 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -1,2 +1,3 @@
++include ':shoplist'
+ include ':app'
+ rootProject.name = "Code Review"
+diff --git a/shoplist/build.gradle b/shoplist/build.gradle
+new file mode 100644
+index 0000000..d58c099
+--- /dev/null
++++ b/shoplist/build.gradle
+@@ -0,0 +1,59 @@
++plugins {
++    id 'com.android.library'
++    id 'kotlin-android'
++}
++
++android {
++    compileSdkVersion 30
++    buildToolsVersion "30.0.3"
++
++    defaultConfig {
++        minSdkVersion 21
++        targetSdkVersion 30
++        versionCode 1
++        versionName "1.0"
++
++        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
++        consumerProguardFiles "consumer-rules.pro"
++    }
++
++    buildTypes {
++        release {
++            minifyEnabled false
++            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
++        }
++    }
++    compileOptions {
++        sourceCompatibility JavaVersion.VERSION_1_8
++        targetCompatibility JavaVersion.VERSION_1_8
++    }
++    kotlinOptions {
++        jvmTarget = '1.8'
++    }
++    buildFeatures.viewBinding true
++}
++
++dependencies {
++
++    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
++    api 'androidx.core:core-ktx:1.3.2'
++    api 'androidx.appcompat:appcompat:1.2.0'
++    api 'com.google.android.material:material:1.3.0'
++    api 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
++    api 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
++    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
++    api 'io.coil-kt:coil:1.2.1'
++
++    api "com.google.dagger:dagger-android:2.33"
++    api "com.google.dagger:dagger-android-support:2.33"
++    api 'com.squareup.okhttp3:okhttp:4.9.1'
++    api 'com.squareup.okhttp3:logging-interceptor:4.9.1'
++    api 'com.squareup.retrofit2:retrofit:2.9.0'
++    api 'com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0'
++    api 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.1.0'
++    api 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0'
++
++    testImplementation 'junit:junit:4.+'
++    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
++    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
++}
+diff --git a/shoplist/consumer-rules.pro b/shoplist/consumer-rules.pro
+new file mode 100644
+index 0000000..e69de29
+diff --git a/shoplist/proguard-rules.pro b/shoplist/proguard-rules.pro
+new file mode 100644
+index 0000000..f1b4245
+--- /dev/null
++++ b/shoplist/proguard-rules.pro
+@@ -0,0 +1,21 @@
++# Add project specific ProGuard rules here.
++# You can control the set of applied configuration files using the
++# proguardFiles setting in build.gradle.
++#
++# For more details, see
++#   http://developer.android.com/guide/developing/tools/proguard.html
++
++# If your project uses WebView with JS, uncomment the following
++# and specify the fully qualified class name to the JavaScript interface
++# class:
++#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
++#   public *;
++#}
++
++# Uncomment this to preserve the line number information for
++# debugging stack traces.
++#-keepattributes SourceFile,LineNumberTable
++
++# If you keep the line number information, uncomment this to
++# hide the original source file name.
++#-renamesourcefileattribute SourceFile
+diff --git a/shoplist/src/main/AndroidManifest.xml b/shoplist/src/main/AndroidManifest.xml
+new file mode 100644
+index 0000000..a3064aa
+--- /dev/null
++++ b/shoplist/src/main/AndroidManifest.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest package="com.netguru.codereview.shoplist" />
+diff --git a/shoplist/src/main/java/com/netguru/codereview/network/ShopListApi.kt b/shoplist/src/main/java/com/netguru/codereview/network/ShopListApi.kt
+new file mode 100644
+index 0000000..112eed5
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/network/ShopListApi.kt
+@@ -0,0 +1,11 @@
++package com.netguru.codereview.network
++
++import com.netguru.codereview.network.model.ShopListItemResponse
++import com.netguru.codereview.network.model.ShopListResponse
++import kotlinx.coroutines.flow.Flow
++
++interface ShopListApi {
++    suspend fun getShopLists(): List<ShopListResponse>
++    suspend fun getShopListItems(listId: String): List<ShopListItemResponse>
++    fun getUpdateEvents(): Flow<String>
++}
+diff --git a/shoplist/src/main/java/com/netguru/codereview/network/ShopListApiMock.kt b/shoplist/src/main/java/com/netguru/codereview/network/ShopListApiMock.kt
+new file mode 100644
+index 0000000..e0d8318
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/network/ShopListApiMock.kt
+@@ -0,0 +1,42 @@
++package com.netguru.codereview.network
++
++import com.netguru.codereview.network.model.ShopListItemResponse
++import com.netguru.codereview.network.model.ShopListResponse
++import kotlinx.coroutines.coroutineScope
++import kotlinx.coroutines.delay
++import kotlinx.coroutines.flow.Flow
++import kotlinx.coroutines.flow.flow
++
++class ShopListApiMock : ShopListApi {
++    override suspend fun getShopLists(): List<ShopListResponse> =
++        coroutineScope {
++            List(9999) { index ->
++                ShopListResponse(
++                    list_id = index.toString(),
++                    userId = index,
++                    listName = "ListName$index"
++                )
++            }
++        }
++
++    override suspend fun getShopListItems(listId: String): List<ShopListItemResponse> =
++        coroutineScope {
++            Thread.sleep(2)
++            List(5) { index ->
++                ShopListItemResponse(
++                    itemId = index.toString(),
++                    name = "Name$index",
++                    quantity = 2.0
++                )
++            }
++        }
++
++    override fun getUpdateEvents(): Flow<String> = flow {
++        var counter = 0
++        while (true) {
++            counter++
++            delay(5000)
++            emit("Update $counter")
++        }
++    }
++}
+diff --git a/shoplist/src/main/java/com/netguru/codereview/network/ShopListRepository.kt b/shoplist/src/main/java/com/netguru/codereview/network/ShopListRepository.kt
+new file mode 100644
+index 0000000..97a2dfc
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/network/ShopListRepository.kt
+@@ -0,0 +1,10 @@
++package com.netguru.codereview.network
++
++class ShopListRepository(private val shopListApi: ShopListApi) {
++
++    suspend fun getShopLists() = shopListApi.getShopLists()
++
++    suspend fun getShopListItems(listId: String) = shopListApi.getShopListItems(listId)
++
++    fun updateEvents() = shopListApi.getUpdateEvents()
++}
+diff --git a/shoplist/src/main/java/com/netguru/codereview/network/model/ShopListItemResponse.kt b/shoplist/src/main/java/com/netguru/codereview/network/model/ShopListItemResponse.kt
+new file mode 100644
+index 0000000..f835283
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/network/model/ShopListItemResponse.kt
+@@ -0,0 +1,10 @@
++package com.netguru.codereview.network.model
++
++import kotlinx.serialization.SerialName
++import kotlinx.serialization.Serializable
++
++data class ShopListItemResponse(
++    val itemId: String,
++    val name: String,
++    val quantity: Double
++)
+diff --git a/shoplist/src/main/java/com/netguru/codereview/network/model/ShopListResponse.kt b/shoplist/src/main/java/com/netguru/codereview/network/model/ShopListResponse.kt
+new file mode 100644
+index 0000000..0a696fe
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/network/model/ShopListResponse.kt
+@@ -0,0 +1,10 @@
++package com.netguru.codereview.network.model
++
++import kotlinx.serialization.SerialName
++import kotlinx.serialization.Serializable
++
++data class ShopListResponse(
++    val list_id: String,
++    val userId: Int,
++    val listName: String
++)
+diff --git a/shoplist/src/main/java/com/netguru/codereview/ui/MainFragment.kt b/shoplist/src/main/java/com/netguru/codereview/ui/MainFragment.kt
+new file mode 100644
+index 0000000..024f3e9
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/ui/MainFragment.kt
+@@ -0,0 +1,65 @@
++package com.netguru.codereview.ui
++
++import android.os.Bundle
++import android.util.Log
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import android.widget.ImageView
++import android.widget.ProgressBar
++import android.widget.Toast
++import androidx.core.view.isVisible
++import androidx.fragment.app.Fragment
++import androidx.lifecycle.ViewModelProvider
++import coil.load
++import com.netguru.codereview.network.model.ShopListItemResponse
++import com.netguru.codereview.network.model.ShopListResponse
++import com.netguru.codereview.shoplist.R
++import com.netguru.codereview.ui.model.ShopList
++import javax.inject.Inject
++
++class MainFragment : Fragment() {
++
++    @Inject
++    private var viewModel: MainViewModel? = null
++
++    override fun onCreateView(
++        inflater: LayoutInflater, container: ViewGroup?,
++        savedInstanceState: Bundle?
++    ): View =
++        layoutInflater.inflate(R.layout.main_fragment, container, false)
++
++    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
++        super.onViewCreated(view, savedInstanceState)
++        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
++
++        viewModel!!.shopLists.observe(this, { lists ->
++            val progressBar = view.findViewById<ProgressBar>(R.id.message)
++            val latestIcon = view.findViewById<ImageView>(R.id.latest_list_icon)
++
++            val shopLists = lists.map { mapShopList(it.first, it.second) }.also {
++                latestIcon?.load(it.first().iconUrl)
++            }
++
++            progressBar?.isVisible = false
++
++            Log.i("LOGTAG", "LOLOLOL Is it done already?")
++
++
++            // Display the list in recyclerview
++            // adapter.submitList(shopLists)
++        })
++        viewModel!!.events().observe(this, {
++            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
++        })
++    }
++
++    private fun mapShopList(list: ShopListResponse, items: List<ShopListItemResponse>) =
++        ShopList(
++            list.list_id,
++            list.userId,
++            list.listName,
++            list.listName,
++            items
++        )
++}
+diff --git a/shoplist/src/main/java/com/netguru/codereview/ui/MainViewModel.kt b/shoplist/src/main/java/com/netguru/codereview/ui/MainViewModel.kt
+new file mode 100644
+index 0000000..803b2ee
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/ui/MainViewModel.kt
+@@ -0,0 +1,43 @@
++package com.netguru.codereview.ui
++
++import androidx.lifecycle.LiveData
++import androidx.lifecycle.MutableLiveData
++import androidx.lifecycle.ViewModel
++import androidx.lifecycle.viewModelScope
++import com.netguru.codereview.network.ShopListApiMock
++import com.netguru.codereview.network.ShopListRepository
++import com.netguru.codereview.network.model.ShopListItemResponse
++import com.netguru.codereview.network.model.ShopListResponse
++import kotlinx.coroutines.GlobalScope
++import kotlinx.coroutines.flow.collect
++import kotlinx.coroutines.launch
++
++class MainViewModel : ViewModel() {
++
++    private val shopListRepository = ShopListRepository(ShopListApiMock())
++
++    val shopLists = MutableLiveData<List<Pair<ShopListResponse, List<ShopListItemResponse>>>>()
++    private val eventLiveData = MutableLiveData<String>()
++
++    init {
++        viewModelScope.launch {
++            val lists = shopListRepository.getShopLists()
++            val data = mutableListOf<Pair<ShopListResponse, List<ShopListItemResponse>>>()
++            for (list in lists) {
++                val items = shopListRepository.getShopListItems(list.list_id)
++                data.add(list to items)
++            }
++            shopLists.postValue(data)
++        }
++        getUpdateEvents()
++    }
++
++    fun events(): LiveData<String> = eventLiveData
++    private fun getUpdateEvents() {
++        GlobalScope.launch {
++            shopListRepository.updateEvents().collect {
++                eventLiveData.postValue(it)
++            }
++        }
++    }
++}
+diff --git a/shoplist/src/main/java/com/netguru/codereview/ui/model/ShopList.kt b/shoplist/src/main/java/com/netguru/codereview/ui/model/ShopList.kt
+new file mode 100644
+index 0000000..c72e188
+--- /dev/null
++++ b/shoplist/src/main/java/com/netguru/codereview/ui/model/ShopList.kt
+@@ -0,0 +1,11 @@
++package com.netguru.codereview.ui.model
++
++import com.netguru.codereview.network.model.ShopListItemResponse
++
++class ShopList(
++    val id: String,
++    val userId: Int,
++    val listName: String,
++    val iconUrl: String,
++    val items: List<ShopListItemResponse>
++)
+diff --git a/shoplist/src/main/res/layout/main_fragment.xml b/shoplist/src/main/res/layout/main_fragment.xml
+new file mode 100644
+index 0000000..f95f11b
+--- /dev/null
++++ b/shoplist/src/main/res/layout/main_fragment.xml
+@@ -0,0 +1,44 @@
++<?xml version="1.0" encoding="utf-8"?>
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:id="@+id/main"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:padding="8dp">
++
++    <TextView
++        android:id="@+id/title"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:padding="8dp"
++        android:text="Check out your shopping lists!"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent" />
++
++    <androidx.appcompat.widget.AppCompatImageView
++        android:id="@+id/latest_list_icon"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/title" />
++
++    <ProgressBar
++        android:id="@+id/message"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent" />
++
++    <androidx.recyclerview.widget.RecyclerView
++        android:layout_width="wrap_content"
++        android:layout_height="match_parent"
++        android:padding="8dp"
++        app:layout_constraintBottom_toBottomOf="@id/message"
++        app:layout_constraintEnd_toEndOf="@id/message"
++        app:layout_constraintStart_toStartOf="@id/message"
++        app:layout_constraintTop_toBottomOf="@id/latest_list_icon" />
++
++</androidx.constraintlayout.widget.ConstraintLayout>
